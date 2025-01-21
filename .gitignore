@@ -1,0 +1,31 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Docker
+*.dockerignore
+docker-compose.override.yml
+docker-compose.yml
+
+# Vue.js (frontend)
+frontend/dist/
+frontend/.DS_Store
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Backend
+backend/node_modules/
+backend/npm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

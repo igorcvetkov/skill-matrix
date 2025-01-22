@@ -64,6 +64,13 @@ const db = handleDisconnect();
 // Start server with connection status
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
+  console.log("Environment Variables:", {
+    NODE_ENV: process.env.NODE_ENV,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_NAME: process.env.DB_NAME,
+  });
+
   console.log("\n=== Server Status ===");
   console.log(`✅ Server is running on port ${port}`);
   console.log(`   API Documentation: http://localhost:${port}/api-docs`);

@@ -6,7 +6,14 @@ const dbParams = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  insecureAuth: "true",
+  ssl:
+    process.env.DB_SSL === "true"
+      ? {
+          rejectUnauthorized: true,
+        }
+      : false,
+  connectTimeout: 10000, // Increase timeout for AWS connection
+  // insecureAuth: "true",
 };
 
 const db = mysql.createConnection(dbParams);

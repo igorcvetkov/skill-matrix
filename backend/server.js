@@ -14,12 +14,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/skill-groups", skillGroupsRouter);
-app.use("/api/skill-categories", skillCategoriesRouter);
-app.use("/api/skills", skillsRouter);
-app.use("/api/projects", projectsRouter);
-app.use("/api/person", personRouter);
-
 // Database connection with reconnect handling
 function handleDisconnect() {
   // Create a MySQL connection
@@ -29,7 +23,7 @@ function handleDisconnect() {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    insecureAuth: "true",
+    insecureAuth: process.env.DB_INSECUREAUTH,
   });
 
   db.connect((err) => {
@@ -127,3 +121,9 @@ app.get("/health", async (req, res) => {
     });
   }
 });
+
+app.use("/api/skill-groups", skillGroupsRouter);
+app.use("/api/skill-categories", skillCategoriesRouter);
+app.use("/api/skills", skillsRouter);
+app.use("/api/projects", projectsRouter);
+app.use("/api/person", personRouter);

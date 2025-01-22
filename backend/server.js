@@ -4,8 +4,9 @@ const mysql = require("mysql2");
 const cors = require("cors");
 
 // adding routes
-const skillsRouter = require("./routes/skills");
+const skillGroupsRouter = require("./routes/skill-groups");
 const skillCategoriesRouter = require("./routes/skill-categories");
+const skillsRouter = require("./routes/skills");
 const projectsRouter = require("./routes/projects");
 const personRouter = require("./routes/person");
 
@@ -13,8 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/skills", skillsRouter);
+app.use("/api/skill-groups", skillGroupsRouter);
 app.use("/api/skill-categories", skillCategoriesRouter);
+app.use("/api/skills", skillsRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/person", personRouter);
 

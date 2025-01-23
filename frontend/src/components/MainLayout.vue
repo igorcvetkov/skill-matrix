@@ -1,19 +1,29 @@
 <template>
   <!-- <v-app> -->
   <v-layout class="rounded rounded-md">
-    <v-app-bar title="Application bar"></v-app-bar>
+    <v-app-bar title="Skill Matrix"></v-app-bar>
 
     <v-navigation-drawer location="left" permanent>
       <v-list>
-        <v-list-item title="My Application" subtitle="Vuetify"></v-list-item>
-        <v-divider></v-divider>
-        <v-list-item link title="List Item 1"></v-list-item>
-        <v-list-item link title="List Item 2"></v-list-item>
-        <v-list-item link title="List Item 3"></v-list-item>
+        <v-list-item link title="Skill Groups"></v-list-item>
+        <v-list-item link title="Skill Categories"></v-list-item>
+        <v-list-item link title="Skills"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="d-flex align-center justify-center" style="min-height: 300px"> Main Content </v-main>
+    <v-main>
+      <SkillGroups></SkillGroups>
+    </v-main>
   </v-layout>
   <!-- </v-app> -->
 </template>
+
+<script>
+import SkillGroups from "./SkillGroups.vue";
+
+export default {
+  components: {
+    SkillGroups,
+  },
+};
+</script>

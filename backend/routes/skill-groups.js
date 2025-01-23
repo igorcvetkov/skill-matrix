@@ -25,4 +25,16 @@ router.post("/", (req, res) => {
   });
 });
 
+router.delete("/:id", (req, res) => {
+  const groupId = req.params.id;
+
+  db.query("DELETE FROM skill_group WHERE id = ?", [groupId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to delete group", exception: err });
+    }
+    res.status(204).send();
+  });
+});
+
 module.exports = router;

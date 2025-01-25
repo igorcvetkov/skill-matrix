@@ -1,54 +1,60 @@
 <template>
   <v-card title="Skill Categories" class="align-start">
-    <!-- Error message display -->
-    <v-alert v-if="error" type="error" dismissible>
-      {{ error }}
-    </v-alert>
+    <v-card-text>
+      <!-- Error message display -->
+      <v-alert v-if="error" type="error" dismissible>
+        {{ error }}
+      </v-alert>
 
-    Filter:
-    <v-select
-      v-model="selectedGroupId"
-      :items="availableGroups"
-      item-title="name"
-      item-value="id"
-      label="Group"
-      variant="underlined"
-    ></v-select>
+      Filter:
+      <v-select
+        v-model="selectedGroupId"
+        :items="availableGroups"
+        item-title="name"
+        item-value="id"
+        label="Group"
+        variant="outlined"
+      ></v-select>
 
-    Rows:
-    <v-list class="align-start">
-      <v-list-item
-        v-for="category in categories"
-        :key="category.id"
-        @click="selectSkillcategory(category)"
-        class="align-start"
-      >
-        <v-list-item-title>{{ category.name }}</v-list-item-title>
-        <template v-slot:append>
-          <v-list-item-action>
-            <v-btn @click.stop="deleteCategory(category.id)" icon>
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </template>
-      </v-list-item>
-    </v-list>
+      Rows:
+      <v-list class="align-start">
+        <v-list-item
+          v-for="category in categories"
+          :key="category.id"
+          @click="selectSkillcategory(category)"
+          class="align-start"
+        >
+          <v-list-item-title>{{ category.name }}</v-list-item-title>
+          <template v-slot:append>
+            <v-list-item-action>
+              <v-btn @click.stop="deleteCategory(category.id)" icon>
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </template>
+        </v-list-item>
+      </v-list>
+    </v-card-text>
   </v-card>
 
-  <!-- New Category -->
-  <v-form v-on:submit="handleAdd" @submit.prevent>
-    selected group id: {{ selectedGroupId }}
-    <v-select
-      v-model="selectedGroupId"
-      :items="availableGroups"
-      item-title="name"
-      item-value="id"
-      label="Group"
-      required
-    ></v-select>
-    <v-text-field v-model="newCategoryName" label="category Name" required></v-text-field>
-    <v-btn type="submit">Add Skill category</v-btn>
-  </v-form>
+  <v-card title="New Category">
+    <!-- New Category -->
+    <v-card-text>
+      <v-form v-on:submit="handleAdd" @submit.prevent>
+        <v-select
+          variant="outlined"
+          v-model="selectedGroupId"
+          :items="availableGroups"
+          item-title="name"
+          item-value="id"
+          label="Group"
+          required
+        ></v-select>
+        <v-text-field variant="outlined" v-model="newCategoryName" label="category Name" required></v-text-field>
+        <v-btn type="submit">Add Skill category</v-btn>
+      </v-form>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>

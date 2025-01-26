@@ -13,6 +13,7 @@
     "core-js": "^3.8.3",
     "dotenv": "^16.4.7",
     "vue": "^3.2.13",
+    "vue-router": "^4.5.0",
     "vuetify": "^3.7.7"
   },
   "devDependencies": {

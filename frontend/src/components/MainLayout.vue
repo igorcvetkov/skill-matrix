@@ -6,16 +6,27 @@
 
         <v-navigation-drawer location="left" permanent>
           <v-list>
-            <v-list-item v-on:click="handleMenuItemSelect('groups')" title="Skill Groups"></v-list-item>
-            <v-list-item v-on:click="handleMenuItemSelect('categories')" title="Skill Categories"></v-list-item>
+            <v-list-item
+              v-on:click="handleMenuItemSelect('groups')"
+              title="Skill Groups"
+              :to="{ name: 'SkillGroups' }"
+              router
+            ></v-list-item>
+            <v-list-item
+              v-on:click="handleMenuItemSelect('categories')"
+              title="Skill Categories"
+              :to="{ name: 'SkillCategories' }"
+              router
+            ></v-list-item>
             <v-list-item v-on:click="handleMenuItemSelect('skills')" title="Skills"></v-list-item>
           </v-list>
         </v-navigation-drawer>
 
         <v-main>
           <v-container>
-            <SkillGroups v-if="selectedMenu === 'groups'"></SkillGroups>
-            <SkillCategories v-if="selectedMenu === 'categories'"></SkillCategories>
+            <RouterView></RouterView>
+            <!-- <SkillGroups v-if="selectedMenu === 'groups'"></SkillGroups>
+            <SkillCategories v-if="selectedMenu === 'categories'"></SkillCategories> -->
           </v-container>
         </v-main>
       </v-layout>
@@ -24,13 +35,13 @@
 </template>
 
 <script>
-import SkillGroups from "./SkillGroups.vue";
-import SkillCategories from "./SkillCategories.vue";
+// import SkillGroups from "./SkillGroups.vue";
+// import SkillCategories from "./SkillCategories.vue";
 
 export default {
   components: {
-    SkillGroups,
-    SkillCategories,
+    // SkillGroups,
+    // SkillCategories,
   },
   data() {
     return {

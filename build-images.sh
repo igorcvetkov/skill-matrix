@@ -1,1 +1,1 @@
-docker-compose --env-file .env.local up --build                                     
+NODE_ENV=local docker-compose up --build                                     

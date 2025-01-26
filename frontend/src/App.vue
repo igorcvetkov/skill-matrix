@@ -1,28 +1,61 @@
 <template>
+  <h1>Welcome to My App</h1>
+  <button @click="login">Login</button>
+  <button @click="logout">Logout</button>
+  <div v-if="user">
+    <h2>Hello, {{ user.name }}</h2>
+  </div>
+  <!-- <HeaderBarLink></HeaderBarLink> -->
+  <!-- <HelloWorld></HelloWorld> -->
   <MainLayout></MainLayout>
-  <!-- <img alt="Vue logo" src="./assets/logo.png" /> <HelloWorld msg="Welcome to Your Vue.js App" /> -->
 </template>
 
 <script>
-// import HelloWorld from "./components/HelloWorld.vue";
+import { msalInstance } from "./config/msalConfig";
 import MainLayout from "./components/MainLayout.vue";
 
 export default {
   name: "App",
   components: {
-    // HelloWorld,
     MainLayout,
+  },
+  data() {
+    return {
+      user: null,
+    };
+  },
+  methods: {
+    login() {
+      const loginRequest = {
+        scopes: ["User.Read"], // Add any scopes you need
+      };
+
+      msalInstance.loginRedirect(loginRequest).catch((error) => {
+        console.error("Login error:", error);
+      });
+    },
+    logout() {
+      msalInstance.logout();
+    },
+  },
+  async mounted() {
+    await msalInstance.initialize();
+    // Handle redirect response
+    msalInstance
+      .handleRedirectPromise()
+      .then((response) => {
+        if (response) {
+          this.user = response.account; // Set the user if login was successful
+        } else {
+          const accounts = msalInstance.getAllAccounts();
+          if (accounts.length > 0) {
+            this.user = accounts[0]; // Set the user if already logged in
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect error:", error);
+      });
   },
 };
 </script>
-
-<style>
-#app {
-  /* font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px; */
-}
-</style>

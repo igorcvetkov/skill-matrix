@@ -5,8 +5,8 @@
 
 # Docker
 *.dockerignore
-docker-compose.override.yml
-docker-compose.yml
+# docker-compose.override.yml
+# docker-compose.yml
 
 # Vue.js (frontend)
 frontend/dist/

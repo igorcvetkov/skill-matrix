@@ -1,1 +1,1 @@
-docker-compose --env-file .env.prod up --build                                     
+NODE_ENV=prod docker-compose up --build                                     

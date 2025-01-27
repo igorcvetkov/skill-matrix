@@ -59,9 +59,7 @@ router.post("/", (req, res) => {
 
     try {
       // Insert project
-      const [projectResult] = await db
-        .promise()
-        .query("INSERT INTO project (name, description) VALUES (?, ?)", [name, description]);
+      const [projectResult] = await db.promise().query("INSERT INTO project (name) VALUES (?)", [name]);
       const projectId = projectResult.insertId;
 
       // Insert project skills
@@ -97,6 +95,18 @@ router.post("/", (req, res) => {
       console.error(error);
       res.status(500).json({ error: "Failed to create project" });
     }
+  });
+});
+
+router.delete("/:id", (req, res) => {
+  const categoryId = req.params.id;
+
+  db.query("DELETE FROM project WHERE id = ?", [categoryId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to delete project", exception: err });
+    }
+    res.status(204).send();
   });
 });
 

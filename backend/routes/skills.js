@@ -7,7 +7,7 @@ router.get("/", (req, res) => {
   const query = `
       SELECT s.*, sc.name as category_name 
       FROM skill s 
-      LEFT JOIN skill_category sc ON s.category = sc.id
+      LEFT JOIN skill_category sc ON s.category_id = sc.id
     `;
   db.query(query, (err, results) => {
     if (err) {
@@ -26,6 +26,18 @@ router.post("/", (req, res) => {
       return res.status(500).json({ error: "Failed to create skill" });
     }
     res.status(201).json({ id: result.insertId, name, category_id });
+  });
+});
+
+router.delete("/:id", (req, res) => {
+  const skillId = req.params.id;
+
+  db.query("DELETE FROM skill WHERE id = ?", [skillId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to delete skill", exception: err });
+    }
+    res.status(204).send();
   });
 });
 

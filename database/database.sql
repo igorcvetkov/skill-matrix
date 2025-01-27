@@ -1,10 +1,11 @@
-DROP TABLE IF EXISTS `skill`;
 DROP TABLE IF EXISTS `project_member`;
 DROP TABLE IF EXISTS `project`;
+DROP TABLE IF EXISTS `person_skill`;
+DROP TABLE IF EXISTS `skill`;
 DROP TABLE IF EXISTS `skill_category`;
 DROP TABLE IF EXISTS `skill_group`;
-DROP TABLE IF EXISTS `person_skill`;
 DROP TABLE IF EXISTS `project_skill`;
+
 
 
 CREATE TABLE `skill_group` (
@@ -28,10 +29,11 @@ CREATE TABLE `skill_category` (
 CREATE TABLE `skill` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `category` int NOT NULL,
+  `category_id` int NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `name_UNIQUE` (`name`)
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  FOREIGN KEY (`category_id`) REFERENCES `skill_category`(`id`)
 ) ;
 
 CREATE TABLE `project` (

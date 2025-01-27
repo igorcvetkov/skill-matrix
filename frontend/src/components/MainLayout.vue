@@ -6,19 +6,10 @@
 
         <v-navigation-drawer location="left" permanent>
           <v-list>
-            <v-list-item
-              v-on:click="handleMenuItemSelect('groups')"
-              title="Skill Groups"
-              :to="{ name: 'SkillGroups' }"
-              router
-            ></v-list-item>
-            <v-list-item
-              v-on:click="handleMenuItemSelect('categories')"
-              title="Skill Categories"
-              :to="{ name: 'SkillCategories' }"
-              router
-            ></v-list-item>
-            <v-list-item v-on:click="handleMenuItemSelect('skills')" title="Skills"></v-list-item>
+            <v-list-item title="Projects" :to="{ name: 'Projects' }" router></v-list-item>
+            <v-list-item title="Skill Groups" :to="{ name: 'SkillGroups' }" router></v-list-item>
+            <v-list-item title="Skill Categories" :to="{ name: 'SkillCategories' }" router></v-list-item>
+            <v-list-item title="Skills" :to="{ name: 'Skills' }" router></v-list-item>
           </v-list>
         </v-navigation-drawer>
 
@@ -35,23 +26,11 @@
 </template>
 
 <script>
-// import SkillGroups from "./SkillGroups.vue";
-// import SkillCategories from "./SkillCategories.vue";
-
 export default {
-  components: {
-    // SkillGroups,
-    // SkillCategories,
-  },
+  components: {},
   data() {
-    return {
-      selectedMenu: "",
-    };
+    return {};
   },
-  methods: {
-    handleMenuItemSelect(item) {
-      this.selectedMenu = item;
-    },
-  },
+  methods: {},
 };
 </script>

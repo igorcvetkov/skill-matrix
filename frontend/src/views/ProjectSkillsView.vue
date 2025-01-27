@@ -118,7 +118,7 @@ export default {
     },
     async fetchProjectSkills() {
       try {
-        this.projectSkills = projectSkillService.loadProjectSkills(); // Assuming the API returns an array of Project
+        this.projectSkills = await projectSkillService.loadProjectSkills(); // Assuming the API returns an array of Project
         console.log(this.projectSkills);
         this.error = null;
       } catch (error) {

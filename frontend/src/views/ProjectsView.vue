@@ -1,5 +1,10 @@
 <template>
-  <v-card title="Projects" class="align-start">
+  <v-card class="align-start">
+    <v-toolbar title="Projects">
+      <v-spacer></v-spacer>
+      <v-btn variant="elevated" @click="newProjectDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
+      <v-btn icon> </v-btn>
+    </v-toolbar>
     <v-card-text>
       <!-- Error message display -->
       <v-alert v-if="error" type="error" dismissible>
@@ -16,19 +21,23 @@
               </v-btn>
             </v-list-item-action>
           </template>
+          <v-divider></v-divider>
         </v-list-item>
       </v-list>
     </v-card-text>
   </v-card>
 
-  <v-card title="New Project">
-    <v-card-text>
-      <v-form v-on:submit="handleAddProject" @submit.prevent>
-        <v-text-field variant="outlined" v-model="newName" label="Project Name" required></v-text-field>
-        <v-btn type="submit">Add Project</v-btn>
-      </v-form>
-    </v-card-text>
-  </v-card>
+  <!-- configrmation to delete project -->
+  <v-dialog v-model="newProjectDialog" persistent max-width="500px">
+    <v-card title="New Project">
+      <v-card-text>
+        <v-form v-on:submit="handleAddProject" @submit.prevent>
+          <v-text-field variant="outlined" v-model="newName" label="Project Name" required></v-text-field>
+          <v-btn type="submit">Add Project</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 
   <!-- configrmation to delete project -->
   <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
@@ -57,6 +66,7 @@ export default {
       error: null,
       projectIdToDelete: null,
       confirmDeleteDialog: false,
+      newProjectDialog: false,
     };
   },
   created() {
@@ -86,6 +96,8 @@ export default {
       } catch (error) {
         console.error("Error adding project :", error);
         this.error = error.message;
+      } finally {
+        this.newProjectDialog = false;
       }
     },
     async deleteProject() {

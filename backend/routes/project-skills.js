@@ -11,6 +11,7 @@ router.get("/", (req, res) => {
         console.error(err);
         return res.status(500).json({ error: "Failed to fetch projects" });
       }
+      console.info(results);
       res.json(results);
     }
   );

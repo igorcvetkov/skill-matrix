@@ -6,8 +6,6 @@ DROP TABLE IF EXISTS `skill_category`;
 DROP TABLE IF EXISTS `skill_group`;
 DROP TABLE IF EXISTS `project_skill`;
 
-
-
 CREATE TABLE `skill_group` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -72,3 +70,27 @@ CREATE TABLE `project_skill` (
   FOREIGN KEY (`project_id`) REFERENCES `project`(`id`),
   FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`)
 ) ;
+
+-- Create views
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `project_skill_details` AS
+    SELECT 
+        `ps`.`id` AS `id`,
+        `ps`.`project_id` AS `project_id`,
+        `ps`.`skill_id` AS `skill_id`,
+        `p`.`name` AS `project_name`,
+        `s`.`name` AS `skill_name`,
+        `sc`.`name` AS `cateogory_name`,
+        `sc`.`id` AS `category_id`,
+        `sg`.`name` AS `group_name`,
+        `sg`.`id` AS `group_id`
+    FROM
+        ((((`project_skill` `ps`
+        LEFT JOIN `project` `p` ON ((`p`.`id` = `ps`.`project_id`)))
+        LEFT JOIN `skill` `s` ON ((`s`.`id` = `ps`.`skill_id`)))
+        LEFT JOIN `skill_category` `sc` ON ((`sc`.`id` = `s`.`category_id`)))
+        LEFT JOIN `skill_group` `sg` ON ((`sg`.`id` = `sc`.`group_id`)))

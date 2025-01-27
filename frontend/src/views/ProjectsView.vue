@@ -46,6 +46,7 @@
 
 <script>
 import axios from "axios";
+import projectService from "@/services/projectService";
 
 export default {
   data() {
@@ -64,8 +65,8 @@ export default {
   methods: {
     async loadProjects() {
       try {
-        const response = await axios.get("http://localhost:3000/api/projects");
-        this.projects = response.data; // Assuming the API returns an array of Project
+        const response = await projectService.loadProjects();
+        this.projects = response; // Assuming the API returns an array of Project
         this.error = null;
       } catch (error) {
         console.error("Error loading projects :", error);
@@ -87,7 +88,7 @@ export default {
         this.error = error.message;
       }
     },
-    async deleteProject(id) {
+    async deleteProject() {
       console.debug("Deleting project " + this.projectIdToDelete);
 
       try {

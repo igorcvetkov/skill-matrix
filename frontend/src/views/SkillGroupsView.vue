@@ -51,6 +51,7 @@
 
 <script>
 import axios from "axios";
+import categoryGroupService from "@/services/categoryGroupService";
 
 export default {
   data() {
@@ -70,8 +71,8 @@ export default {
   methods: {
     async loadSkillGroups() {
       try {
-        const response = await axios.get("http://localhost:3000/api/skill-groups");
-        this.skillGroups = response.data; // Assuming the API returns an array of skill groups
+        this.skillGroups = await categoryGroupService.load();
+        console.log(this.skillGroups);
         this.error = null;
       } catch (error) {
         console.error("Error loading skill groups:", error);

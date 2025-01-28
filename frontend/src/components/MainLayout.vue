@@ -2,7 +2,11 @@
   <v-responsive>
     <v-app>
       <v-layout class="rounded rounded-md">
-        <v-app-bar title="Skill Matrix"></v-app-bar>
+        <v-app-bar app>
+          <v-toolbar-title>Skill Matrix</v-toolbar-title>
+          <v-spacer></v-spacer>{{ user.name }}
+          <v-btn text>logout</v-btn>
+        </v-app-bar>
 
         <v-navigation-drawer location="left" permanent>
           <v-list>
@@ -17,8 +21,6 @@
         <v-main>
           <v-container>
             <RouterView></RouterView>
-            <!-- <SkillGroups v-if="selectedMenu === 'groups'"></SkillGroups>
-            <SkillCategories v-if="selectedMenu === 'categories'"></SkillCategories> -->
           </v-container>
         </v-main>
       </v-layout>
@@ -29,6 +31,12 @@
 <script>
 export default {
   components: {},
+  props: {
+    user: {
+      type: Object,
+      required: true, // Ensure user prop is passed
+    },
+  },
   data() {
     return {};
   },

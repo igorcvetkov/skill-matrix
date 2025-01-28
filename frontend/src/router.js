@@ -16,7 +16,7 @@ const router = createRouter({
       component: SkillGroups,
     },
     {
-      path: "/categories",
+      path: "/categories/:groupId?",
       name: "SkillCategories",
       component: SkillCategories,
     },
@@ -31,7 +31,7 @@ const router = createRouter({
       component: ProjectsView,
     },
     {
-      path: "/project-skills",
+      path: "/project-skills/:projectId?",
       name: "ProjectSkills",
       component: ProjectSkillsView,
     },

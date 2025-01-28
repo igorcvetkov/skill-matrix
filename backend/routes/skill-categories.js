@@ -4,7 +4,7 @@ const db = require("../config/database");
 
 // Skill Categories endpoints
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM skill_category", (err, results) => {
+  db.query("SELECT * FROM skill_category_details", (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Failed to fetch skill categories" });

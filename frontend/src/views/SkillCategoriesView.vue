@@ -2,7 +2,8 @@
   <v-card class="align-start">
     <v-toolbar title="Skill Categories">
       <v-spacer></v-spacer>
-      <v-btn variant="elevated" @click="newItemDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
+      <v-btn variant="elevated" @click="newDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
+      <v-btn variant="elevated" @click="newBulkDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add bulk</v-btn>
     </v-toolbar>
     <v-card-text>
       <!-- Error message display -->
@@ -10,59 +11,106 @@
         {{ error }}
       </v-alert>
 
-      Filter:
-      <v-select
-        v-model="selectedGroupId"
-        :items="availableGroups"
-        item-title="name"
-        item-value="id"
-        label="Group"
-        variant="outlined"
-      ></v-select>
-
-      Rows:
-      <v-list class="align-start">
-        <v-list-item
-          v-for="category in categories"
-          :key="category.id"
-          @click="selectSkillcategory(category)"
-          class="align-start"
-        >
-          <v-list-item-title>{{ category.name }}</v-list-item-title>
-          <template v-slot:append>
-            <v-list-item-action>
-              <v-btn @click.stop="deleteCategory(category.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </template>
-        </v-list-item>
-      </v-list>
+      <v-row>
+        <v-col cols="4">
+          <v-card title="Group Filter">
+            <v-card-text>
+              <v-list
+                selectable
+                slim
+                v-model:selected="selectedGroupId"
+                :items="availableGroups"
+                item-value="id"
+                item-title="name"
+              ></v-list>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col
+          ><v-list class="align-start">
+            <v-list-item
+              v-for="category in categories"
+              :key="category.id"
+              @click="selectSkillcategory(category)"
+              class="align-start"
+            >
+              <v-list-item-title>{{ category.name }}</v-list-item-title>
+              <v-list-item-subtitle>{{ category.group_name }}</v-list-item-subtitle>
+              <template v-slot:append>
+                <v-list-item-action>
+                  <v-btn @click.stop="confirmDelete(category.id)" icon>
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-col>
+      </v-row>
     </v-card-text>
   </v-card>
 
-  <v-card title="New Category">
-    <!-- New Category -->
-    <v-card-text>
-      <v-form v-on:submit="handleAdd" @submit.prevent>
-        <v-select
-          variant="outlined"
-          v-model="selectedGroupId"
-          :items="availableGroups"
-          item-title="name"
-          item-value="id"
-          label="Group"
-          required
-        ></v-select>
-        <v-text-field variant="outlined" v-model="newCategoryName" label="category Name" required></v-text-field>
-        <v-btn type="submit">Add Skill category</v-btn>
-      </v-form>
-    </v-card-text>
-  </v-card>
+  <!-- New Category -->
+  <v-dialog v-model="newDialog" max-width="500px">
+    <v-card title="New Category">
+      <v-card-text>
+        <v-form v-on:submit="handleAdd" @submit.prevent>
+          <v-select
+            variant="outlined"
+            v-model="selectedGroupId"
+            :items="availableGroups"
+            item-title="name"
+            item-value="id"
+            label="Group"
+            required
+          ></v-select>
+          <v-text-field variant="outlined" v-model="newCategoryName" label="Category Name" required></v-text-field>
+          <v-btn type="submit">Add Skill category</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <!-- New Bulk Category -->
+  <v-dialog v-model="newBulkDialog" max-width="500px">
+    <v-card title="New Categories">
+      <v-card-text>
+        <v-form v-on:submit="handleAddBulk" @submit.prevent>
+          <v-select
+            variant="outlined"
+            v-model="selectedGroupId"
+            :items="availableGroups"
+            item-title="name"
+            item-value="id"
+            label="Group"
+            required
+          ></v-select>
+          <v-textarea variant="outlined" v-model="newCategories" label="Category Names" required></v-textarea>
+          <!-- <v-text-field variant="outlined" v-model="newCategoryName" label="Category Name" required></v-text-field> -->
+          <v-btn type="submit">Add Categories</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <!-- configrmation to delete -->
+  <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
+    <v-card>
+      <v-card-title class="headline">Confirm Delete</v-card-title>
+      <v-card-text>Are you sure you want to delete this group?</v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="deleteCategory">Yes</v-btn>
+        <v-btn color="red darken-1" text @click="confirmDeleteDialog = false">No</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import axios from "axios";
+import categoryGroupService from "@/services/categoryGroupService";
+import categoryService from "@/services/categoryService";
 
 export default {
   data() {
@@ -72,6 +120,10 @@ export default {
       newCategoryName: "", // Model for new category name input
       selectedGroupId: null, // Track the selected skill category
       error: null,
+      newDialog: false,
+      newBulkDialog: false,
+      confirmDeleteDialog: false,
+      categoryIdToDelete: null,
     };
   },
   created() {
@@ -81,8 +133,7 @@ export default {
   methods: {
     async loadData() {
       try {
-        const response = await axios.get("http://localhost:3000/api/skill-categories");
-        this.categories = response.data; // Assuming the API returns an array of skill categories
+        this.categories = await categoryService.load();
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -91,8 +142,7 @@ export default {
     },
     async loadGroups() {
       try {
-        const response = await axios.get("http://localhost:3000/api/skill-groups");
-        this.availableGroups = response.data; // Assuming the API returns an array of skill groups
+        this.availableGroups = await categoryGroupService.load(); // Assuming the API returns an array of skill groups
         this.error = null;
       } catch (error) {
         console.error("Error loading skill groups:", error);
@@ -113,9 +163,35 @@ export default {
       } catch (error) {
         console.error("Error adding skill category:", error);
         this.error = error.message;
+      } finally {
+        this.newCategoryName = null;
+        this.newDialog = false;
       }
     },
-    async deleteCategory(id) {
+    async handleAddBulk() {
+      const newCategories = {
+        name: this.newCategoryName,
+        groupId: this.selectedGroupId,
+      };
+      try {
+        const response = await axios.post("http://localhost:3000/api/skill-categories", newCategories);
+        this.categories.push(response.data); // Assuming the API returns an array of skill categories
+        this.error = null;
+        this.newCategoryName = ""; // Clear input field
+      } catch (error) {
+        console.error("Error adding skill category:", error);
+        this.error = error.message;
+      } finally {
+        this.newCategoryName = null;
+        this.newBulkDialog = false;
+      }
+    },
+    confirmDelete(id) {
+      this.categoryIdToDelete = id;
+      this.confirmDeleteDialog = true;
+    },
+    async deleteCategory() {
+      const id = this.categoryIdToDelete;
       console.debug("Deleting category " + id);
 
       try {
@@ -125,6 +201,9 @@ export default {
       } catch (error) {
         console.error("Error deleting skill category:", error);
         this.error = error.message;
+      } finally {
+        this.categoryIdToDelete = null;
+        this.confirmDeleteDialog = false;
       }
     },
     selectSkillcategory(category) {

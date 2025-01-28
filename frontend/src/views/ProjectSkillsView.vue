@@ -1,4 +1,6 @@
 <template>
+  {{ $route.params.projectId }}pid
+  {{ projectId }}
   <v-card class="align-start">
     <v-toolbar title="Project Skills">
       <v-spacer></v-spacer>
@@ -9,6 +11,19 @@
       <v-alert v-if="error" type="error" dismissible>
         {{ error }}
       </v-alert>
+
+      <v-toolbar dense floating>
+        <!-- <v-text-field prepend-icon="mdi-magnify" hide-details single-line></v-text-field> -->
+        <v-select
+          label="Project"
+          v-model="projectId"
+          :items="availableProjects"
+          item-title="name"
+          item-value="id"
+        ></v-select>
+        <v-select label="Group" v-model="groupId" :items="availableGroups" item-title="name" item-value="id"></v-select>
+        <v-select label="Category"></v-select>
+      </v-toolbar>
 
       <v-data-iterator :items="projectSkills">
         <template v-slot:default="{ items }">
@@ -58,7 +73,7 @@
       <v-form v-on:submit="handleAddProjectSkill" @submit.prevent>
         <v-select
           variant="outlined"
-          v-model="selectedProjectId"
+          v-model="projectId"
           :items="availableProjects"
           item-title="name"
           item-value="id"
@@ -114,6 +129,7 @@
 <script>
 import axios from "axios";
 import projectService from "@/services/projectService";
+import categoryGroupService from "@/services/categoryGroupService";
 import projectSkillService from "@/services/projectSkillService";
 
 export default {
@@ -126,8 +142,8 @@ export default {
       availableProjects: [],
       availableSkills: [],
       selectedCategoryId: null,
-      selectedGroupId: null,
-      selectedProjectId: null,
+      groupId: null,
+      projectId: null,
       selectedSkillId: null,
       newSkillId: null,
       newProjectId: null,
@@ -137,27 +153,53 @@ export default {
     };
   },
   created() {
-    this.fetchProjectSkills();
+    this.initData();
+    this.projectId = Number(this.$route.params.projectId);
+  },
+  watch: {
+    projectId(newValue) {
+      this.$router.push({ name: "ProjectSkills", params: { projectId: newValue } });
+    },
   },
   methods: {
+    async initData() {
+      await this.loadProjects();
+      await this.loadGroups();
+      await this.fetchProjectSkills();
+    },
     async loadProjects() {
       try {
-        this.availableProjects = projectService.loadProjects();
+        this.availableProjects = await projectService.loadProjects();
         this.error = null;
       } catch (error) {
         this.error = error;
       }
     },
+    async loadGroups() {
+      try {
+        this.availableGroups = await categoryGroupService.load();
+        this.error = null;
+      } catch (error) {
+        console.error("Error loading skill groups:", error);
+        this.error = error.message;
+      }
+    },
+    async loadCategories() {
+      try {
+        this.availableGroups = await categoryGroupService.load();
+        this.error = null;
+      } catch (error) {
+        console.error("Error loading skill groups:", error);
+        this.error = error.message;
+      }
+    },
     async fetchProjectSkills() {
       try {
         this.projectSkills = await projectSkillService.loadProjectSkills(); // Assuming the API returns an array of Project
-        // console.log(this.projectSkills);
         this.error = null;
       } catch (error) {
         console.error("Error loading ProjectSkills :", error);
         this.error = error.message;
-      } finally {
-        // console.log("fetched");
       }
     },
     async handleAddProject() {

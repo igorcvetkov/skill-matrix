@@ -93,4 +93,20 @@ VIEW `project_skill_details` AS
         LEFT JOIN `project` `p` ON ((`p`.`id` = `ps`.`project_id`)))
         LEFT JOIN `skill` `s` ON ((`s`.`id` = `ps`.`skill_id`)))
         LEFT JOIN `skill_category` `sc` ON ((`sc`.`id` = `s`.`category_id`)))
-        LEFT JOIN `skill_group` `sg` ON ((`sg`.`id` = `sc`.`group_id`)))
+        LEFT JOIN `skill_group` `sg` ON ((`sg`.`id` = `sc`.`group_id`)));
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `skill_category_details` AS
+    SELECT 
+        `sc`.`id` AS `id`,
+        `sc`.`name` AS `name`,
+        `sc`.`group_id` AS `group_id`,
+        `sg`.`name` AS `group_name`
+    FROM
+        (`skill_category` `sc`
+        LEFT JOIN `skill_group` `sg` ON (`sg`.`id` = `sc`.`group_id`));
+        

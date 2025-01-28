@@ -1,12 +1,8 @@
 <template>
   <button @click="login">Login</button>
   <button @click="logout">Logout</button>
-  <div v-if="user">
-    <h2>Hello, {{ user.name }}</h2>
-  </div>
-  <!-- <HeaderBarLink></HeaderBarLink> -->
-  <!-- <HelloWorld></HelloWorld> -->
-  <MainLayout></MainLayout>
+
+  <MainLayout :user="user"></MainLayout>
 </template>
 
 <script>
@@ -20,7 +16,7 @@ export default {
   },
   data() {
     return {
-      user: null,
+      user: {},
     };
   },
   methods: {

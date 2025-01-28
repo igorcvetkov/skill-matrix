@@ -4,17 +4,14 @@ const db = require("../config/database");
 
 // Projects endpoints
 router.get("/", (req, res) => {
-  db.query(
-    "select id, project_id, skill_id, project_name, skill_name, cateogory_name, category_id, group_name, group_id from project_skill_details",
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Failed to fetch projects" });
-      }
-      console.info(results);
-      res.json(results);
+  db.query("select * from project_skill_details", (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to fetch projects" });
     }
-  );
+    console.info(results);
+    res.json(results);
+  });
 });
 
 router.get("/:id", (req, res) => {

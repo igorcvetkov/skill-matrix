@@ -84,7 +84,7 @@ VIEW `project_skill_details` AS
         `ps`.`skill_id` AS `skill_id`,
         `p`.`name` AS `project_name`,
         `s`.`name` AS `skill_name`,
-        `sc`.`name` AS `cateogory_name`,
+        `sc`.`name` AS `category_name`,
         `sc`.`id` AS `category_id`,
         `sg`.`name` AS `group_name`,
         `sg`.`id` AS `group_id`

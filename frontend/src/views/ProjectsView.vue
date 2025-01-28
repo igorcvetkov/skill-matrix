@@ -1,9 +1,8 @@
 <template>
-  <v-card class="align-start">
+  <v-card class="align-start" max-width="600px">
     <v-toolbar title="Projects">
       <v-spacer></v-spacer>
       <v-btn variant="elevated" @click="newProjectDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
-      <v-btn icon> </v-btn>
     </v-toolbar>
     <v-card-text>
       <!-- Error message display -->
@@ -16,6 +15,9 @@
           <v-list-item-title>{{ project.name }}</v-list-item-title>
           <template v-slot:append>
             <v-list-item-action>
+              <v-btn icon :to="{ name: 'ProjectSkills' }" router>
+                <v-icon>mdi-view-list</v-icon>
+              </v-btn>
               <v-btn @click.stop="confirmDeleteProject(project.id)" icon>
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
@@ -27,8 +29,8 @@
     </v-card-text>
   </v-card>
 
-  <!-- configrmation to delete project -->
-  <v-dialog v-model="newProjectDialog" persistent max-width="500px">
+  <!-- new project -->
+  <v-dialog v-model="newProjectDialog" max-width="500px">
     <v-card title="New Project">
       <v-card-text>
         <v-form v-on:submit="handleAddProject" @submit.prevent>

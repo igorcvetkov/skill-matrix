@@ -1,5 +1,9 @@
 <template>
-  <v-card title="Skill Groups" class="align-start">
+  <v-card class="align-start">
+    <v-toolbar title=" Skills Groups">
+      <v-spacer></v-spacer>
+      <v-btn variant="elevated" @click="newDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
+    </v-toolbar>
     <!-- Error message display -->
     <v-alert v-if="error" type="error" dismissible>
       {{ error }}
@@ -10,7 +14,7 @@
         <v-list-item-title>{{ group.name }}</v-list-item-title>
         <template v-slot:append>
           <v-list-item-action>
-            <v-btn @click.stop="deleteSkillGroup(group.id)" icon>
+            <v-btn @click.stop="confirmDeleteSkillGroup(group.id)" icon>
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </v-list-item-action>
@@ -19,10 +23,30 @@
     </v-list>
   </v-card>
 
-  <v-form v-on:submit="handleAddSkillGroup" @submit.prevent>
-    <v-text-field v-model="newGroupName" label="Group Name" required></v-text-field>
-    <v-btn type="submit">Add Skill Group</v-btn>
-  </v-form>
+  <!-- new skill group -->
+  <v-dialog v-model="newDialog" max-width="500px">
+    <v-card title="New Group">
+      <v-card-text>
+        <v-form v-on:submit="handleAddSkillGroup" @submit.prevent>
+          <v-text-field v-model="newGroupName" label="Group Name" required></v-text-field>
+          <v-btn type="submit">Add Skill Group</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <!-- configrmation to delete -->
+  <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
+    <v-card>
+      <v-card-title class="headline">Confirm Delete</v-card-title>
+      <v-card-text>Are you sure you want to delete this group?</v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="deleteGroup">Yes</v-btn>
+        <v-btn color="red darken-1" text @click="confirmDeleteDialog = false">No</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -35,6 +59,9 @@ export default {
       newGroupName: "", // Model for new group name input
       selectedGroup: null, // Track the selected skill group
       error: null,
+      newDialog: false,
+      confirmDeleteDialog: false,
+      groupToDeleteId: null,
     };
   },
   created() {
@@ -52,7 +79,6 @@ export default {
       }
     },
     async handleAddSkillGroup() {
-      console.debug("Creating new group " + this.newGroupName);
       const newGroup = {
         name: this.newGroupName,
       };
@@ -60,14 +86,21 @@ export default {
         const response = await axios.post("http://localhost:3000/api/skill-groups", newGroup);
         this.skillGroups.push(response.data); // Assuming the API returns an array of skill groups
         this.error = null;
-        this.newGroupName = ""; // Clear input field
       } catch (error) {
         console.error("Error adding skill group:", error);
         this.error = error.message;
+      } finally {
+        this.newGroupName = ""; // Clear input field
+        this.newDialog = false;
       }
     },
-    async deleteSkillGroup(id) {
-      console.debug("Deleting group " + id);
+    confirmDeleteSkillGroup(id) {
+      this.groupToDeleteId = id;
+      this.confirmDeleteDialog = true;
+    },
+    async deleteGroup() {
+      console.debug("Deleting group " + this.groupToDeleteId);
+      const id = this.groupToDeleteId;
 
       try {
         await axios.delete("http://localhost:3000/api/skill-groups/" + id);
@@ -76,6 +109,9 @@ export default {
       } catch (error) {
         console.error("Error deleting skill group:", error);
         this.error = error.message;
+      } finally {
+        this.groupToDeleteId = null;
+        this.confirmDeleteDialog = false;
       }
     },
     selectSkillGroup(group) {

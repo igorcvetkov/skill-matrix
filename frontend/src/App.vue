@@ -1,5 +1,4 @@
 <template>
-  <h1>Welcome to My App</h1>
   <button @click="login">Login</button>
   <button @click="logout">Logout</button>
   <div v-if="user">

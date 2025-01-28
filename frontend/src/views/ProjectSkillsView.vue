@@ -1,12 +1,43 @@
 <template>
-  <v-card title="Project Skills" class="align-start">
+  <v-card class="align-start">
+    <v-toolbar title="Project Skills">
+      <v-spacer></v-spacer>
+      <v-btn variant="elevated" @click="newItemDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
+    </v-toolbar>
     <v-card-text>
       <!-- Error message display -->
       <v-alert v-if="error" type="error" dismissible>
         {{ error }}
       </v-alert>
 
-      <v-list class="align-start">
+      <v-data-iterator :items="projectSkills">
+        <template v-slot:default="{ items }">
+          <v-row>
+            <v-col cols="columnWidth">Project</v-col>
+            <v-col cols="columnWidth">Group</v-col>
+            <v-col cols="columnWidth">Category</v-col>
+            <v-col cols="columnWidth">Skill</v-col>
+            <v-col cols="columnWidth">Action</v-col>
+          </v-row>
+          <template v-for="(item, i) in items" :key="i">
+            <v-row>
+              <v-col cols="columnWidth">{{ item.raw.project_name }}</v-col>
+              <v-col cols="columnWidth">{{ item.raw.group_name }}</v-col>
+              <v-col cols="columnWidth">{{ item.raw.category_name }}</v-col>
+              <v-col cols="columnWidth">{{ item.raw.skill_name }}</v-col>
+              <v-col cols="columnWidth" align-content="end">
+                <v-btn icon="mdi-pencil"></v-btn>
+                <v-btn icon="mdi-delete" @click.stop="confirmDelete(item.raw.id)"></v-btn>
+              </v-col>
+            </v-row>
+            <!-- Project : Group : {{ item.raw.group_name }} Category :{{ item.raw.category_name }} Skill :
+            {{ item.raw.skill_name }} -->
+            <!-- <br /> -->
+          </template>
+        </template>
+      </v-data-iterator>
+
+      <!-- <v-list class="align-start">
         <v-list-item v-for="projectSkill in projectSkills" :key="projectSkill.id" class="align-start">
           <v-list-item-title>{{ projectSkill.project_name }}</v-list-item-title>
           <v-list-item-subtitle> {{ projectSkill.skill_name }}</v-list-item-subtitle>
@@ -18,7 +49,7 @@
             </v-list-item-action>
           </template>
         </v-list-item>
-      </v-list>
+      </v-list> -->
     </v-card-text>
   </v-card>
 
@@ -67,7 +98,7 @@
   </v-card> -->
 
   <!-- configrmation to delete project -->
-  <!-- <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
+  <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
     <v-card>
       <v-card-title class="headline">Confirm Delete</v-card-title>
       <v-card-text>Are you sure you want to delete this skill from project?</v-card-text>
@@ -77,7 +108,7 @@
         <v-btn color="red darken-1" text @click="confirmDeleteDialog = false">No</v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog> -->
+  </v-dialog>
 </template>
 
 <script>
@@ -88,6 +119,7 @@ import projectSkillService from "@/services/projectSkillService";
 export default {
   data() {
     return {
+      columnWidth: 2,
       projectSkills: [], // Array to hold Project
       availableCategories: [],
       availableGroups: [],
@@ -119,13 +151,13 @@ export default {
     async fetchProjectSkills() {
       try {
         this.projectSkills = await projectSkillService.loadProjectSkills(); // Assuming the API returns an array of Project
-        console.log(this.projectSkills);
+        // console.log(this.projectSkills);
         this.error = null;
       } catch (error) {
         console.error("Error loading ProjectSkills :", error);
         this.error = error.message;
       } finally {
-        console.log("fetched");
+        // console.log("fetched");
       }
     },
     async handleAddProject() {
@@ -161,8 +193,8 @@ export default {
     selectProject(project) {
       this.selected = project;
     },
-    confirmDeleteProject(projectId) {
-      this.projectIdToDelete = projectId; // Store the ID of the project to delete
+    confirmDelete(skillId) {
+      this.skillIdToDelete = skillId; // Store the ID of the project to delete
       this.confirmDeleteDialog = true; // Show the confirmation dialog
     },
   },

@@ -1,9 +1,9 @@
 import axios from "axios";
 
 class ProjectSkillService {
-  async loadProjectSkills() {
+  async loadProjectSkills(filter) {
     try {
-      const response = await axios.get("http://localhost:3000/api/project-skill/");
+      const response = await axios.get("http://localhost:3000/api/project-skill/", { params: filter });
       return response.data; // Assuming the API returns an array of Project
     } catch (error) {
       console.error("Error loading projects :", error);

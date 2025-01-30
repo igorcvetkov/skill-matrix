@@ -1,5 +1,5 @@
 <template>
-  <v-card class="align-start" max-width="600px">
+  <v-card class="align-start">
     <v-toolbar title="Projects">
       <v-spacer></v-spacer>
       <v-btn variant="elevated" @click="newProjectDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
@@ -15,7 +15,7 @@
           <v-list-item-title>{{ project.name }}</v-list-item-title>
           <template v-slot:append>
             <v-list-item-action>
-              <v-btn icon :to="{ name: 'ProjectSkills' }" router>
+              <v-btn icon :to="{ name: 'ProjectSkills', params: { projectId: project.id } }" router>
                 <v-icon>mdi-view-list</v-icon>
               </v-btn>
               <v-btn @click.stop="confirmDeleteProject(project.id)" icon>

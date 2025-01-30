@@ -5,14 +5,12 @@ const db = require("../config/database");
 // Projects endpoints
 router.get("/", (req, res) => {
   const { projectId } = req.query;
-  console.log("Filters: ", req.query);
   let query = "select * from project_skill_details where 1=1";
   const params = [];
   if (projectId) {
     query += " AND project_id = ?";
     params.push(projectId);
   }
-  console.log(query, params);
   db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);

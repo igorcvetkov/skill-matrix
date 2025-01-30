@@ -14,6 +14,9 @@
         <v-list-item-title>{{ group.name }}</v-list-item-title>
         <template v-slot:append>
           <v-list-item-action>
+            <v-btn icon :to="{ name: 'SkillCategories', params: { groupId: group.id } }" router>
+              <v-icon>mdi-view-list</v-icon>
+            </v-btn>
             <v-btn @click.stop="confirmDeleteSkillGroup(group.id)" icon>
               <v-icon>mdi-delete</v-icon>
             </v-btn>

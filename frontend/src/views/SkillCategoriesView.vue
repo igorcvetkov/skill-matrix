@@ -22,6 +22,7 @@
                 :items="availableGroups"
                 item-value="id"
                 item-title="name"
+                v-on:click:select="groupSelected"
               ></v-list>
             </v-card-text>
           </v-card>
@@ -85,7 +86,7 @@
             label="Group"
             required
           ></v-select>
-          <v-textarea variant="outlined" v-model="newCategories" label="Category Names" required></v-textarea>
+          <v-textarea variant="outlined" v-model="bulkData" label="Category Names" required></v-textarea>
           <!-- <v-text-field variant="outlined" v-model="newCategoryName" label="Category Name" required></v-text-field> -->
           <v-btn type="submit">Add Categories</v-btn>
         </v-form>
@@ -118,6 +119,7 @@ export default {
       categories: [], // Array to hold skill categories
       availableGroups: [],
       newCategoryName: "", // Model for new category name input
+      bulkData: "",
       selectedGroupId: null, // Track the selected skill category
       error: null,
       newDialog: false,
@@ -127,13 +129,24 @@ export default {
     };
   },
   created() {
-    this.loadData(); // Load skill categories when the component is created
-    this.loadGroups();
+    this.init();
+  },
+  watch: {
+    // selectedGroupId(newValue) {
+    //   console.log(newValue);
+    //   // this.$router.push({ name: "ProjectSkills", params: { projectId: newValue } });
+    //   this.$router.push({ name: "SkillCategories", params: { groupId: newValue } });
+    // },
   },
   methods: {
+    async init() {
+      this.selectedGroupId = [Number(this.$route.params.groupId)];
+      await this.loadData(); // Load skill categories when the component is created
+      await this.loadGroups();
+    },
     async loadData() {
       try {
-        this.categories = await categoryService.load();
+        this.categories = await categoryService.load({ groupId: Number(this.selectedGroupId) });
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -149,6 +162,12 @@ export default {
         this.error = error.message;
       }
     },
+    groupSelected(event) {
+      console.log("event", event.id);
+      this.selectedGroupId = Number(event.id);
+      this.$router.push({ name: "SkillCategories", params: { groupId: this.selectedGroupId } });
+      this.loadData();
+    },
     async handleAdd() {
       console.debug("Creating new category " + this.newCategoryName);
       const newCategory = {
@@ -156,8 +175,9 @@ export default {
         groupId: this.selectedGroupId,
       };
       try {
-        const response = await axios.post("http://localhost:3000/api/skill-categories", newCategory);
-        this.categories.push(response.data); // Assuming the API returns an array of skill categories
+        // const response = await axios.post("http://localhost:3000/api/skill-categories", newCategory);
+        const response = await categoryService.insert(newCategory);
+        this.categories.push(response); // Assuming the API returns an array of skill categories
         this.error = null;
         this.newCategoryName = ""; // Clear input field
       } catch (error) {
@@ -169,20 +189,25 @@ export default {
       }
     },
     async handleAddBulk() {
-      const newCategories = {
-        name: this.newCategoryName,
-        groupId: this.selectedGroupId,
-      };
+      const newCategories = this.bulkData
+        .split("\n")
+        .map((item) => {
+          return { name: item.trim(), groupId: this.selectedGroupId };
+        })
+        .filter((item) => item);
       try {
-        const response = await axios.post("http://localhost:3000/api/skill-categories", newCategories);
-        this.categories.push(response.data); // Assuming the API returns an array of skill categories
+        const response = await categoryService.bulkInsert(newCategories);
+
+        console.log("response");
+        console.log(response);
+
+        this.categories.push(response); // Assuming the API returns an array of skill categories
         this.error = null;
-        this.newCategoryName = ""; // Clear input field
+        this.bulkData = ""; // Clear input field
       } catch (error) {
         console.error("Error adding skill category:", error);
         this.error = error.message;
       } finally {
-        this.newCategoryName = null;
         this.newBulkDialog = false;
       }
     },

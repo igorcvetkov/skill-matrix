@@ -1,6 +1,4 @@
 <template>
-  {{ $route.params.projectId }}pid
-  {{ projectId }}
   <v-card class="align-start">
     <v-toolbar title="Project Skills">
       <v-spacer></v-spacer>
@@ -159,6 +157,7 @@ export default {
   watch: {
     projectId(newValue) {
       this.$router.push({ name: "ProjectSkills", params: { projectId: newValue } });
+      this.fetchProjectSkills();
     },
   },
   methods: {

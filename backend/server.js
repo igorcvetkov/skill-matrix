@@ -125,6 +125,7 @@ app.get("/health", async (req, res) => {
 
 app.use("/api/skill-groups", skillGroupsRouter);
 app.use("/api/skill-categories", skillCategoriesRouter);
+app.use("/api/skill-categories/bulk", skillCategoriesRouter);
 app.use("/api/skills", skillsRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/project-skill", projectSkillsRouter);

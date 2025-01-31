@@ -3,6 +3,7 @@
   <v-card class="align-start">
     <v-toolbar title="Skills">
       <v-spacer></v-spacer>
+      <v-btn variant="elevated" @click="viewAll" title="btn"><v-icon>mdi-plus</v-icon>view all</v-btn>
       <v-btn variant="elevated" @click="newDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
       <v-btn variant="elevated" @click="newBulkDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add bulk</v-btn>
     </v-toolbar>
@@ -19,7 +20,6 @@
               <v-list
                 selectable
                 slim
-                v-model:selected="selectedGroupId"
                 :items="availableGroups"
                 item-value="id"
                 item-title="name"
@@ -34,7 +34,6 @@
               <v-list
                 selectable
                 slim
-                v-model:selected="selectedCategoryId"
                 :items="availableCategories"
                 item-value="id"
                 item-title="name"
@@ -50,7 +49,7 @@
           <v-list-item-title>{{ skill.name }}</v-list-item-title>
           <template v-slot:append>
             <v-list-item-action>
-              <v-btn @click.stop="deleteSkill(skill.id)" icon>
+              <v-btn @click.stop="confirmDelete(skill.id)" icon>
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-list-item-action>
@@ -98,21 +97,38 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+
+  <!-- configrmation to delete -->
+  <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
+    <v-card>
+      <v-card-title class="headline">Confirm Delete</v-card-title>
+      <v-card-text>Are you sure you want to delete this skill?</v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="deleteSkill">Yes</v-btn>
+        <v-btn color="red darken-1" text @click="confirmDeleteDialog = false">No</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
+import skillService from "@/services/skillService";
 import axios from "axios";
 
 export default {
   watch: {
     selectedGroupId(newValue) {
-      this.loadCategories();
+      // console.debug("watch.selectedGroupId");
+      // this.selectedCategoryId = null;
+      // this.availableCategories = [];
+      // if (newValue) {
+      //   this.loadCategories();
+      // }
     },
-    selectedCategoryId() {
-      this.loadSkill();
-    },
+    selectedCategoryId(newValue) {},
   },
   data() {
     return {
@@ -126,18 +142,19 @@ export default {
       error: null,
       newDialog: false,
       newBulkDialog: false,
+      confirmDeleteDialog: false,
     };
   },
   async created() {
     await this.loadGroups();
-    await this.loadCategories();
-    await this.loadSkill(); // Load skill  when the component is created
+    // await this.loadCategories();
+    // await this.loadSkill();
   },
   methods: {
     async loadSkill() {
       try {
-        const response = await axios.get("http://localhost:3000/api/skills");
-        this.skills = response.data; // Assuming the API returns an array of skill
+        const response = await skillService.load({ categoryId: this.selectedCategoryId });
+        this.skills = response;
         this.error = null;
       } catch (error) {
         console.error("Error loading skill :", error);
@@ -145,9 +162,10 @@ export default {
       }
     },
     async loadCategories() {
+      console.debug("loadCategories");
       try {
         const response = await categoryService.load({ groupId: this.selectedGroupId });
-        this.availableCategories = response; // Assuming the API returns an array of skill groups
+        this.availableCategories = response;
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -158,12 +176,43 @@ export default {
     async loadGroups() {
       try {
         const response = await categoryGroupService.load();
-        this.availableGroups = response; // Assuming the API returns an array of skill groups
+        this.availableGroups = response;
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
         this.error = error.message;
       }
+    },
+    // UI Events handlers like button clicks, list item selections
+    groupSelected(value) {
+      // clean categories and skills
+      this.selectedCategoryId = null;
+      this.availableCategories = [];
+      this.skills = [];
+
+      // set new value
+      this.selectedGroupId = value?.id;
+      console.debug("new value for group is " + this.selectedGroupId);
+      if (this.selectedGroupId) {
+        this.loadCategories();
+      }
+    },
+    categorySelected(value) {
+      // clear skills
+      this.skills = [];
+
+      // set new value
+      this.selectedCategoryId = value.id;
+      if (this.selectedCategoryId) {
+        this.loadSkill();
+      }
+    },
+    viewAll() {
+      console.debug("viewAll");
+
+      this.groupSelected(null);
+      console.debug("viewAll.loadCategories");
+      this.loadSkill();
     },
     async handleAddSkill() {
       console.debug("Creating new  " + this.newName);
@@ -179,18 +228,49 @@ export default {
       } catch (error) {
         console.error("Error adding skill :", error);
         this.error = error.message;
+      } finally {
+        this.newDialog = false;
       }
     },
-    async deleteSkill(id) {
-      console.debug("Deleting skill " + id);
+    async handleAddBulkSkill() {
+      const newSkills = this.newBulkName
+        .split("\n")
+        .map((item) => {
+          return { name: item.trim(), categoryId: this.selectedCategoryId };
+        })
+        .filter((item) => item);
+      console.debug("Creating new  " + this.newSkills);
 
       try {
-        await axios.delete("http://localhost:3000/api/skills/" + id);
-        this.skills = this.skills.filter((skill) => skill.id !== id);
+        const response = await skillService.bulkInsert(newSkills);
+        this.skills.push(response);
+        this.error = null;
+        this.newBulkName = ""; // Clear input field
+      } catch (error) {
+        console.error("Error adding skill :", error);
+        this.error = error.message;
+      } finally {
+        this.newBulkDialog = false;
+      }
+    },
+    confirmDelete(id) {
+      this.skillIdToDeleteId = id;
+      this.confirmDeleteDialog = true;
+    },
+
+    async deleteSkill() {
+      console.debug("Deleting skill " + this.skillIdToDeleteId);
+
+      try {
+        await axios.delete("http://localhost:3000/api/skills/" + this.skillIdToDeleteId);
+        this.skills = this.skills.filter((skill) => skill.id !== this.skillIdToDeleteId);
         this.error = null;
       } catch (error) {
         console.error("Error deleting skill :", error);
         this.error = error.message;
+      } finally {
+        this.skillIdToDeleteId = null;
+        this.confirmDeleteDialog = false;
       }
     },
     selectSkill(skill) {

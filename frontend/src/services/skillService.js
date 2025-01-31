@@ -10,6 +10,16 @@ class SkillService {
       throw new Error("Error loading projects :" + error);
     }
   }
+
+  async bulkInsert(data) {
+    try {
+      const response = await axios.post("http://localhost:3000/api/skills/bulk", { skills: data });
+      return response.data;
+    } catch (error) {
+      console.error("Error adding skill category:", error);
+      throw new Error("Error insert categories :" + error);
+    }
+  }
 }
 
 const skillService = new SkillService();

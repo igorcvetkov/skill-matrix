@@ -5,7 +5,6 @@ const db = require("../config/database");
 // Skill Categories endpoints
 router.get("/", (req, res) => {
   const { groupId } = req.query;
-  console.log(groupId);
   let query = "SELECT * FROM skill_category_details where 1=1";
   const params = [];
   if (groupId) {

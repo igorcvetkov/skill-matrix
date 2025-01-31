@@ -1,0 +1,30 @@
+image: docker:latest
+
+services:
+  - docker:dind  # Enable Docker-in-Docker
+
+variables:
+  BACKEND_IMAGE: "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG"
+  FRONTEND_IMAGE: "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG"
+
+before_script:
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+
+stages:
+  - build
+
+build-backend:
+  stage: build
+  script:
+    - docker build -t $BACKEND_IMAGE ./backend
+    - docker push $BACKEND_IMAGE
+  only:
+    - main  # Run only on the main branch
+
+build-frontend:
+  stage: build
+  script:
+    - docker build -t $FRONTEND_IMAGE ./frontend
+    - docker push $FRONTEND_IMAGE
+  only:
+    - main  # Run only on the main branch

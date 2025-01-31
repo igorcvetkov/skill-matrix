@@ -22,16 +22,15 @@ router.get("/", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-  throw new Error("not implemented yet");
-  // const categoryId = req.params.id;
+  const skillId = req.params.id;
 
-  // db.query("DELETE FROM project WHERE id = ?", [categoryId], (err, result) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).json({ error: "Failed to delete project", exception: err });
-  //   }
-  //   res.status(204).send();
-  // });
+  db.query("DELETE FROM project_skill WHERE id = ?", [skillId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to delete project", exception: err });
+    }
+    res.status(204).send();
+  });
 });
 
 module.exports = router;

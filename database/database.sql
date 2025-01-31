@@ -26,7 +26,7 @@ CREATE TABLE `skill_category` (
 
 CREATE TABLE `skill` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(500) NOT NULL,
   `category_id` int NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),

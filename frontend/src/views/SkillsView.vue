@@ -119,17 +119,6 @@ import skillService from "@/services/skillService";
 import axios from "axios";
 
 export default {
-  watch: {
-    selectedGroupId(newValue) {
-      // console.debug("watch.selectedGroupId");
-      // this.selectedCategoryId = null;
-      // this.availableCategories = [];
-      // if (newValue) {
-      //   this.loadCategories();
-      // }
-    },
-    selectedCategoryId(newValue) {},
-  },
   data() {
     return {
       skills: [], // Array to hold skill

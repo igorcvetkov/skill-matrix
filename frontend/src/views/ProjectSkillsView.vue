@@ -148,6 +148,7 @@ export default {
       error: null,
       projectSkillIdToDelete: null,
       confirmDeleteDialog: false,
+      skillIdToDelete: null,
     };
   },
   created() {
@@ -208,7 +209,7 @@ export default {
       };
       try {
         const response = await axios.post("http://localhost:3000/api/ProjectSkills", newProject);
-        this.ProjectSkills.push(response.data); // Assuming the API returns an array of Project
+        this.projectSkills.push(response.data); // Assuming the API returns an array of Project
         this.error = null;
         this.newName = ""; // Clear input field
       } catch (error) {
@@ -216,12 +217,12 @@ export default {
         this.error = error.message;
       }
     },
-    async deleteProject() {
-      console.debug("Deleting project skill " + this.projectIdToDelete);
+    async deleteProjectSkill() {
+      console.debug("Deleting project skill " + this.skillIdToDelete);
 
       try {
-        await axios.delete("http://localhost:3000/api/ProjectSkills/" + this.projectIdToDelete);
-        this.ProjectSkills = this.ProjectSkills.filter((project) => project.id !== this.projectIdToDelete);
+        await projectSkillService.delete(this.skillIdToDelete);
+        this.projectSkills = this.projectSkills.filter((project) => project.id !== this.skillIdToDelete);
         this.error = null;
       } catch (error) {
         console.error("Error deleting project :", error);

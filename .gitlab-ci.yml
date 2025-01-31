@@ -19,7 +19,7 @@ build-backend:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
   only:
-    - main  # Run only on the main branch
+    - develop  # Run only on the main branch
 
 build-frontend:
   stage: build
@@ -27,4 +27,4 @@ build-frontend:
     - docker build -t $FRONTEND_IMAGE ./frontend
     - docker push $FRONTEND_IMAGE
   only:
-    - main  # Run only on the main branch
+    - develop  # Run only on the main branch

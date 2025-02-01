@@ -1,9 +1,11 @@
 <template>
+  {{ this.$vuetify.theme.name }}
   <v-responsive>
     <v-app>
       <v-layout class="rounded rounded-md">
         <v-app-bar app>
           <v-toolbar-title>Skill Matrix</v-toolbar-title>
+          <v-switch :model="darkMode" @change="toggleDarkMode" label="Dark or Light"></v-switch>
           <v-spacer></v-spacer>{{ user.name }}
           <v-btn text>logout</v-btn>
         </v-app-bar>
@@ -38,8 +40,16 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      darkMode: false,
+    };
   },
-  methods: {},
+
+  methods: {
+    toggleDarkMode() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      this.darkMode = !this.darkMode;
+    },
+  },
 };
 </script>

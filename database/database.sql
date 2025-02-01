@@ -109,4 +109,20 @@ VIEW `skill_category_details` AS
     FROM
         (`skill_category` `sc`
         LEFT JOIN `skill_group` `sg` ON (`sg`.`id` = `sc`.`group_id`));
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `skill_details` AS
+    SELECT 
+        `s`.`id` AS `id`,
+        `s`.`name` AS `name`,
+        `s`.`category_id` AS `category_id`,
+        `sc`.`name` AS `category_name`,
+        `sc`.`group_name` AS `group_name`,
+        `sc`.`group_id` AS `group_id`
+    FROM
+        (`skill` `s`
+        JOIN `skill_category_details` `sc` ON ((`sc`.`id` = `s`.`category_id`)))
         

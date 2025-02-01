@@ -4,11 +4,10 @@ const db = require("../config/database");
 
 // Skills endpoints
 router.get("/", (req, res) => {
-  const { categoryId } = req.query;
+  const { categoryId, groupId, excludeProjectId } = req.query;
   let query = `
-      SELECT s.*, sc.name as category_name 
-      FROM skill s 
-      LEFT JOIN skill_category sc ON s.category_id = sc.id
+      SELECT s.*
+      FROM skill_details s 
       WHERE 1=1
     `;
 
@@ -17,6 +16,12 @@ router.get("/", (req, res) => {
     query += " AND category_id = ?";
     params.push(categoryId);
   }
+
+  if (excludeProjectId) {
+    query += " AND id not in (select skill_id from project_skill ps where ps.project_id = ?)";
+    params.push(excludeProjectId);
+  }
+
   db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);

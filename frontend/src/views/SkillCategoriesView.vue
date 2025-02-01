@@ -2,8 +2,12 @@
   <v-card class="align-start">
     <v-toolbar title="Skill Categories">
       <v-spacer></v-spacer>
-      <v-btn variant="elevated" @click="newDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add new</v-btn>
-      <v-btn variant="elevated" @click="newBulkDialog = true" title="btn"><v-icon>mdi-plus</v-icon>add bulk</v-btn>
+      <v-btn variant="elevated" size="small" class="mr-1" @click="newDialog = true" title="btn"
+        ><v-icon>mdi-plus</v-icon>add new</v-btn
+      >
+      <v-btn variant="elevated" size="small" @click="newBulkDialog = true" title="btn"
+        ><v-icon>mdi-plus</v-icon>add bulk</v-btn
+      >
     </v-toolbar>
     <v-card-text>
       <!-- Error message display -->

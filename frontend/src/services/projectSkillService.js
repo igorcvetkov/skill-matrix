@@ -11,6 +11,18 @@ class ProjectSkillService {
     }
   }
 
+  async add(skill) {
+    try {
+      console.debug("adding skill to project");
+      console.debug(skill);
+      const response = await axios.post("http://localhost:3000/api/project-skill", skill);
+      return response.data; // Assuming the API returns an array of Project
+    } catch (error) {
+      console.error("Error adding project skill:", error);
+      throw new Error("Error adding project skill:" + error);
+    }
+  }
+
   async delete(skillId) {
     try {
       await axios.delete("http://localhost:3000/api/project-skill/" + skillId);

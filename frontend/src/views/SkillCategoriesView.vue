@@ -116,6 +116,7 @@
 import axios from "axios";
 import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
+import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -134,13 +135,6 @@ export default {
   },
   created() {
     this.init();
-  },
-  watch: {
-    // selectedGroupId(newValue) {
-    //   console.log(newValue);
-    //   // this.$router.push({ name: "ProjectSkills", params: { projectId: newValue } });
-    //   this.$router.push({ name: "SkillCategories", params: { groupId: newValue } });
-    // },
   },
   methods: {
     async init() {
@@ -179,7 +173,6 @@ export default {
         groupId: this.selectedGroupId,
       };
       try {
-        // const response = await axios.post("http://localhost:3000/api/skill-categories", newCategory);
         const response = await categoryService.insert(newCategory);
         this.categories.push(response); // Assuming the API returns an array of skill categories
         this.error = null;
@@ -224,7 +217,7 @@ export default {
       console.debug("Deleting category " + id);
 
       try {
-        await axios.delete("http://localhost:3000/api/skill-categories/" + id);
+        await axios.delete(`${backendUrl}/api/skill-categories/` + id);
         this.categories = this.categories.filter((category) => category.id !== id);
         this.error = null;
       } catch (error) {

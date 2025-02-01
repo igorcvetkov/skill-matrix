@@ -1,5 +1,4 @@
 <template>
-  g {{ selectedGroupId }} c {{ selectedCategoryId }}
   <v-card class="align-start">
     <v-toolbar title="Skills">
       <v-spacer></v-spacer>
@@ -123,6 +122,7 @@ import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
 import skillService from "@/services/skillService";
 import axios from "axios";
+import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -216,7 +216,7 @@ export default {
         category_id: this.selectedCategoryId,
       };
       try {
-        const response = await axios.post("http://localhost:3000/api/skills", newSkill);
+        const response = await axios.post(`${backendUrl}/api/skills`, newSkill);
         this.skills.push(response.data); // Assuming the API returns an array of skill
         this.error = null;
         this.newName = ""; // Clear input field
@@ -257,7 +257,7 @@ export default {
       console.debug("Deleting skill " + this.skillIdToDeleteId);
 
       try {
-        await axios.delete("http://localhost:3000/api/skills/" + this.skillIdToDeleteId);
+        await axios.delete(`${backendUrl}/api/skills/` + this.skillIdToDeleteId);
         this.skills = this.skills.filter((skill) => skill.id !== this.skillIdToDeleteId);
         this.error = null;
       } catch (error) {

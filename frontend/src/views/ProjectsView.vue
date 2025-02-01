@@ -60,6 +60,7 @@
 <script>
 import axios from "axios";
 import projectService from "@/services/projectService";
+import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -93,7 +94,7 @@ export default {
         name: this.newName,
       };
       try {
-        const response = await axios.post("http://localhost:3000/api/projects", newProject);
+        const response = await axios.post(`${backendUrl}/api/projects`, newProject);
         this.projects.push(response.data); // Assuming the API returns an array of Project
         this.error = null;
         this.newName = ""; // Clear input field
@@ -108,7 +109,7 @@ export default {
       console.debug("Deleting project " + this.projectIdToDelete);
 
       try {
-        await axios.delete("http://localhost:3000/api/projects/" + this.projectIdToDelete);
+        await axios.delete(`${backendUrl}/api/projects/` + this.projectIdToDelete);
         this.projects = this.projects.filter((project) => project.id !== this.projectIdToDelete);
         this.error = null;
       } catch (error) {

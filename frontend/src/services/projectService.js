@@ -1,9 +1,10 @@
 import axios from "axios";
+import { backendUrl } from "@/config/appConfig";
 
 class ProjectService {
   async loadProjects() {
     try {
-      const response = await axios.get("http://localhost:3000/api/projects");
+      const response = await axios.get(`${backendUrl}/api/projects`);
       return response.data; // Assuming the API returns an array of Project
     } catch (error) {
       console.error("Error loading projects :", error);

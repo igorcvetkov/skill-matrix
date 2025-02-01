@@ -1,10 +1,11 @@
 import axios from "axios";
+import { backendUrl } from "@/config/appConfig";
 
 class CategoryService {
   async load(filter) {
     try {
       console.log(filter);
-      const response = await axios.get("http://localhost:3000/api/skill-categories", { params: filter });
+      const response = await axios.get(`${backendUrl}/api/skill-categories`, { params: filter });
       return response.data; // Assuming the API returns an array of Project
     } catch (error) {
       console.error("Error loading projects :", error);
@@ -14,7 +15,7 @@ class CategoryService {
 
   async insert(data) {
     try {
-      const response = await axios.post("http://localhost:3000/api/skill-categories", data);
+      const response = await axios.post(`${backendUrl}/api/skill-categories`, data);
       return response.data;
     } catch (error) {
       console.error("Error adding skill category:", error);
@@ -24,7 +25,7 @@ class CategoryService {
 
   async bulkInsert(data) {
     try {
-      const response = await axios.post("http://localhost:3000/api/skill-categories/bulk", { categories: data });
+      const response = await axios.post(`${backendUrl}/api/skill-categories/bulk`, { categories: data });
       return response.data;
     } catch (error) {
       console.error("Error adding skill category:", error);

@@ -58,11 +58,11 @@
       ></v-text-field>
 
       <v-list>
-        <v-list-item-group>
-          <v-list-item v-for="item in searchResults" :key="item.id" @click="selectSkillcategory(item)">
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
+        <!-- <v-list-item-group> -->
+        <v-list-item v-for="item in searchResults" :key="item.id" @click="selectSkillcategory(item)">
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
+        </v-list-item>
+        <!-- </v-list-item-group> -->
       </v-list>
 
       <v-list class="align-start">

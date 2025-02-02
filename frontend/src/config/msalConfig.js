@@ -1,5 +1,5 @@
 import { PublicClientApplication } from "@azure/msal-browser";
-
+import { reactive } from "vue";
 // src/authConfig.js
 const msalConfig = {
   auth: {
@@ -9,8 +9,33 @@ const msalConfig = {
   },
   cache: {
     cacheLocation: "localStorage", // This configures where your cache will be stored
-    storeAuthStateInCookie: true, // Set to true for IE 11
+    storeAuthStateInCookie: false, // Set to true for IE 11
   },
 };
+
+export const getAccessToken = async () => {
+  try {
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length >= 1) {
+      const account = { account: accounts[0] };
+      const request = Object.assign({}, graphScopes, account);
+      const tokenResponse = await msalInstance.acquireTokenSilent(request);
+      return tokenResponse.accessToken;
+    }
+    return null;
+  } catch (error) {
+    // logout();
+  }
+};
+
+export const graphScopes = {
+  scopes: [`api://${process.env.VUE_APP_MSAL_CLIENT_ID}/project.read`],
+};
+
+export const state = reactive({
+  isAuthenticated: false,
+  user: {},
+  roles: [],
+});
 
 export const msalInstance = new PublicClientApplication(msalConfig);

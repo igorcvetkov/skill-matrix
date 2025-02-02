@@ -49,6 +49,22 @@
         </v-col>
       </v-row>
 
+      <!-- Search Input -->
+      <v-text-field
+        v-model="searchQuery"
+        @input="search"
+        label="Search for skills, categories, or groups"
+        clearable
+      ></v-text-field>
+
+      <v-list>
+        <v-list-item-group>
+          <v-list-item v-for="item in searchResults" :key="item.id" @click="selectSkillcategory(item)">
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
       <v-list class="align-start">
         <v-list-item v-for="skill in skills" :key="skill.id" @click="selectSkill(skill)" class="align-start">
           <v-list-item-title>{{ skill.name }}</v-list-item-title>
@@ -138,6 +154,8 @@ export default {
       newDialog: false,
       newBulkDialog: false,
       confirmDeleteDialog: false,
+      searchQuery: "",
+      searchResults: [],
     };
   },
   async created() {
@@ -225,6 +243,15 @@ export default {
         this.error = error.message;
       } finally {
         this.newDialog = false;
+      }
+    },
+    async search() {
+      if (this.searchQuery.length > 2) {
+        // Start searching after 3 characters
+        const response = await skillService.search(this.searchQuery);
+        this.searchResults = response;
+      } else {
+        this.searchResults = [];
       }
     },
     async handleAddBulkSkill() {

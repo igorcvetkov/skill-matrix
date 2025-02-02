@@ -12,6 +12,16 @@ class SkillService {
     }
   }
 
+  async search(query) {
+    try {
+      const response = await axios.get(`${backendUrl}/api/skills/search?query=${query}`);
+      return response.data; // Assuming the API returns an array of Project
+    } catch (error) {
+      console.error("Error loading projects :", error);
+      throw new Error("Error loading projects :" + error);
+    }
+  }
+
   async bulkInsert(data) {
     try {
       const response = await axios.post(`${backendUrl}/api/skills/bulk`, { skills: data });

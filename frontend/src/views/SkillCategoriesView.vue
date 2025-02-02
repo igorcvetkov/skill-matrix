@@ -91,7 +91,6 @@
             required
           ></v-select>
           <v-textarea variant="outlined" v-model="bulkData" label="Category Names" required></v-textarea>
-          <!-- <v-text-field variant="outlined" v-model="newCategoryName" label="Category Name" required></v-text-field> -->
           <v-btn type="submit">Add Categories</v-btn>
         </v-form>
       </v-card-text>
@@ -194,10 +193,6 @@ export default {
         .filter((item) => item);
       try {
         const response = await categoryService.bulkInsert(newCategories);
-
-        console.log("response");
-        console.log(response);
-
         this.categories.push(response); // Assuming the API returns an array of skill categories
         this.error = null;
         this.bulkData = ""; // Clear input field

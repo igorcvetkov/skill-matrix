@@ -31,6 +31,21 @@ router.get("/", (req, res) => {
   });
 });
 
+// New search route
+router.get("/search", (req, res) => {
+  const { query } = req.query; // Get the search query from the request
+
+  const sqlQuery = `SELECT * FROM skill_details WHERE name LIKE '%${query}%' OR category_name LIKE '%${query}%' OR group_name LIKE '%${query}%';`;
+
+  db.query(sqlQuery, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to fetch skills" });
+    }
+    res.json(results);
+  });
+});
+
 router.post("/", (req, res) => {
   const { name, category_id } = req.body;
   db.query("INSERT INTO skill (name, category_id) VALUES (?, ?)", [name, category_id], (err, result) => {

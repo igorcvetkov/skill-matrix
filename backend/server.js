@@ -2,6 +2,7 @@ require("dotenv").config({ path: `.env.${process.env.NODE_ENV || "development"}`
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const validateToken = require("./auth"); // Import the token validation middleware
 
 // adding routes
 const skillGroupsRouter = require("./routes/skill-groups");
@@ -123,7 +124,10 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.use("/api/skill-groups", skillGroupsRouter);
+// Protect routes with token validation
+app.use("/api/protected", validateToken, projectsRouter);
+
+// app.use("/api/skill-groups", validateToken, skillGroupsRouter);
 app.use("/api/skill-categories", skillCategoriesRouter);
 app.use("/api/skill-categories/bulk", skillCategoriesRouter);
 app.use("/api/skills", skillsRouter);

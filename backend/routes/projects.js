@@ -4,7 +4,8 @@ const db = require("../config/database");
 
 // Projects endpoints
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM project", (err, results) => {
+  const query = "SELECT * FROM project";
+  db.query(query, (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Failed to fetch projects" });
@@ -59,8 +60,9 @@ router.post("/", (req, res) => {
 
     try {
       // Insert project
-      const [projectResult] = await db.promise().query("INSERT INTO project (name) VALUES (?)", [name]);
-      const projectId = projectResult.insertId;
+      const insertQuery = "INSERT INTO project (name) VALUES ($1) RETURNING id"; // Use $1 for PostgreSQL
+      const [projectResult] = await db.promise().query(insertQuery, [name]);
+      const projectId = projectResult.insertId || projectResult[0].id; // Handle both MySQL and PostgreSQL
 
       // Insert project skills
       if (skills && skills.length) {

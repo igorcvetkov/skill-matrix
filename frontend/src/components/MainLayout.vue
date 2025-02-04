@@ -1,4 +1,7 @@
 <template>
+  <div style="font-size: small">
+    {{ authState }}
+  </div>
   <v-responsive>
     <v-app>
       <v-layout class="rounded rounded-md">
@@ -34,7 +37,6 @@
 
 <script>
 import { msalInstance, state, getAccessToken } from "@/config/msalConfig";
-import jwt_decode from "jwt-decode"; // Make sure to install this package
 
 export default {
   components: {},
@@ -101,9 +103,6 @@ export default {
 
         const responseToken = await getAccessToken();
         console.debug("response token ", responseToken);
-        const decodedToken = jwt_decode(responseToken);
-        state.roles = decodedToken?.roles;
-        console.debug("roles ", state.roles);
       })
       .catch((error) => {
         console.error("Redirect error:", error);

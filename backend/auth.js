@@ -4,16 +4,11 @@ const jwksClient = require("jwks-rsa");
 const msalConfig = {
   auth: {
     clientId: process.env.MS_ENTRA_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${process.env.MS_ENTRA_TENANT_ID}`,
+    authority: `https://sts.windows.net/${process.env.MS_ENTRA_TENANT_ID}`,
     clientSecret: process.env.MS_ENTRA_CLIENT_SECRET, // Required for confidential clients
   },
 };
 
-// Debugging output
-console.log("Client ID:", process.env.MS_ENTRA_CLIENT_ID || "Not set");
-console.log("Tenant ID:", process.env.MS_ENTRA_TENANT_ID || "Not set");
-console.log("Client Secret:", process.env.MS_ENTRA_SECRET || "Not set"); // Be cautious with logging secrets
-console.log("jwks uri:", `${msalConfig.auth.authority}/discovery/v2.0/keys`);
 const JWKS_URI = `${msalConfig.auth.authority}/discovery/v2.0/keys`;
 
 // Configure JWKS client to fetch Microsoft public keys
@@ -43,15 +38,13 @@ const validateToken = (req, res, next) => {
   jwt.verify(
     token,
     getKey,
-    { issuer: msalConfig.auth.authority, audience: msalConfig.auth.clientId },
+    { issuer: msalConfig.auth.authority + "/", audience: msalConfig.auth.clientId },
     (err, decoded) => {
       if (err) {
-        console.error("received token", token);
         console.error("Token verification error:", err);
-        return res.status(401).json({ error: "Invalid token" + err });
+        return res.status(401).json({ error: "Invalid token" });
       }
       req.user = decoded; // Store user info for further processing
-      console.log("verified user", decoded);
       next();
     }
   );

@@ -20,6 +20,7 @@ export const getAccessToken = async () => {
       const account = { account: accounts[0] };
       const request = Object.assign({}, graphScopes, account);
       const tokenResponse = await msalInstance.acquireTokenSilent(request);
+      state.token = tokenResponse;
       return tokenResponse.accessToken;
     }
     return null;
@@ -29,13 +30,14 @@ export const getAccessToken = async () => {
 };
 
 export const graphScopes = {
-  scopes: [`api://${process.env.VUE_APP_MSAL_CLIENT_ID}/project.read`],
+  scopes: [`${process.env.VUE_APP_MSAL_CLIENT_ID}/project.read`],
 };
 
 export const state = reactive({
   isAuthenticated: false,
   user: {},
   roles: [],
+  token: {},
 });
 
 export const msalInstance = new PublicClientApplication(msalConfig);

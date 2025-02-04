@@ -1,5 +1,6 @@
 import axios from "axios";
 import { backendUrl } from "@/config/appConfig";
+import { state } from "@/config/msalConfig";
 
 class CategoryService {
   async load(filter) {
@@ -15,7 +16,11 @@ class CategoryService {
 
   async insert(data) {
     try {
-      const response = await axios.post(`${backendUrl}/api/skill-categories`, data);
+      const response = await axios.post(`${backendUrl}/api/skill-categories`, data, {
+        headers: {
+          Authorization: "Bearer " + state.token.accessToken,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error adding skill category:", error);

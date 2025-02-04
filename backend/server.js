@@ -3,6 +3,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const validateToken = require("./auth"); // Import the token validation middleware
+const validateAccessToken = require("./auth"); // Import the token validation middleware
 
 // adding routes
 const skillGroupsRouter = require("./routes/skill-groups");
@@ -125,12 +126,13 @@ app.get("/health", async (req, res) => {
 });
 
 // Protect routes with token validation
-app.use("/api/protected", validateToken, projectsRouter);
+app.use("/api/protected", validateAccessToken, projectsRouter);
 
 // app.use("/api/skill-groups", validateToken, skillGroupsRouter);
-app.use("/api/skill-categories", skillCategoriesRouter);
-app.use("/api/skill-categories/bulk", skillCategoriesRouter);
-app.use("/api/skills", skillsRouter);
-app.use("/api/projects", projectsRouter);
-app.use("/api/project-skill", projectSkillsRouter);
-app.use("/api/person", personRouter);
+app.use("/api/skill-groups", validateAccessToken, skillGroupsRouter);
+app.use("/api/skill-categories", validateAccessToken, skillCategoriesRouter);
+app.use("/api/skill-categories/bulk", validateAccessToken, skillCategoriesRouter);
+app.use("/api/skills", validateAccessToken, skillsRouter);
+app.use("/api/projects", validateAccessToken, projectsRouter);
+app.use("/api/project-skill", validateAccessToken, projectSkillsRouter);
+app.use("/api/person", validateAccessToken, personRouter);

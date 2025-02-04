@@ -55,9 +55,7 @@
 </template>
 
 <script>
-import axios from "axios";
 import categoryGroupService from "@/services/categoryGroupService";
-import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -90,8 +88,8 @@ export default {
         name: this.newGroupName,
       };
       try {
-        const response = await axios.post(`${backendUrl}/api/skill-groups`, newGroup);
-        this.skillGroups.push(response.data); // Assuming the API returns an array of skill groups
+        const response = categoryGroupService.insert(newGroup);
+        this.skillGroups.push(response); // Assuming the API returns an array of skill groups
         this.error = null;
       } catch (error) {
         console.error("Error adding skill group:", error);
@@ -110,7 +108,7 @@ export default {
       const id = this.groupToDeleteId;
 
       try {
-        await axios.delete(`${backendUrl}/api/skill-groups/` + id);
+        categoryGroupService.delete(this.groupToDeleteId);
         this.skillGroups = this.skillGroups.filter((group) => group.id !== id);
         this.error = null;
       } catch (error) {

@@ -60,29 +60,29 @@ router.post("/", (req, res) => {
 
     try {
       // Insert project
-      const insertQuery = "INSERT INTO project (name) VALUES ($1) RETURNING id"; // Use $1 for PostgreSQL
+      const insertQuery = "INSERT INTO project (name) VALUES (?)"; // Use $1 for PostgreSQL
       const [projectResult] = await db.promise().query(insertQuery, [name]);
       const projectId = projectResult.insertId || projectResult[0].id; // Handle both MySQL and PostgreSQL
 
-      // Insert project skills
-      if (skills && skills.length) {
-        await Promise.all(
-          skills.map((skillId) =>
-            db.promise().query("INSERT INTO project_skill (project_id, skill_id) VALUES (?, ?)", [projectId, skillId])
-          )
-        );
-      }
+      // // Insert project skills
+      // if (skills && skills.length) {
+      //   await Promise.all(
+      //     skills.map((skillId) =>
+      //       db.promise().query("INSERT INTO project_skill (project_id, skill_id) VALUES (?, ?)", [projectId, skillId])
+      //     )
+      //   );
+      // }
 
-      // Insert project members
-      if (members && members.length) {
-        await Promise.all(
-          members.map((personId) =>
-            db
-              .promise()
-              .query("INSERT INTO project_member (project_id, person_id) VALUES (?, ?)", [projectId, personId])
-          )
-        );
-      }
+      // // Insert project members
+      // if (members && members.length) {
+      //   await Promise.all(
+      //     members.map((personId) =>
+      //       db
+      //         .promise()
+      //         .query("INSERT INTO project_member (project_id, person_id) VALUES (?, ?)", [projectId, personId])
+      //     )
+      //   );
+      // }
 
       await db.promise().commit();
       res.status(201).json({

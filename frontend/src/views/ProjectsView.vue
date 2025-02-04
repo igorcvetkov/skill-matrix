@@ -58,9 +58,7 @@
 </template>
 
 <script>
-import axios from "axios";
 import projectService from "@/services/projectService";
-import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -94,8 +92,8 @@ export default {
         name: this.newName,
       };
       try {
-        const response = await axios.post(`${backendUrl}/api/projects`, newProject);
-        this.projects.push(response.data); // Assuming the API returns an array of Project
+        const response = projectService.insert(newProject);
+        this.projects.push(response);
         this.error = null;
         this.newName = ""; // Clear input field
       } catch (error) {
@@ -106,10 +104,8 @@ export default {
       }
     },
     async deleteProject() {
-      console.debug("Deleting project " + this.projectIdToDelete);
-
       try {
-        await axios.delete(`${backendUrl}/api/projects/` + this.projectIdToDelete);
+        projectService.delete(this.projectIdToDelete);
         this.projects = this.projects.filter((project) => project.id !== this.projectIdToDelete);
         this.error = null;
       } catch (error) {

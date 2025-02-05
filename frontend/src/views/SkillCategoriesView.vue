@@ -112,10 +112,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
-import { backendUrl } from "@/config/appConfig";
 
 export default {
   data() {
@@ -212,7 +210,7 @@ export default {
       console.debug("Deleting category " + id);
 
       try {
-        await axios.delete(`${backendUrl}/api/skill-categories/` + id);
+        await categoryService.delete(this.categoryIdToDelete);
         this.categories = this.categories.filter((category) => category.id !== id);
         this.error = null;
       } catch (error) {

@@ -1,7 +1,4 @@
 <template>
-  <div style="font-size: small">
-    {{ authState }}
-  </div>
   <v-responsive>
     <v-app>
       <v-layout class="rounded rounded-md">
@@ -33,6 +30,10 @@
       </v-layout>
     </v-app>
   </v-responsive>
+
+  <!-- <div style="font-size: small">
+    {{ authState }}
+  </div> -->
 </template>
 
 <script>

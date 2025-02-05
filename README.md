@@ -13,6 +13,8 @@ my-project/
 │ ├── src/  
 │ └── public/  
 │  
+├─- database/ # sql script to create tables and views. sql is for mysql
+|
 ├── backend/ # Node.js backend  
 │ ├── Dockerfile  
 │ ├── package.json  
@@ -24,7 +26,8 @@ my-project/
 
 - Docker
 - Docker Compose
-- AWS account with RDS set up
+- AWS account with MySQL RDS set up
+- MS EntraId
 
 ## Setup
 

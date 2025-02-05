@@ -4,7 +4,7 @@
       <v-layout class="rounded rounded-md">
         <v-app-bar app>
           <v-toolbar-title>Skill Matrix</v-toolbar-title>
-          <v-switch :model="darkMode" @change="toggleDarkMode" label="Dark or Light"></v-switch>
+          <!-- <v-switch :model="darkMode" @change="toggleDarkMode" label="Dark or Light"></v-switch> -->
           <v-spacer></v-spacer>
           {{ user.name }}
           <span v-if="isAuthenticated">{{ user.name }}</span>

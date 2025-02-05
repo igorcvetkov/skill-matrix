@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../config/database");
 
 router.get("/", (req, res) => {
+  console.log("request", req);
   const { projectId, groupId, categoryId } = req.query;
   let query = "select * from project_skill_details where 1=1";
   const params = [];
@@ -20,8 +21,8 @@ router.get("/", (req, res) => {
   }
 
   console.debug("load project skills");
-  console.debug(query);
-  console.debug(params);
+  console.debug("query", query);
+  console.debug("params", params);
 
   db.query(query, params, (err, results) => {
     if (err) {

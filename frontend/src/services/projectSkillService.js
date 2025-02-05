@@ -5,6 +5,7 @@ import { state } from "@/config/msalConfig";
 class ProjectSkillService {
   async loadProjectSkills(filter) {
     try {
+      console.log("load project skills params", filter);
       const response = await axios.get(`${backendUrl}/api/project-skill/`, {
         params: filter,
         headers: {

@@ -80,63 +80,70 @@
             </v-list>
           </v-expansion-panel-text>
         </v-expansion-panel>
-        <v-expansion-panel value="skill">
+        <!-- <v-expansion-panel value="skill">
           <v-expansion-panel-title>
             <v-row no-gutters>
-              <v-col cols="4">Available Skills</v-col>
+              <v-col cols="4">Skills</v-col>
               <v-col cols="8">
                 {{ skill.name }}
               </v-col>
             </v-row>
           </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list>
-              <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id">
-                <v-list-item-title>{{ skillItem.name }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  <v-chip class="ma-1" size="x-small">Group: {{ skillItem.group_name }}</v-chip>
-                  <v-chip class="ma-1" size="x-small">Category: {{ skillItem.category_name }}</v-chip>
-                </v-list-item-subtitle>
-                <template v-slot:prepend>
-                  <v-list-item-action class="mr-1">
-                    <v-btn color="white" size="small" @click.stop="addSkillToProject(skillItem.id)" icon>
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
+          <v-expansion-panel-text> </v-expansion-panel-text>
+        </v-expansion-panel> -->
       </v-expansion-panels>
 
-      <v-card>
-        <v-toolbar>
-          <v-toolbar-title>Skills in project</v-toolbar-title>
-        </v-toolbar>
+      <v-card subtitle="Skills">
         <v-card-text>
-          <v-data-iterator :items="projectSkills" items-per-page="-1">
-            <template v-slot:default="{ items }">
-              <v-row>
-                <v-col cols="columnWidth">Group</v-col>
-                <v-col cols="columnWidth">Category</v-col>
-                <v-col cols="columnWidth">Skill</v-col>
-                <v-col cols="columnWidth">Action</v-col>
-              </v-row>
-              <template v-for="(item, i) in items" :key="i">
-                <v-row>
-                  <v-col cols="columnWidth">{{ item.raw.project_name }}</v-col>
-                  <v-col cols="columnWidth">{{ item.raw.group_name }}</v-col>
-                  <v-col cols="columnWidth">{{ item.raw.category_name }}</v-col>
-                  <v-col cols="columnWidth">{{ item.raw.skill_name }}</v-col>
-                  <v-col cols="columnWidth" align-content="end">
-                    <v-btn icon="mdi-delete" @click.stop="confirmDelete(item.raw.id)"></v-btn>
-                  </v-col>
-                </v-row>
-              </template>
-            </template>
-          </v-data-iterator> </v-card-text
-      ></v-card>
+          <v-row>
+            <v-col>
+              <v-card title="Available">
+                <v-list>
+                  <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id">
+                    <v-list-item-title>{{ skillItem.name }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      <v-chip class="ma-1" size="x-small">Group: {{ skillItem.group_name }}</v-chip>
+                      <v-chip class="ma-1" size="x-small">Category: {{ skillItem.category_name }}</v-chip>
+                    </v-list-item-subtitle>
+                    <template v-slot:prepend>
+                      <v-list-item-action class="mr-1">
+                        <v-btn color="white" size="small" @click.stop="addSkillToProject(skillItem.id)" icon>
+                          <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-col>
+            <v-col>
+              <v-card title="In Project">
+                <v-card-text>
+                  <v-data-iterator :items="projectSkills" items-per-page="-1">
+                    <template v-slot:default="{ items }">
+                      <v-row>
+                        <v-col cols="columnWidth">Group</v-col>
+                        <v-col cols="columnWidth">Category</v-col>
+                        <v-col cols="columnWidth">Skill</v-col>
+                        <v-col cols="columnWidth">Action</v-col>
+                      </v-row>
+                      <template v-for="(item, i) in items" :key="i">
+                        <v-row>
+                          <v-col cols="columnWidth">{{ item.raw.group_name }}</v-col>
+                          <v-col cols="columnWidth">{{ item.raw.category_name }}</v-col>
+                          <v-col cols="columnWidth">{{ item.raw.skill_name }}</v-col>
+                          <v-col cols="columnWidth" align-content="end">
+                            <v-btn icon="mdi-delete" @click.stop="confirmDelete(item.raw.id)"></v-btn>
+                          </v-col>
+                        </v-row>
+                      </template>
+                    </template>
+                  </v-data-iterator> </v-card-text
+              ></v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
     </v-card-text>
   </v-card>
 
@@ -195,8 +202,6 @@ export default {
   methods: {
     async initData() {
       await this.loadProjects();
-      await this.loadGroups();
-      // await this.fetchProjectSkills();
     },
     async loadProjects() {
       try {
@@ -238,7 +243,11 @@ export default {
     },
     async fetchProjectSkills() {
       try {
-        this.projectSkills = await projectSkillService.loadProjectSkills({ projectId: this.projectId }); // Assuming the API returns an array of Project
+        this.projectSkills = await projectSkillService.loadProjectSkills({
+          projectId: this.projectId,
+          groupId: this.groupId,
+          categoryId: this.categoryId,
+        }); // Assuming the API returns an array of Project
         this.error = null;
       } catch (error) {
         console.error("Error loading ProjectSkills :", error);
@@ -248,13 +257,29 @@ export default {
     // handling ui events
     changeProject() {
       this.projectId = null;
+      this.groupId = null;
+      this.categoryId = null;
+
+      this.group = {};
+      this.category = {};
+
+      this.availableSkills = [];
+      this.availableGroups = [];
+      this.availableCategories = [];
       this.project = {};
       this.currentPanel = "project";
     },
     projectSelected(event) {
       this.projectId = event.id;
+      this.groupId = null;
+      this.categoryId = null;
+
+      this.group = {};
+      this.category = {};
+
       this.project = this.availableProjects.find((item) => item.id == this.projectId);
       this.currentPanel = "group";
+      this.loadGroups();
       this.fetchProjectSkills();
     },
     groupSelected(event) {
@@ -262,12 +287,14 @@ export default {
       this.group = this.availableGroups.find((item) => item.id == this.groupId);
       this.currentPanel = "category";
       this.loadCategories();
+      this.fetchProjectSkills();
     },
     categorySelected(event) {
       this.categoryId = event.id;
       this.category = this.availableCategories.find((item) => item.id == this.categoryId);
       this.currentPanel = "skill";
       this.loadSkills();
+      this.fetchProjectSkills();
     },
     async addSkillToProject(event) {
       const newProjectSkill = {
@@ -275,8 +302,7 @@ export default {
         skillId: event,
       };
       try {
-        const response = await projectSkillService.add(newProjectSkill);
-        console.info(response);
+        await projectSkillService.add(newProjectSkill);
         this.loadSkills();
         this.fetchProjectSkills();
       } catch (error) {

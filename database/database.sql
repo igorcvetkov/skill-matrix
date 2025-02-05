@@ -11,7 +11,9 @@ CREATE TABLE `skill_group` (
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE `skill_category` (
@@ -21,7 +23,8 @@ CREATE TABLE `skill_category` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  FOREIGN KEY (`group_id`) REFERENCES `skill_group`(`id`)
+  FOREIGN KEY (`group_id`) REFERENCES `skill_group`(`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ;
 
 CREATE TABLE `skill` (
@@ -31,7 +34,8 @@ CREATE TABLE `skill` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
-  FOREIGN KEY (`category_id`) REFERENCES `skill_category`(`id`)
+  FOREIGN KEY (`category_id`) REFERENCES `skill_category`(`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ;
 
 CREATE TABLE `project` (
@@ -39,7 +43,8 @@ CREATE TABLE `project` (
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `person_skill` (
@@ -47,7 +52,8 @@ CREATE TABLE `person_skill` (
   `person_id` varchar(145) NOT NULL,
   `skill_id` int NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`)
+  FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ;
 
 CREATE TABLE `project_member` (
@@ -58,7 +64,8 @@ CREATE TABLE `project_member` (
   `end_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  FOREIGN KEY (`project_id`) REFERENCES `project`(`id`)
+  FOREIGN KEY (`project_id`) REFERENCES `project`(`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `project_skill` (
@@ -68,7 +75,8 @@ CREATE TABLE `project_skill` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   FOREIGN KEY (`project_id`) REFERENCES `project`(`id`),
-  FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`)
+  FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`),
+  `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ;
 
 -- Create views

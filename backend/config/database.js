@@ -32,22 +32,25 @@ const dbConfig = {
 const dbType = process.env.DB_TYPE || "mysql"; // Default to MySQL
 
 let db;
+// let dbpool;
 
 if (dbType === "mysql") {
-  db = mysql.createConnection(dbConfig.mysql);
+  // db = mysql.createConnection(dbConfig.mysql);
+
+  db = mysql.createPool(dbConfig.mysql);
 } else if (dbType === "postgres") {
   db = new Pool(dbConfig.postgres);
 } else {
   throw new Error("Unsupported database type");
 }
 
-db.connect((err) => {
-  if (err) {
-    console.error("Error connecting to the database:", err);
-    console.error("Connection params:", dbConfig[dbType]);
-    return;
-  }
-  console.log("Connected to database");
-});
+// db.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting to the database:", err);
+//     console.error("Connection params:", dbConfig[dbType]);
+//     return;
+//   }
+//   console.log("Connected to database");
+// });
 
 module.exports = db;

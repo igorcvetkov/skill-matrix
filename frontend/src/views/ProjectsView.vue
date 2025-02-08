@@ -2,7 +2,7 @@
   <v-card class="align-start">
     <v-toolbar title="Projects">
       <v-spacer></v-spacer>
-      <v-btn variant="elevated" size="small" @click="newProjectDialog = true" title="btn"
+      <v-btn variant="elevated" class="mr-5" size="small" @click="newProjectDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
       >
     </v-toolbar>

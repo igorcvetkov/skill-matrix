@@ -2,7 +2,7 @@
   <v-card class="align-start">
     <v-toolbar title=" Skills Groups">
       <v-spacer></v-spacer>
-      <v-btn variant="elevated" size="small" @click="newDialog = true" title="btn"
+      <v-btn variant="elevated" size="small" class="mr-5" @click="newDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
       >
     </v-toolbar>

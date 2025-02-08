@@ -8,7 +8,7 @@
       <v-btn variant="elevated" class="mr-1" size="small" @click="newDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
       >
-      <v-btn variant="elevated" size="small" @click="newBulkDialog = true" title="btn"
+      <v-btn variant="elevated" class="mr-5" size="small" @click="newBulkDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add bulk</v-btn
       >
     </v-toolbar>
@@ -18,44 +18,71 @@
         {{ error }}
       </v-alert>
 
-      <v-row>
-        <v-col cols="4">
-          <v-card title="Group Filter">
-            <v-card-text>
-              <v-list
-                selectable
-                slim
-                :items="availableGroups"
-                item-value="id"
-                item-title="name"
-                v-on:click:select="groupSelected"
-              ></v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="4">
-          <v-card title="Category Filter">
-            <v-card-text>
-              <v-list
-                selectable
-                slim
-                :items="availableCategories"
-                item-value="id"
-                item-title="name"
-                v-on:click:select="categorySelected"
-              ></v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+      <v-tabs align-tabs="center" v-model="currentTab">
+        <v-tab value="filter">Filters</v-tab>
+        <v-tab value="search">search</v-tab>
+        <v-tab value="tree">tree</v-tab>
+      </v-tabs>
 
-      <!-- Search Input -->
-      <v-text-field
-        v-model="searchQuery"
-        @input="search"
-        label="Search for skills, categories, or groups"
-        clearable
-      ></v-text-field>
+      <v-tabs-window v-model="currentTab">
+        <v-tabs-window-item value="filter" key="filter"
+          ><v-row>
+            <v-col cols="4">
+              <v-card title="Group Filter">
+                <v-card-text>
+                  <v-list
+                    selectable
+                    slim
+                    :items="availableGroups"
+                    item-value="id"
+                    item-title="name"
+                    v-on:click:select="groupSelected"
+                  ></v-list>
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-card title="Category Filter">
+                <v-card-text>
+                  <v-list
+                    selectable
+                    slim
+                    :items="availableCategories"
+                    item-value="id"
+                    item-title="name"
+                    v-on:click:select="categorySelected"
+                  ></v-list>
+                </v-card-text>
+              </v-card>
+            </v-col> </v-row
+        ></v-tabs-window-item>
+        <v-tabs-window-item value="search"
+          ><!-- Search Input -->
+          <v-text-field
+            v-model="searchQuery"
+            @input="search"
+            label="Search for skills, categories, or groups"
+            clearable
+          ></v-text-field
+        ></v-tabs-window-item>
+        <v-tabs-window-item value="tree">
+          <v-container>
+            <div v-for="group in availableGroups" :key="group.id">
+              <v-chip color="primary" v-on:click="groupSelected(group)" class="md-1 ma-2"
+                >Group: {{ group.name }}</v-chip
+              >
+              <div v-for="groupcat in group.categories" :key="groupcat.id">
+                <v-chip color="secondary" variant="outlined" v-on:click="categorySelected(groupcat)" class="ms-5 ma-2">
+                  Category: {{ groupcat.name }}
+                </v-chip>
+                <div v-for="catskill in groupcat.skills" :key="catskill.id">
+                  <v-chip variant="text" class="ms-10 ma-2"> Skill: {{ catskill.name }} </v-chip>
+                </div>
+              </div>
+            </div>
+          </v-container>
+        </v-tabs-window-item>
+      </v-tabs-window>
 
       <v-list>
         <!-- <v-list-item-group> -->
@@ -65,18 +92,20 @@
         <!-- </v-list-item-group> -->
       </v-list>
 
-      <v-list class="align-start">
-        <v-list-item v-for="skill in skills" :key="skill.id" @click="selectSkill(skill)" class="align-start">
-          <v-list-item-title>{{ skill.name }}</v-list-item-title>
-          <template v-slot:append>
-            <v-list-item-action>
-              <v-btn @click.stop="confirmDelete(skill.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </template>
-        </v-list-item>
-      </v-list>
+      <v-card>
+        <v-list class="align-start" v-if="currentTab != 'tree'">
+          <v-list-item v-for="skill in skills" :key="skill.id" @click="selectSkill(skill)" class="align-start">
+            <v-list-item-title>{{ skill.name }}</v-list-item-title>
+            <template v-slot:append>
+              <v-list-item-action>
+                <v-btn @click.stop="confirmDelete(skill.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-card>
     </v-card-text>
   </v-card>
 
@@ -141,6 +170,7 @@ import axios from "axios";
 import { backendUrl } from "@/config/appConfig";
 
 export default {
+  components: {},
   data() {
     return {
       skills: [], // Array to hold skill
@@ -156,6 +186,7 @@ export default {
       confirmDeleteDialog: false,
       searchQuery: "",
       searchResults: [],
+      currentTab: "filter", // possible options: filter, search, tree
     };
   },
   async created() {
@@ -175,10 +206,11 @@ export default {
       }
     },
     async loadCategories() {
-      console.debug("loadCategories");
       try {
         const response = await categoryService.load({ groupId: this.selectedGroupId });
         this.availableCategories = response;
+        // let currentGroup = this.availableGroups.find((item) => (item.id = this.selectedGroupId));
+        // currentGroup.categories = response;
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -197,7 +229,7 @@ export default {
       }
     },
     // UI Events handlers like button clicks, list item selections
-    groupSelected(value) {
+    async groupSelected(value) {
       // clean categories and skills
       this.selectedCategoryId = null;
       this.availableCategories = [];
@@ -205,19 +237,19 @@ export default {
 
       // set new value
       this.selectedGroupId = value?.id;
-      console.debug("new value for group is " + this.selectedGroupId);
       if (this.selectedGroupId) {
-        this.loadCategories();
+        await this.loadCategories();
+        let group = this.availableGroups.find((item) => item.id == this.selectedGroupId);
+        group.categories = this.availableCategories;
       }
     },
-    categorySelected(value) {
-      // clear skills
+    async categorySelected(value) {
       this.skills = [];
-
-      // set new value
       this.selectedCategoryId = value.id;
       if (this.selectedCategoryId) {
-        this.loadSkill();
+        await this.loadSkill();
+        let category = this.availableCategories.find((item) => item.id == this.selectedCategoryId);
+        category.skills = this.skills;
       }
     },
     viewAll() {

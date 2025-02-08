@@ -6,9 +6,10 @@
           <v-toolbar-title>Skill Matrix</v-toolbar-title>
           <!-- <v-switch :model="darkMode" @change="toggleDarkMode" label="Dark or Light"></v-switch> -->
           <v-spacer></v-spacer>
-          {{ user.name }}
-          <span v-if="isAuthenticated">{{ user.name }}</span>
-          <v-btn text @click="logout" v-if="isAuthenticated">Logout</v-btn>
+          <template v-if="authState.isAuthenticated">
+            <span>{{ user.name }}</span>
+            <v-btn text @click="logout">Logout</v-btn>
+          </template>
           <v-btn text v-else @click="login">Login</v-btn>
         </v-app-bar>
 
@@ -47,6 +48,11 @@ export default {
   //     required: true, // Ensure user prop is passed
   //   },
   // },
+  watch: {
+    state(newValue) {
+      this.authState = newValue;
+    },
+  },
   data() {
     return {
       darkMode: false,

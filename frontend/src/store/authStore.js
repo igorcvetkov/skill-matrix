@@ -13,7 +13,6 @@ export const useAuthStore = defineStore("auth", {
     async login() {
       await authService.login();
       this.isAuthenticated = true; // Update the state
-      // this.user = authService.getUser(); // Fetch user details if needed
     },
     logout() {
       authService.logout();

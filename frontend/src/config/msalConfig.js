@@ -1,6 +1,6 @@
 import { PublicClientApplication } from "@azure/msal-browser";
 import { reactive } from "vue";
-// src/authConfig.js
+
 const msalConfig = {
   auth: {
     clientId: process.env.VUE_APP_MSAL_CLIENT_ID,
@@ -25,7 +25,7 @@ export const getAccessToken = async () => {
     }
     return null;
   } catch (error) {
-    // logout();
+    msalInstance.logoutRedirect();
   }
 };
 

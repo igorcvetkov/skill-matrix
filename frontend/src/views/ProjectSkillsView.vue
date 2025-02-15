@@ -80,17 +80,6 @@
             </v-list>
           </v-expansion-panel-text>
         </v-expansion-panel>
-        <!-- <v-expansion-panel value="skill">
-          <v-expansion-panel-title>
-            <v-row no-gutters>
-              <v-col cols="4">Skills</v-col>
-              <v-col cols="8">
-                {{ skill.name }}
-              </v-col>
-            </v-row>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text> </v-expansion-panel-text>
-        </v-expansion-panel> -->
       </v-expansion-panels>
 
       <v-card subtitle="Skills">
@@ -162,7 +151,6 @@
 </template>
 
 <script>
-// import axios from "axios";
 import projectService from "@/services/projectService";
 import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
@@ -196,7 +184,6 @@ export default {
     };
   },
   created() {
-    // this.projectId = Number(this.$route.params.projectId);
     this.initData();
   },
   methods: {

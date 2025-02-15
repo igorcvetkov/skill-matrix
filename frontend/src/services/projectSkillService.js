@@ -20,8 +20,6 @@ class ProjectSkillService {
 
   async add(skill) {
     try {
-      console.debug("adding skill to project");
-      console.debug(skill);
       const response = await axios.post(`${backendUrl}/api/project-skill`, skill, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,

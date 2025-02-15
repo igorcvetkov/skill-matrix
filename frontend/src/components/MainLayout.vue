@@ -7,7 +7,7 @@
           <!-- <v-switch :model="darkMode" @change="toggleDarkMode" label="Dark or Light"></v-switch> -->
           <v-spacer></v-spacer>
           <template v-if="authStore.isAuthenticated">
-            <span>{{ authStore.user?.name }}</span>
+            <span>{{ authStore?.user?.name }}</span>
             <v-btn text @click="logout">Logout</v-btn>
           </template>
           <v-btn to="/login" text v-else>Login</v-btn>
@@ -31,35 +31,17 @@
       </v-layout>
     </v-app>
   </v-responsive>
-  <div>
-    {{ authStore }}
-  </div>
 </template>
 
 <script>
-import { onMounted } from "vue";
 import { useAuthStore } from "@/store/authStore";
 
 export default {
   name: "MainLayout",
   components: {},
-  // props: {
-  //   user: {
-  //     type: Object,
-  //     required: true, // Ensure user prop is passed
-  //   },
-  // },
-  // watch: {
-  //   state(newValue) {
-  //     this.authState = newValue;
-  //   },
-  // },
   data() {
     return {
       darkMode: false,
-      // authState: state,
-      // user: state.user,
-      // isAuthenticated: state.isAuthenticated,
     };
   },
   setup() {

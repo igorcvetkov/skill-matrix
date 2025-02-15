@@ -104,7 +104,6 @@ export default {
       this.confirmDeleteDialog = true;
     },
     async deleteGroup() {
-      console.debug("Deleting group " + this.groupToDeleteId);
       const id = this.groupToDeleteId;
 
       try {

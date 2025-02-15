@@ -87,7 +87,6 @@ export default {
       }
     },
     async handleAddProject() {
-      console.debug("Creating new  " + this.newName);
       const newProject = {
         name: this.newName,
       };

@@ -2,7 +2,6 @@
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col class="text-center">
-        user {{ user }} authstate {{ authStore }}
         <h1>Login</h1>
         <v-btn color="primary" @click="login">Login with Microsoft</v-btn>
         <!-- You can add more login options here in the future -->
@@ -12,7 +11,6 @@
 </template>
 
 <script>
-// import { onMounted } from "vue";
 import { useAuthStore } from "@/store/authStore";
 
 export default {

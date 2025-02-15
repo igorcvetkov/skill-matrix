@@ -163,7 +163,6 @@ export default {
       this.loadData();
     },
     async handleAdd() {
-      console.debug("Creating new category " + this.newCategoryName);
       const newCategory = {
         name: this.newCategoryName,
         groupId: this.selectedGroupId,
@@ -206,7 +205,6 @@ export default {
     },
     async deleteCategory() {
       const id = this.categoryIdToDelete;
-      console.debug("Deleting category " + id);
 
       try {
         await categoryService.delete(this.categoryIdToDelete);

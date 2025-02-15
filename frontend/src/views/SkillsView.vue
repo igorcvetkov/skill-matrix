@@ -191,8 +191,6 @@ export default {
   },
   async created() {
     await this.loadGroups();
-    // await this.loadCategories();
-    // await this.loadSkill();
   },
   methods: {
     async loadSkill() {
@@ -209,8 +207,6 @@ export default {
       try {
         const response = await categoryService.load({ groupId: this.selectedGroupId });
         this.availableCategories = response;
-        // let currentGroup = this.availableGroups.find((item) => (item.id = this.selectedGroupId));
-        // currentGroup.categories = response;
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -253,14 +249,10 @@ export default {
       }
     },
     viewAll() {
-      console.debug("viewAll");
-
       this.groupSelected(null);
-      console.debug("viewAll.loadCategories");
       this.loadSkill();
     },
     async handleAddSkill() {
-      console.debug("Creating new  " + this.newName);
       const newSkill = {
         name: this.newName,
         category_id: this.selectedCategoryId,
@@ -293,7 +285,6 @@ export default {
           return { name: item.trim(), categoryId: this.selectedCategoryId };
         })
         .filter((item) => item);
-      console.debug("Creating new  " + this.newSkills);
 
       try {
         const response = await skillService.bulkInsert(newSkills);
@@ -313,8 +304,6 @@ export default {
     },
 
     async deleteSkill() {
-      console.debug("Deleting skill " + this.skillIdToDeleteId);
-
       try {
         await axios.delete(`${backendUrl}/api/skills/` + this.skillIdToDeleteId);
         this.skills = this.skills.filter((skill) => skill.id !== this.skillIdToDeleteId);

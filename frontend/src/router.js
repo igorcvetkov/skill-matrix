@@ -1,4 +1,3 @@
-// src/router.js
 import { createRouter } from "vue-router";
 import { createWebHistory } from "vue-router";
 import SkillsView from "./views/SkillsView.vue";
@@ -6,7 +5,6 @@ import SkillGroups from "./views/SkillGroupsView.vue";
 import SkillCategories from "./views/SkillCategoriesView.vue";
 import ProjectsView from "./views/ProjectsView.vue";
 import ProjectSkillsView from "./views/ProjectSkillsView.vue";
-// import { state } from "@/config/msalConfig";
 import NotFound404 from "./views/NotFound404.vue";
 import MainLayout from "./components/MainLayout.vue";
 import { useAuthStore } from "./store/authStore";
@@ -69,7 +67,6 @@ const router = createRouter({
     },
     {
       path: "/:catchAll(.*)*", // Optional: redirect to a 404 page or home
-      // redirect: "/404",
       name: "NotFound",
       component: NotFound404,
     },

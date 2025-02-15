@@ -58,6 +58,7 @@
 import categoryGroupService from "@/services/categoryGroupService";
 
 export default {
+  name: "SkillGroups",
   data() {
     return {
       skillGroups: [], // Array to hold skill groups
@@ -76,7 +77,6 @@ export default {
     async loadSkillGroups() {
       try {
         this.skillGroups = await categoryGroupService.load();
-        console.log(this.skillGroups);
         this.error = null;
       } catch (error) {
         console.error("Error loading skill groups:", error);

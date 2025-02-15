@@ -5,7 +5,6 @@ import { state } from "@/config/msalConfig";
 class CategoryService {
   async load(filter) {
     try {
-      console.log(filter);
       const response = await axios.get(`${backendUrl}/api/skill-categories`, {
         params: filter,
         headers: {

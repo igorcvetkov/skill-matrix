@@ -158,7 +158,6 @@ export default {
       }
     },
     groupSelected(event) {
-      console.log("event", event.id);
       this.selectedGroupId = Number(event.id);
       this.$router.push({ name: "SkillCategories", params: { groupId: this.selectedGroupId } });
       this.loadData();

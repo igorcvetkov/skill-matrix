@@ -36,6 +36,7 @@ export const graphScopes = {
 export const state = reactive({
   isAuthenticated: false,
   user: {},
+  account: {},
   roles: [],
   token: {},
 });

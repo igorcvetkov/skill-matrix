@@ -78,7 +78,7 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: "login" }); // Redirect to 404 if not authenticated
+    next({ name: "login", query: { redirect: to.fullPath } });
   } else {
     next(); // Proceed to the route
   }

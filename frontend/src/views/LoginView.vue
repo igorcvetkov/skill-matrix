@@ -35,7 +35,7 @@ export default {
   },
   async mounted() {
     const authStore = useAuthStore();
-    await authStore.handleRedirect();
+    await authStore.handleRedirect(this.$route.query.redirect);
   },
   methods: {},
 };

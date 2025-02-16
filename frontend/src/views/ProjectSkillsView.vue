@@ -189,6 +189,12 @@ export default {
   methods: {
     async initData() {
       await this.loadProjects();
+      const routeParam = Number(this.$route.params.projectId);
+      console.log("routerParam", routeParam);
+      // this.projectId = isNaN(routeParam) ? null : routeParam;
+      if (!isNaN(routeParam) && routeParam != null) {
+        this.selectProject(routeParam);
+      }
     },
     async loadProjects() {
       try {
@@ -243,31 +249,10 @@ export default {
     },
     // handling ui events
     changeProject() {
-      this.projectId = null;
-      this.groupId = null;
-      this.categoryId = null;
-
-      this.group = {};
-      this.category = {};
-
-      this.availableSkills = [];
-      this.availableGroups = [];
-      this.availableCategories = [];
-      this.project = {};
-      this.currentPanel = "project";
+      this.resetProject();
     },
     projectSelected(event) {
-      this.projectId = event.id;
-      this.groupId = null;
-      this.categoryId = null;
-
-      this.group = {};
-      this.category = {};
-
-      this.project = this.availableProjects.find((item) => item.id == this.projectId);
-      this.currentPanel = "group";
-      this.loadGroups();
-      this.fetchProjectSkills();
+      this.selectProject(event.id);
     },
     groupSelected(event) {
       this.groupId = event.id;
@@ -313,6 +298,41 @@ export default {
     confirmDelete(skillId) {
       this.skillIdToDelete = skillId; // Store the ID of the project to delete
       this.confirmDeleteDialog = true; // Show the confirmation dialog
+    },
+    selectProject(projectId) {
+      this.projectId = projectId;
+      this.$router.push({ name: "ProjectSkills", params: { projectId: projectId } });
+
+      this.groupId = null;
+      this.categoryId = null;
+
+      this.group = {};
+      this.category = {};
+
+      this.project = this.availableProjects.find((item) => item.id == projectId);
+      if (!this.project) {
+        this.resetProject();
+      } else {
+        this.currentPanel = "group";
+        this.loadGroups();
+        this.fetchProjectSkills();
+      }
+    },
+    resetProject() {
+      this.projectId = null;
+      this.$router.push({ name: "ProjectSkills" });
+
+      this.groupId = null;
+      this.categoryId = null;
+
+      this.group = {};
+      this.category = {};
+
+      this.availableSkills = [];
+      this.availableGroups = [];
+      this.availableCategories = [];
+      this.project = {};
+      this.currentPanel = "project";
     },
   },
 };

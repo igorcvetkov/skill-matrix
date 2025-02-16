@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", {
       this.isAuthenticated = false; // Update the state
       this.user = null; // Clear user details
     },
-    async handleRedirect() {
+    async handleRedirect(redirect) {
       try {
         const response = await msalInstance.handleRedirectPromise(); //.handleRedirect();
         if (response) {
@@ -29,7 +29,10 @@ export const useAuthStore = defineStore("auth", {
           const token = await authService.getAccessToken();
           this.token = token;
 
-          router.push("/");
+          // router.push("/");
+
+          const redirectPath = redirect || "/"; // Default to home if no redirect
+          router.push(redirectPath); // Red
         }
       } catch (error) {
         console.error("error", error);

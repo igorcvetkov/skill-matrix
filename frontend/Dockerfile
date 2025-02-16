@@ -1,5 +1,5 @@
 # frontend/Dockerfile
-FROM node:14 AS build
+FROM node:22-slim AS build
 
 # Set the working directory
 WORKDIR /app

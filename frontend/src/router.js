@@ -9,6 +9,7 @@ import NotFound404 from "./views/NotFound404.vue";
 import MainLayout from "./components/MainLayout.vue";
 import { useAuthStore } from "./store/authStore";
 import LoginView from "./views/LoginView.vue";
+import PersonSkillsView from "./views/PersonSkillsView.vue";
 
 const router = createRouter({
   history: createWebHistory(), // Optional: use history mode for cleaner URLs
@@ -54,6 +55,14 @@ const router = createRouter({
           path: "/project-skills/:projectId?",
           name: "ProjectSkills",
           component: ProjectSkillsView,
+          meta: {
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "/person-skills",
+          name: "PersonSkills",
+          component: PersonSkillsView,
           meta: {
             requiresAuth: true,
           },

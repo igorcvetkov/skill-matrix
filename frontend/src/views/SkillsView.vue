@@ -67,19 +67,7 @@
         ></v-tabs-window-item>
         <v-tabs-window-item value="tree">
           <v-container>
-            <div v-for="group in availableGroups" :key="group.id">
-              <v-chip color="primary" v-on:click="groupSelected(group)" class="md-1 ma-2"
-                >Group: {{ group.name }}</v-chip
-              >
-              <div v-for="groupcat in group.categories" :key="groupcat.id">
-                <v-chip color="secondary" variant="outlined" v-on:click="categorySelected(groupcat)" class="ms-5 ma-2">
-                  Category: {{ groupcat.name }}
-                </v-chip>
-                <div v-for="catskill in groupcat.skills" :key="catskill.id">
-                  <v-chip variant="text" class="ms-10 ma-2"> Skill: {{ catskill.name }} </v-chip>
-                </div>
-              </div>
-            </div>
+            <SkillTree></SkillTree>
           </v-container>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -95,7 +83,7 @@
       <v-card>
         <v-list class="align-start" v-if="currentTab != 'tree'">
           <v-list-item v-for="skill in skills" :key="skill.id" @click="selectSkill(skill)" class="align-start">
-            <v-list-item-title>{{ skill.name }}</v-list-item-title>
+            <v-list-item-title>{{ skill.skill_name }}</v-list-item-title>
             <template v-slot:append>
               <v-list-item-action>
                 <v-btn @click.stop="confirmDelete(skill.id)" icon>
@@ -168,9 +156,12 @@ import categoryService from "@/services/categoryService";
 import skillService from "@/services/skillService";
 import axios from "axios";
 import { backendUrl } from "@/config/appConfig";
+import SkillTree from "@/components/SkillTree.vue";
 
 export default {
-  components: {},
+  components: {
+    SkillTree,
+  },
   data() {
     return {
       skills: [], // Array to hold skill

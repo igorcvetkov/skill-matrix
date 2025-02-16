@@ -20,7 +20,7 @@ router.get("/:id", (req, res) => {
   const query = `
       SELECT p.*, 
              ps.skill_id,
-             s.name as skill_name,
+             s.skill_name as skill_name,
              pm.person_id
       FROM project p
       LEFT JOIN project_skill ps ON p.id = ps.project_id
@@ -45,7 +45,7 @@ router.get("/:id", (req, res) => {
         .filter((r) => r.skill_id)
         .map((r) => ({
           id: r.skill_id,
-          name: r.skill_name,
+          skill_name: r.skill_name,
         })),
       members: [...new Set(results.filter((r) => r.person_id).map((r) => r.person_id))],
     };
@@ -56,29 +56,35 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const { name, description, skills, members } = req.body;
 
-  db.beginTransaction(async (err) => {
-    if (err) throw err;
+  // db.beginTransaction(async (err) => {
+  //   if (err) throw err;
 
-    try {
-      // Insert project
-      const insertQuery = "INSERT INTO project (name) VALUES (?)"; // Use $1 for PostgreSQL
-      const [projectResult] = await db.promise().query(insertQuery, [name]);
-      const projectId = projectResult.insertId || projectResult[0].id; // Handle both MySQL and PostgreSQL
-
-      await db.promise().commit();
-      res.status(201).json({
-        id: projectId,
-        name,
-        description,
-        skills,
-        members,
-      });
-    } catch (error) {
-      await db.promise().rollback();
+  // try {
+  // Insert project
+  const insertQuery = "INSERT INTO project (name) VALUES (?)"; // Use $1 for PostgreSQL
+  db.query(insertQuery, [name], (error, result) => {
+    if (error) {
       console.error(error);
-      res.status(500).json({ error: "Failed to create project" });
+      return res.status(500).json({ error: "Failed to add skill to person", exception: error });
     }
+    res.status(201).json({ id: result.insertId });
   });
+  // const projectId = projectResult.insertId || projectResult[0].id; // Handle both MySQL and PostgreSQL
+
+  // await db.promise().commit();
+  // res.status(201).json({
+  //   id: projectId,
+  //   name,
+  //   description,
+  //   skills,
+  //   members,
+  // });
+  // } catch (error) {
+  //   await db.promise().rollback();
+  //   console.error(error);
+  //   res.status(500).json({ error: "Failed to create project" });
+  // }
+  // });
 });
 
 router.delete("/:id", (req, res) => {

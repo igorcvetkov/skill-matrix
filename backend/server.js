@@ -11,6 +11,7 @@ const skillCategoriesRouter = require("./routes/skill-categories");
 const skillsRouter = require("./routes/skills");
 const projectsRouter = require("./routes/projects");
 const projectSkillsRouter = require("./routes/project-skills");
+const personSkillsRouter = require("./routes/person-skills");
 const personRouter = require("./routes/person");
 
 const app = express();
@@ -135,4 +136,5 @@ app.use("/api/skill-categories/bulk", validateAccessToken, skillCategoriesRouter
 app.use("/api/skills", validateAccessToken, skillsRouter);
 app.use("/api/projects", validateAccessToken, projectsRouter);
 app.use("/api/project-skill", validateAccessToken, projectSkillsRouter);
+app.use("/api/person-skill", validateAccessToken, personSkillsRouter);
 app.use("/api/person", validateAccessToken, personRouter);

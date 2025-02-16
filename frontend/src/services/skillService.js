@@ -4,6 +4,7 @@ import { state } from "@/config/msalConfig";
 
 class SkillService {
   async load(filter) {
+    console.log("skillservice load", filter);
     try {
       const response = await axios.get(`${backendUrl}/api/skills`, {
         params: filter,

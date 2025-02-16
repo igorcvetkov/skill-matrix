@@ -5,7 +5,7 @@ const db = require("../config/database");
 // Person Skills endpoints
 router.get("/:id/skills", (req, res) => {
   const query = `
-      SELECT ps.*, s.name as skill_name 
+      SELECT ps.*, s.skill_name as skill_name 
       FROM person_skill ps
       JOIN skill s ON ps.skill_id = s.id
       WHERE ps.person_id = ?

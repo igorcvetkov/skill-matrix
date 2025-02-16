@@ -4,12 +4,12 @@ const db = require("../config/database");
 
 router.get("/", (req, res) => {
   console.log("request", req);
-  const { projectId, groupId, categoryId } = req.query;
-  let query = "select * from project_skill_details where 1=1";
+  const { personId, groupId, categoryId } = req.query;
+  let query = "select * from person_skill_details where 1=1";
   const params = [];
-  if (projectId) {
-    query += " AND project_id = ?";
-    params.push(projectId);
+  if (personId) {
+    query += " AND person_id = ?";
+    params.push(personId);
   }
   if (groupId) {
     query += " AND group_id = ?";
@@ -23,20 +23,20 @@ router.get("/", (req, res) => {
   db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Failed to fetch projects" });
+      return res.status(500).json({ error: "Failed to fetch person skills" });
     }
-
+    console.log("get person skills", results);
     res.json(results);
   });
 });
 
 router.post("/", (req, res) => {
-  const { projectId, skillId } = req.body;
+  const { personId, skillId } = req.body;
 
-  db.query("INSERT INTO project_skill (skill_id, project_id) VALUES (?, ?)", [skillId, projectId], (err, result) => {
+  db.query("INSERT INTO person_skill (skill_id, person_id) VALUES (?, ?)", [skillId, personId], (err, result) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Failed to add skill to project", exception: err });
+      return res.status(500).json({ error: "Failed to add skill to person", exception: err });
     }
     res.status(201).json({ id: result.insertId });
   });
@@ -45,10 +45,10 @@ router.post("/", (req, res) => {
 router.delete("/:id", (req, res) => {
   const skillId = req.params.id;
 
-  db.query("DELETE FROM project_skill WHERE id = ?", [skillId], (err, result) => {
+  db.query("DELETE FROM person_skill WHERE id = ?", [skillId], (err, result) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Failed to delete project", exception: err });
+      return res.status(500).json({ error: "Failed to delete person", exception: err });
     }
     res.status(204).send();
   });

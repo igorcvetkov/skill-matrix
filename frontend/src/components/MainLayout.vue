@@ -20,6 +20,7 @@
             <v-list-item title="Skill Categories" :to="{ name: 'SkillCategories' }" router></v-list-item>
             <v-list-item title="Skills" :to="{ name: 'Skills' }" router></v-list-item>
             <v-list-item title="Project Skills" :to="{ name: 'ProjectSkills' }" router></v-list-item>
+            <v-list-item title="Person Skills" :to="{ name: 'PersonSkills' }" router></v-list-item>
           </v-list>
         </v-navigation-drawer>
 

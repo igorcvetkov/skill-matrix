@@ -4,7 +4,7 @@ const db = require("../config/database");
 
 // Skills endpoints
 router.get("/", (req, res) => {
-  const { categoryId, groupId, excludeProjectId } = req.query;
+  const { categoryId, groupId, excludeProjectId, excludePersonId } = req.query;
   let query = `
       SELECT s.*
       FROM skill_details s 
@@ -18,8 +18,13 @@ router.get("/", (req, res) => {
   }
 
   if (excludeProjectId) {
-    query += " AND id not in (select skill_id from project_skill ps where ps.project_id = ?)";
+    query += " AND id not in (select skill_id from project_skill projectskill where projectskill.project_id = ?)";
     params.push(excludeProjectId);
+  }
+
+  if (excludePersonId) {
+    query += " AND id not in (select skill_id from person_skill personskill where personskill.person_id = ?)";
+    params.push(excludePersonId);
   }
 
   db.query(query, params, (err, results) => {
@@ -27,6 +32,9 @@ router.get("/", (req, res) => {
       console.error(err);
       return res.status(500).json({ error: "Failed to fetch skills" });
     }
+
+    console.log("get skills by filter", query, params);
+    console.log("get skills results", results);
     res.json(results);
   });
 });

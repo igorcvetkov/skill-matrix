@@ -125,7 +125,7 @@ CREATE
 VIEW `skill_details` AS
     SELECT 
         `s`.`id` AS `id`,
-        `s`.`name` AS `name`,
+        `s`.`name` AS `skill_name`,
         `s`.`category_id` AS `category_id`,
         `sc`.`name` AS `category_name`,
         `sc`.`group_name` AS `group_name`,

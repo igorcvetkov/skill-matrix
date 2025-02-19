@@ -38,49 +38,9 @@
             </v-list>
           </v-expansion-panel-text>
         </v-expansion-panel>
-        <v-expansion-panel value="group">
-          <v-expansion-panel-title>
-            <v-row no-gutters>
-              <v-col cols="4">Group:</v-col>
-              <v-col cols="8">
-                {{ group.name }}
-              </v-col>
-            </v-row>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list
-              selectable
-              slim
-              :items="availableGroups"
-              item-value="id"
-              item-title="name"
-              v-on:click:select="groupSelected"
-            >
-            </v-list>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-        <v-expansion-panel value="category">
-          <v-expansion-panel-title>
-            <v-row no-gutters>
-              <v-col cols="4">Category:</v-col>
-              <v-col cols="8">
-                {{ category.name }}
-              </v-col>
-            </v-row>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list
-              selectable
-              slim
-              :items="availableCategories"
-              item-value="id"
-              item-title="name"
-              v-on:click:select="categorySelected"
-            >
-            </v-list>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
       </v-expansion-panels>
+
+      <skill-filter @change="handleFilterChange"></skill-filter>
 
       <v-card subtitle="Skills">
         <v-card-text>
@@ -152,26 +112,23 @@
 
 <script>
 import projectService from "@/services/projectService";
-import categoryGroupService from "@/services/categoryGroupService";
-import categoryService from "@/services/categoryService";
 import projectSkillService from "@/services/projectSkillService";
 import skillService from "@/services/skillService";
+import SkillFilter from "@/components/SkillFilter.vue";
 
 export default {
+  components: {
+    SkillFilter,
+  },
   data() {
     return {
       columnWidth: 2,
       projectSkills: [],
-      availableCategories: [],
-      availableGroups: [],
       availableProjects: [],
       availableSkills: [],
-      categoryId: null,
-      groupId: null,
       projectId: null,
       project: {},
-      group: {},
-      category: {},
+      currentFilter: {},
       skill: {},
       selectedSkillId: null,
       newSkillId: null,
@@ -204,28 +161,11 @@ export default {
         this.error = error;
       }
     },
-    async loadGroups() {
-      try {
-        this.availableGroups = await categoryGroupService.load();
-        this.error = null;
-      } catch (error) {
-        console.error("Error loading skill groups:", error);
-        this.error = error.message;
-      }
-    },
-    async loadCategories() {
-      try {
-        this.availableCategories = await categoryService.load({ groupId: this.groupId });
-        this.error = null;
-      } catch (error) {
-        console.error("Error loading skill groups:", error);
-        this.error = error.message;
-      }
-    },
+
     async loadSkills() {
       try {
         this.availableSkills = await skillService.load({
-          categoryId: this.categoryId,
+          ...this.currentFilter,
           excludeProjectId: this.projectId,
         });
         this.error = null;
@@ -237,9 +177,8 @@ export default {
     async fetchProjectSkills() {
       try {
         this.projectSkills = await projectSkillService.loadProjectSkills({
+          ...this.currentFilter,
           projectId: this.projectId,
-          groupId: this.groupId,
-          categoryId: this.categoryId,
         }); // Assuming the API returns an array of Project
         this.error = null;
       } catch (error) {
@@ -254,20 +193,12 @@ export default {
     projectSelected(event) {
       this.selectProject(event.id);
     },
-    groupSelected(event) {
-      this.groupId = event.id;
-      this.group = this.availableGroups.find((item) => item.id == this.groupId);
-      this.currentPanel = "category";
-      this.loadCategories();
-      this.fetchProjectSkills();
-    },
-    categorySelected(event) {
-      this.categoryId = event.id;
-      this.category = this.availableCategories.find((item) => item.id == this.categoryId);
-      this.currentPanel = "skill";
+    handleFilterChange(event) {
+      this.currentFilter = event;
       this.loadSkills();
       this.fetchProjectSkills();
     },
+
     async addSkillToProject(event) {
       const newProjectSkill = {
         projectId: this.projectId,
@@ -303,18 +234,10 @@ export default {
       this.projectId = projectId;
       this.$router.push({ name: "ProjectSkills", params: { projectId: projectId } });
 
-      this.groupId = null;
-      this.categoryId = null;
-
-      this.group = {};
-      this.category = {};
-
       this.project = this.availableProjects.find((item) => item.id == projectId);
       if (!this.project) {
         this.resetProject();
       } else {
-        this.currentPanel = "group";
-        this.loadGroups();
         this.fetchProjectSkills();
       }
     },
@@ -322,15 +245,8 @@ export default {
       this.projectId = null;
       this.$router.push({ name: "ProjectSkills" });
 
-      this.groupId = null;
-      this.categoryId = null;
-
-      this.group = {};
-      this.category = {};
-
       this.availableSkills = [];
-      this.availableGroups = [];
-      this.availableCategories = [];
+
       this.project = {};
       this.currentPanel = "project";
     },

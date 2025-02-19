@@ -5,6 +5,7 @@ const db = require("../config/database");
 // Skills endpoints
 router.get("/", (req, res) => {
   const { categoryId, groupId, excludeProjectId, excludePersonId } = req.query;
+  console.log("get skills filter", { categoryId, groupId, excludeProjectId, excludePersonId });
   let query = `
       SELECT s.*
       FROM skill_details s 
@@ -12,6 +13,11 @@ router.get("/", (req, res) => {
     `;
 
   const params = [];
+  if (groupId) {
+    query += " AND group_id = ?";
+    params.push(groupId);
+  }
+
   if (categoryId) {
     query += " AND category_id = ?";
     params.push(categoryId);

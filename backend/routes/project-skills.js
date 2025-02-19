@@ -11,11 +11,11 @@ router.get("/", (req, res) => {
     query += " AND project_id = ?";
     params.push(projectId);
   }
-  if (groupId) {
+  if (groupId && groupId != null) {
     query += " AND group_id = ?";
     params.push(groupId);
   }
-  if (categoryId) {
+  if (categoryId && categoryId != null) {
     query += " AND category_id = ?";
     params.push(categoryId);
   }

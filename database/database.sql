@@ -1,10 +1,12 @@
+use  `matrix`;
+
 DROP TABLE IF EXISTS `project_member`;
-DROP TABLE IF EXISTS `project`;
 DROP TABLE IF EXISTS `person_skill`;
+DROP TABLE IF EXISTS `project_skill`;
+DROP TABLE IF EXISTS `project`;
 DROP TABLE IF EXISTS `skill`;
 DROP TABLE IF EXISTS `skill_category`;
 DROP TABLE IF EXISTS `skill_group`;
-DROP TABLE IF EXISTS `project_skill`;
 
 CREATE TABLE `skill_group` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -82,9 +84,7 @@ CREATE TABLE `project_skill` (
 -- Create views
 
 CREATE 
-    ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`localhost` 
-    SQL SECURITY DEFINER
+    
 VIEW `project_skill_details` AS
     SELECT 
         `ps`.`id` AS `id`,
@@ -105,9 +105,7 @@ VIEW `project_skill_details` AS
 
 
 CREATE 
-    ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`localhost` 
-    SQL SECURITY DEFINER
+   
 VIEW `skill_category_details` AS
     SELECT 
         `sc`.`id` AS `id`,
@@ -119,9 +117,7 @@ VIEW `skill_category_details` AS
         LEFT JOIN `skill_group` `sg` ON (`sg`.`id` = `sc`.`group_id`));
 
 CREATE 
-    ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`localhost` 
-    SQL SECURITY DEFINER
+  
 VIEW `skill_details` AS
     SELECT 
         `s`.`id` AS `id`,
@@ -136,9 +132,7 @@ VIEW `skill_details` AS
         
 
 CREATE 
-    ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`localhost` 
-    SQL SECURITY DEFINER
+   
 VIEW `person_skill_details` AS
     SELECT 
         `ps`.`id` AS `id`,

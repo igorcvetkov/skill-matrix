@@ -1,6 +1,6 @@
 <template>
   <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center">
+    <v-row justify="center">
       <v-col class="text-center">
         <h1>Login</h1>
         <v-btn color="primary" @click="login">Login with Microsoft</v-btn>

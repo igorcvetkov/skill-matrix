@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve --mode aws",
+    "build": "vue-cli-service build --mode aws",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.0.2",
     "axios": "^1.7.9",
     "core-js": "^3.8.3",
-    "dotenv": "^16.4.7",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.3.1",
     "vue": "^3.5.13",

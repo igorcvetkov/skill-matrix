@@ -46,6 +46,27 @@
         <v-card-text>
           <v-row>
             <v-col>
+              <skill-list title="Available" :available-skills="availableSkills">
+                <template v-slot:actions="{ id }">
+                  <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
+                </template>
+              </skill-list>
+            </v-col>
+            <v-col>
+              <skill-list title="Used in Project" :available-skills="projectSkills">
+                <template v-slot:actions="{ id }">
+                  <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                </template>
+              </skill-list>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+
+      <!-- <v-card subtitle="Skills">
+        <v-card-text>
+          <v-row>
+            <v-col>
               <v-card title="Available">
                 <v-list>
                   <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id">
@@ -92,7 +113,7 @@
             </v-col>
           </v-row>
         </v-card-text>
-      </v-card>
+      </v-card> -->
     </v-card-text>
   </v-card>
 
@@ -115,10 +136,12 @@ import projectService from "@/services/projectService";
 import projectSkillService from "@/services/projectSkillService";
 import skillService from "@/services/skillService";
 import SkillFilter from "@/components/SkillFilter.vue";
+import SkillList from "@/components/SkillList.vue";
 
 export default {
   components: {
     SkillFilter,
+    SkillList,
   },
   data() {
     return {
@@ -218,6 +241,7 @@ export default {
         await projectSkillService.delete(this.skillIdToDelete);
         this.projectSkills = this.projectSkills.filter((project) => project.id !== this.skillIdToDelete);
         this.error = null;
+        this.loadSkills();
       } catch (error) {
         console.error("Error deleting project :", error);
         this.error = error.message;

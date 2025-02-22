@@ -46,49 +46,18 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <v-card title="Available">
-                <v-list>
-                  <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id">
-                    <v-list-item-title>{{ skillItem.skill_name }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      <v-chip class="ma-1" size="x-small">Group: {{ skillItem.group_name }}</v-chip>
-                      <v-chip class="ma-1" size="x-small">Category: {{ skillItem.category_name }}</v-chip>
-                    </v-list-item-subtitle>
-                    <template v-slot:prepend>
-                      <v-list-item-action class="mr-1">
-                        <v-btn color="white" size="small" @click.stop="addSkillToPerson(skillItem.id)" icon>
-                          <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
+              <skill-list title="Available" :available-skills="availableSkills">
+                <template v-slot:actions="{ id }">
+                  <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToPerson(id)"> </v-btn>
+                </template>
+              </skill-list>
             </v-col>
             <v-col>
-              <v-card title="Assigned to person">
-                <v-card-text>
-                  <v-data-iterator :items="personSkills" items-per-page="-1">
-                    <template v-slot:default="{ items }">
-                      <v-row>
-                        <v-col cols="columnWidth">Group</v-col>
-                        <v-col cols="columnWidth">Category</v-col>
-                        <v-col cols="columnWidth">Skill</v-col>
-                        <v-col cols="columnWidth">Action</v-col>
-                      </v-row>
-                      <template v-for="(item, i) in items" :key="i">
-                        <v-row>
-                          <v-col cols="columnWidth">{{ item.raw.group_name }}</v-col>
-                          <v-col cols="columnWidth">{{ item.raw.category_name }}</v-col>
-                          <v-col cols="columnWidth">{{ item.raw.skill_name }}</v-col>
-                          <v-col cols="columnWidth" align-content="end">
-                            <v-btn icon="mdi-delete" @click.stop="confirmDelete(item.raw.id)"></v-btn>
-                          </v-col>
-                        </v-row>
-                      </template>
-                    </template>
-                  </v-data-iterator> </v-card-text
-              ></v-card>
+              <skill-list title="Assigned to person" :available-skills="personSkills">
+                <template v-slot:actions="{ id }">
+                  <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                </template>
+              </skill-list>
             </v-col>
           </v-row>
         </v-card-text>
@@ -115,6 +84,7 @@ import personSkillService from "@/services/personSkillService";
 import skillService from "@/services/skillService";
 import { useAuthStore } from "@/store/authStore";
 import SkillFilter from "@/components/SkillFilter.vue";
+import SkillList from "@/components/SkillList.vue";
 
 export default {
   setup() {
@@ -126,6 +96,7 @@ export default {
   },
   components: {
     SkillFilter,
+    SkillList,
   },
   data() {
     return {
@@ -227,6 +198,7 @@ export default {
         await personSkillService.delete(this.skillIdToDelete);
         this.personSkills = this.personSkills.filter((person) => person.id !== this.skillIdToDelete);
         this.error = null;
+        this.loadSkills();
       } catch (error) {
         console.error("Error deleting person :", error);
         this.error = error.message;

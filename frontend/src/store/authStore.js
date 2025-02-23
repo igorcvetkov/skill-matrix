@@ -8,6 +8,7 @@ export const useAuthStore = defineStore("auth", {
     user: null,
     isAuthenticated: false,
     token: null,
+    roles: [],
   }),
   actions: {
     async login() {
@@ -28,6 +29,7 @@ export const useAuthStore = defineStore("auth", {
 
           const token = await authService.getAccessToken();
           this.token = token;
+          this.roles = this.user.idTokenClaims.roles;
           console.log(response);
           // router.push("/");
 

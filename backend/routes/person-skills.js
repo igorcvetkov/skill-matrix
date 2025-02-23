@@ -8,8 +8,14 @@ router.get("/", (req, res) => {
   let query = "select * from person_skill_details where 1=1";
   const params = [];
   if (personId) {
-    query += " AND person_id = ?";
-    params.push(personId);
+    console.log("personid", req.user);
+    if (req.user.roles.includes("admin")) {
+      query += " AND person_id = ?";
+      params.push(personId);
+    } else {
+      query += " AND person_id = ?";
+      params.push(req.user.unique_name);
+    }
   }
   if (groupId) {
     query += " AND group_id = ?";

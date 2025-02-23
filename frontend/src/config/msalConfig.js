@@ -19,8 +19,10 @@ export const getAccessToken = async () => {
     if (accounts.length >= 1) {
       const account = { account: accounts[0] };
       const request = Object.assign({}, graphScopes, account);
+      console.log("access token request", request);
       const tokenResponse = await msalInstance.acquireTokenSilent(request);
       state.token = tokenResponse;
+      console.log("token response", tokenResponse);
       return tokenResponse.accessToken;
     }
     return null;
@@ -30,7 +32,7 @@ export const getAccessToken = async () => {
 };
 
 export const graphScopes = {
-  scopes: [`${process.env.VUE_APP_MSAL_CLIENT_ID}/project.read`],
+  scopes: [`${process.env.VUE_APP_MSAL_CLIENT_ID}/User.Read`, `${process.env.VUE_APP_MSAL_CLIENT_ID}/person.skill.all`],
 };
 
 export const state = reactive({

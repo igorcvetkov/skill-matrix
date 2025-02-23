@@ -2,8 +2,8 @@ require("dotenv").config({ path: `.env.${process.env.NODE_ENV || "development"}`
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-const validateToken = require("./auth"); // Import the token validation middleware
-const validateAccessToken = require("./auth"); // Import the token validation middleware
+// const validateToken = require("./auth"); // Import the token validation middleware
+const { validateToken, authorizeRequest } = require("./auth"); // Import the token validation middleware
 
 // adding routes
 const skillGroupsRouter = require("./routes/skill-groups");
@@ -12,7 +12,7 @@ const skillsRouter = require("./routes/skills");
 const projectsRouter = require("./routes/projects");
 const projectSkillsRouter = require("./routes/project-skills");
 const personSkillsRouter = require("./routes/person-skills");
-const personRouter = require("./routes/person");
+const personsRouter = require("./routes/persons");
 
 const app = express();
 app.use(cors());
@@ -127,14 +127,14 @@ app.get("/health", async (req, res) => {
 });
 
 // Protect routes with token validation
-app.use("/api/protected", validateAccessToken, projectsRouter);
+app.use("/api/protected", validateToken, projectsRouter);
 
 // app.use("/api/skill-groups", validateToken, skillGroupsRouter);
-app.use("/api/skill-groups", validateAccessToken, skillGroupsRouter);
-app.use("/api/skill-categories", validateAccessToken, skillCategoriesRouter);
-app.use("/api/skill-categories/bulk", validateAccessToken, skillCategoriesRouter);
-app.use("/api/skills", validateAccessToken, skillsRouter);
-app.use("/api/projects", validateAccessToken, projectsRouter);
-app.use("/api/project-skill", validateAccessToken, projectSkillsRouter);
-app.use("/api/person-skill", validateAccessToken, personSkillsRouter);
-app.use("/api/person", validateAccessToken, personRouter);
+app.use("/api/skill-groups", validateToken, skillGroupsRouter);
+app.use("/api/skill-categories", validateToken, skillCategoriesRouter);
+app.use("/api/skill-categories/bulk", validateToken, skillCategoriesRouter);
+app.use("/api/skills", validateToken, skillsRouter);
+app.use("/api/projects", validateToken, projectsRouter);
+app.use("/api/project-skill", validateToken, projectSkillsRouter);
+app.use("/api/person-skill", validateToken, personSkillsRouter);
+app.use("/api/persons", validateToken, personsRouter);

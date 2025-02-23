@@ -44,10 +44,49 @@ const validateToken = (req, res, next) => {
         console.error("Token verification error:", err);
         return res.status(401).json({ error: "Invalid token" });
       }
+
       req.user = decoded; // Store user info for further processing
       next();
     }
   );
 };
 
-module.exports = validateToken;
+const authorizeRequest = (allowedRoles, requiredScope) => (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid token" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract token
+
+  jwt.verify(
+    token,
+    getKey,
+    { issuer: msalConfig.auth.authority + "/", audience: msalConfig.auth.clientId },
+    (err, decoded) => {
+      if (err) {
+        console.error("Token verification error:", err);
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      const userRoles = decoded.roles || []; // Extract roles from token
+      const userScopes = decoded.scp?.split(" ") || []; // Extract scopes from token
+
+      // Check if user has a valid role
+      const hasValidRole = userRoles.some((role) => allowedRoles.includes(role));
+      if (!hasValidRole) {
+        return res.status(403).json({ error: "Forbidden: Invalid role" });
+      }
+
+      // Check if user has the required scope
+      if (!userScopes.includes(requiredScope)) {
+        return res.status(403).json({ error: "Forbidden: Missing required scope" });
+      }
+
+      req.user = decoded; // Store user info for further processing
+      next();
+    }
+  );
+};
+
+module.exports = { validateToken, authorizeRequest };

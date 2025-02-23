@@ -5,7 +5,8 @@
         <v-row no-gutters>
           <v-col cols="4">Person Skills</v-col>
           <v-col cols="8">
-            {{ person.name }} <v-chip v-if="personId" @click="changePerson" size="x-small">Change Person</v-chip>
+            {{ person.name ?? person.person_id }}
+            <v-chip v-if="personId" @click="changePerson" size="x-small">Change Person</v-chip>
           </v-col>
         </v-row>
       </v-toolbar-title>
@@ -31,8 +32,8 @@
               selectable
               slim
               :items="availablePersons"
-              item-value="id"
-              item-title="name"
+              item-value="person_id"
+              item-title="person_id"
               v-on:click:select="personSelected"
             >
             </v-list>
@@ -85,6 +86,7 @@ import skillService from "@/services/skillService";
 import { useAuthStore } from "@/store/authStore";
 import SkillFilter from "@/components/SkillFilter.vue";
 import SkillList from "@/components/SkillList.vue";
+import personService from "@/services/personService";
 
 export default {
   setup() {
@@ -138,12 +140,7 @@ export default {
     async loadPersons() {
       console.log("load persons");
       try {
-        this.availablePersons = [
-          {
-            id: this.authStore.user.username,
-            name: this.authStore.user.name,
-          },
-        ];
+        this.availablePersons = await personService.load();
         this.error = null;
       } catch (error) {
         this.error = error;
@@ -213,7 +210,7 @@ export default {
     },
     selectPerson(personId) {
       this.personId = personId;
-      this.$router.push({ name: "PersonSkills", params: { personId: personId } });
+      // this.$router.push({ name: "PersonSkills", params: { personId: personId } });
 
       this.groupId = null;
       this.categoryId = null;
@@ -221,12 +218,11 @@ export default {
       this.group = {};
       this.category = {};
 
-      this.person = this.availablePersons.find((item) => item.id == personId);
+      this.person = this.availablePersons.find((item) => item.person_id == personId);
       if (!this.person) {
         this.resetPerson();
       } else {
         this.currentPanel = "group";
-        this.loadGroups();
         this.fetchPersonSkills();
       }
     },

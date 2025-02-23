@@ -28,7 +28,7 @@ export const useAuthStore = defineStore("auth", {
 
           const token = await authService.getAccessToken();
           this.token = token;
-
+          console.log(response);
           // router.push("/");
 
           const redirectPath = redirect || "/"; // Default to home if no redirect

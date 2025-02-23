@@ -3,17 +3,20 @@ const router = express.Router();
 const db = require("../config/database");
 
 // Person Skills endpoints
-router.get("/:id/skills", (req, res) => {
-  const query = `
-      SELECT ps.*, s.skill_name as skill_name 
-      FROM person_skill ps
-      JOIN skill s ON ps.skill_id = s.id
-      WHERE ps.person_id = ?
-    `;
-  db.query(query, [req.params.id], (err, results) => {
+router.get("/", (req, res) => {
+  let query = "SELECT DISTINCT person_id FROM person_skill where 1=1 ";
+  const params = [];
+
+  console.log("personid", req.user);
+  if (!req.user.roles.includes("admin")) {
+    query += " AND person_id = ?";
+    params.push(req.user.unique_name);
+  }
+
+  db.query(query, params, (err, results) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Failed to fetch person skills" });
+      return res.status(500).json({ error: "Failed to fetch projects" });
     }
     res.json(results);
   });

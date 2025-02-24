@@ -1,6 +1,10 @@
 # frontend/Dockerfile
 FROM node:22-slim AS build
 
+ARG NODE_ENV
+
+ENV NODE_ENV=${NODE_ENV}
+
 # Set the working directory
 WORKDIR /app
 
@@ -12,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Build the Vue.js application
-RUN npm run build
+RUN npm run build -- --mode ${NODE_ENV}
 
 # Serve the application using a lightweight server
 FROM nginx:alpine

@@ -5,7 +5,7 @@ services:
       args:
         - NODE_ENV=${NODE_ENV}
     env_file:
-      - ./frontend/.env.production.${NODE_ENV}
+      - ./frontend/.env.${NODE_ENV}
     ports:
       - "8080:80" # Map port 8080 on the host to port 80 in the container
 

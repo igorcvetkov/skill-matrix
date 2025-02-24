@@ -26,7 +26,7 @@ my-project/
 
 - Docker
 - Docker Compose
-- AWS account with MySQL RDS set up
+- MySQL
 - MS EntraId
 
 ## Setup
@@ -38,17 +38,39 @@ my-project/
    cd my-project
    ```
 
-2. **Configure the Backend**:
-   - Update the `backend/server.js` file with your AWS RDS database credentials.
-   - Update the `docker-compose.yml` file with your RDS endpoint and credentials.
+1. **Create mySql DB**
+
+   - connect to MySQL DB instance
+   - run database.sql from database folder
+
+1. **Configure App in MS Entra ID**
+
+   - define redirect url like http://localhost:8080/login for local development
+   - define app roles:
+     - admin
+     - project.manage
+     - user
+
+1. **Configure the Backend**
+
+   - use /backend/env.example file as source for .env.local file
+   - provide database and ms entra details
+
+1. **Configure the Frontend**:
+   - use /frontend/env.example file as source for .env.local file
+   - provide backend and ms entra details in .env.local file
 
 ## Running the Application
 
 1. **Build and run the containers**:
 
    ```bash
-   docker-compose up --build
+   NODE_ENV=local docker-compose up --build
    ```
+
+   local - instructs build command to use .env.local file.
+
+   You can configure as many .env.\* files as needed.
 
 2. **Access the Applications**:
    - Vue.js frontend: [http://localhost:8080](http://localhost:8080)

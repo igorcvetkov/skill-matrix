@@ -11,6 +11,7 @@ import { useAuthStore } from "./store/authStore";
 import LoginView from "./views/LoginView.vue";
 import PersonSkillsView from "./views/PersonSkillsView.vue";
 import AccessDenied403 from "./views/AccessDenied403.vue";
+import ChartsView from "./views/ChartsView.vue";
 
 const roles = { ADMIN: "admin", PM: "project.manager", USER: "user" };
 
@@ -75,6 +76,11 @@ const router = createRouter({
             requiresAuth: true,
             roles: [roles.ADMIN, roles.USER, roles.PM],
           },
+        },
+        {
+          path: "/charts",
+          name: "Charts",
+          component: ChartsView,
         },
       ],
     },

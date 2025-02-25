@@ -1,5 +1,5 @@
 # frontend/Dockerfile
-FROM node:22-slim AS build
+FROM node:22-alpine AS build
 
 ARG NODE_ENV
 

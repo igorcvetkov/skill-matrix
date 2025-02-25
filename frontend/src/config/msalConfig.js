@@ -32,7 +32,10 @@ export const getAccessToken = async () => {
 };
 
 export const graphScopes = {
-  scopes: [`${process.env.VUE_APP_MSAL_CLIENT_ID}/User.Read`, `${process.env.VUE_APP_MSAL_CLIENT_ID}/person.skill.all`],
+  scopes: [
+    `${process.env.VUE_APP_MSAL_CLIENT_ID}/User.Read`,
+    // `${process.env.VUE_APP_MSAL_CLIENT_ID}/person.skill.all`
+  ],
 };
 
 export const state = reactive({

@@ -40,80 +40,42 @@
         </v-expansion-panel>
       </v-expansion-panels>
 
-      <skill-filter @change="handleFilterChange"></skill-filter>
+      <v-tabs align-tabs="center" v-model="currentTab" bg-color="primary" color="success">
+        <v-tab value="skills">Skills</v-tab>
+        <v-tab value="chart">Chart</v-tab>
+      </v-tabs>
 
-      <v-card subtitle="Skills">
-        <v-card-text>
-          <v-row>
-            <v-col>
-              <skill-list title="Available" :available-skills="availableSkills">
-                <template v-slot:actions="{ id }">
-                  <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
-                </template>
-              </skill-list>
-            </v-col>
-            <v-col>
-              <skill-list title="Used in Project" :available-skills="projectSkills">
-                <template v-slot:actions="{ id }">
-                  <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
-                </template>
-              </skill-list>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- <v-card subtitle="Skills">
-        <v-card-text>
-          <v-row>
-            <v-col>
-              <v-card title="Available">
-                <v-list>
-                  <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id">
-                    <v-list-item-title>{{ skillItem.skill_name }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      <v-chip class="ma-1" size="x-small">Group: {{ skillItem.group_name }}</v-chip>
-                      <v-chip class="ma-1" size="x-small">Category: {{ skillItem.category_name }}</v-chip>
-                    </v-list-item-subtitle>
-                    <template v-slot:prepend>
-                      <v-list-item-action class="mr-1">
-                        <v-btn color="white" size="small" @click.stop="addSkillToProject(skillItem.id)" icon>
-                          <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
+      <v-tabs-window v-model="currentTab">
+        <v-tabs-window-item value="skills" key="skills">
+          <skill-filter @change="handleFilterChange"></skill-filter>
+          <v-card subtitle="Skills">
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <skill-list title="Available" :available-skills="availableSkills">
+                    <template v-slot:actions="{ id }">
+                      <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
                     </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-col>
-            <v-col>
-              <v-card title="In Project">
-                <v-card-text>
-                  <v-data-iterator :items="projectSkills" items-per-page="-1">
-                    <template v-slot:default="{ items }">
-                      <v-row>
-                        <v-col cols="columnWidth">Group</v-col>
-                        <v-col cols="columnWidth">Category</v-col>
-                        <v-col cols="columnWidth">Skill</v-col>
-                        <v-col cols="columnWidth">Action</v-col>
-                      </v-row>
-                      <template v-for="(item, i) in items" :key="i">
-                        <v-row>
-                          <v-col cols="columnWidth">{{ item.raw.group_name }}</v-col>
-                          <v-col cols="columnWidth">{{ item.raw.category_name }}</v-col>
-                          <v-col cols="columnWidth">{{ item.raw.skill_name }}</v-col>
-                          <v-col cols="columnWidth" align-content="end">
-                            <v-btn icon="mdi-delete" @click.stop="confirmDelete(item.raw.id)"></v-btn>
-                          </v-col>
-                        </v-row>
-                      </template>
+                  </skill-list>
+                </v-col>
+                <v-col>
+                  <skill-list title="Used in Project" :available-skills="projectSkills">
+                    <template v-slot:actions="{ id }">
+                      <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
                     </template>
-                  </v-data-iterator> </v-card-text
-              ></v-card>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card> -->
+                  </skill-list>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-tabs-window-item>
+        <v-tabs-window-item value="chart" key="chart">
+          <!-- <v-container> -->
+          <v-btn @click="handleGroupSummary">Update Chart</v-btn>
+          <radar-chart :chart-data-complete="chartData"></radar-chart>
+          <!-- </v-container> -->
+        </v-tabs-window-item>
+      </v-tabs-window>
     </v-card-text>
   </v-card>
 
@@ -137,14 +99,17 @@ import projectSkillService from "@/services/projectSkillService";
 import skillService from "@/services/skillService";
 import SkillFilter from "@/components/SkillFilter.vue";
 import SkillList from "@/components/SkillList.vue";
+import RadarChart from "@/charts/RadarChart.vue";
 
 export default {
   components: {
     SkillFilter,
     SkillList,
+    RadarChart,
   },
   data() {
     return {
+      currentTab: "skills",
       columnWidth: 2,
       projectSkills: [],
       availableProjects: [],
@@ -161,6 +126,16 @@ export default {
       confirmDeleteDialog: false,
       skillIdToDelete: null,
       currentPanel: "project",
+      chartLabels: ["label1", "label2", "label3"],
+      chartDataSet: [
+        {
+          label: "Character A",
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          data: [80, 70, 90],
+        },
+      ],
+      chartData: {},
     };
   },
   created() {
@@ -273,6 +248,15 @@ export default {
 
       this.project = {};
       this.currentPanel = "project";
+    },
+    async handleGroupSummary() {
+      const response = await projectSkillService.groupSummary(this.projectId);
+      this.chartLabels = response.map((item) => item.group_name);
+      this.chartDataSet[0].data = response.map((item) => item["count(id)"]);
+      this.chartData = {
+        labels: this.chartLabels,
+        datasets: this.chartDataSet,
+      };
     },
   },
 };

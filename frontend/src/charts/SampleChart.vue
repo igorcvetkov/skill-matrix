@@ -1,13 +1,17 @@
 <template>
-  <div style="width: 400px">
+  <div>
     <button @click="shuffleData">Shuffle</button>
     <BarChart v-bind="barChartProps" />
+  </div>
+  <div>
+    <h2>Spider Chart Example</h2>
+    <RadarChart :chart-data="chartDataForRadar" :options="chartOptionsForRadar" />
   </div>
 </template>
 
 <script>
 import { Chart, registerables } from "chart.js";
-import { BarChart, useBarChart } from "vue-chart-3";
+import { BarChart, useBarChart, RadarChart } from "vue-chart-3";
 import { ref, computed, defineComponent } from "vue";
 import { shuffle } from "lodash";
 
@@ -16,6 +20,7 @@ Chart.register(...registerables);
 export default defineComponent({
   components: {
     BarChart,
+    RadarChart,
   },
   setup() {
     const data = ref([30, 40, 60, 70, 5]);
@@ -38,18 +43,41 @@ export default defineComponent({
       data.value = shuffle(data.value);
     }
 
-    return { shuffleData, barChartProps, barChartRef };
+    const chartDataForRadar = ref({
+      labels: ["Strength", "Speed", "Endurance", "Agility", "Intelligence"],
+      datasets: [
+        {
+          label: "Character A",
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          data: [80, 70, 90, 60, 85],
+        },
+        {
+          label: "Character B",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          data: [60, 80, 70, 90, 75],
+        },
+      ],
+    });
+
+    // Define options for the chart
+    const chartOptionsForRadar = ref({
+      responsive: true,
+      scales: {
+        r: {
+          angleLines: {
+            display: true,
+          },
+          suggestedMin: 0,
+          suggestedMax: 100,
+        },
+      },
+    });
+
+    return { shuffleData, barChartProps, barChartRef, chartDataForRadar, chartOptionsForRadar };
   },
 });
 </script>
 
-<style>
-/* #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-} */
-</style>
+<style></style>

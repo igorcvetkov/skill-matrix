@@ -30,6 +30,22 @@ router.get("/", (req, res) => {
   });
 });
 
+router.get("/:id/group-summary", (req, res) => {
+  const projectId = req.params.id;
+
+  const query =
+    "select count(id), group_id, group_name from project_skill_details ps where project_id = ? group by ps.group_id";
+
+  db.query(query, [projectId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to get project skill group summary", exception: err });
+    }
+
+    res.status(200).json(result);
+  });
+});
+
 router.post("/", (req, res) => {
   const { projectId, skillId } = req.body;
 

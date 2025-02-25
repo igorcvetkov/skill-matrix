@@ -44,6 +44,22 @@ class ProjectSkillService {
       throw new Error("Error deleting project skill: " + error);
     }
   }
+
+  async groupSummary(projectId) {
+    try {
+      const result = await axios.get(`${backendUrl}/api/project-skill/` + projectId + "/group-summary", {
+        headers: {
+          Authorization: "Bearer " + state.token.accessToken,
+        },
+      });
+
+      console.log(result);
+      return result.data;
+    } catch (error) {
+      console.error("Error deleting project skill: ", error);
+      throw new Error("Error deleting project skill: " + error);
+    }
+  }
 }
 
 const projectSkillService = new ProjectSkillService();

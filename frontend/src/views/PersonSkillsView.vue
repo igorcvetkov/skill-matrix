@@ -1,22 +1,10 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar>
-      <v-toolbar-title>
-        <v-row no-gutters>
-          <v-col cols="4">Person Skills</v-col>
-          <v-col cols="8">
-            {{ person.name ?? person.person_id }}
-            <v-chip v-if="personId" @click="changePerson" size="x-small">Change Person</v-chip>
-          </v-col>
-        </v-row>
-      </v-toolbar-title>
-    </v-toolbar>
-    <v-card-text>
-      <!-- Error message display -->
-      <v-alert v-if="error" type="error" dismissible>
-        {{ error }}
-      </v-alert>
-
+  <skill-page-layout :error="error">
+    <template v-slot:title>{{ person.name ?? person.person_id }}</template>
+    <template v-slot:title-actions>
+      <v-btn v-if="personId" @click="changePerson" size="small" variant="outlined" class="ml-2">Change Person</v-btn>
+    </template>
+    <template v-slot:main-top>
       <v-expansion-panels v-model="currentPanel">
         <v-expansion-panel value="person" v-if="personId == null">
           <v-expansion-panel-title>
@@ -40,31 +28,66 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
+    </template>
 
-      <skill-filter @change="handleFilterChange"></skill-filter>
+    <template v-slot:main>
+      <v-tabs v-model="currentTab">
+        <v-tab value="skills">Skills</v-tab>
+        <v-tab value="chart">Chart</v-tab>
+      </v-tabs>
+      <v-divider class="mb-2"></v-divider>
+      <v-tabs-window v-model="currentTab" class="border">
+        <v-tabs-window-item value="skills" key="skills" class="pa-0">
+          <skill-filter @change="handleFilterChange"></skill-filter>
+          <v-divider thickness="2" class="mt-4"></v-divider>
 
-      <v-card subtitle="Skills">
-        <v-card-text>
-          <v-row>
-            <v-col>
-              <skill-list title="Available" :available-skills="availableSkills">
-                <template v-slot:actions="{ id }">
-                  <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToPerson(id)"> </v-btn>
-                </template>
-              </skill-list>
-            </v-col>
-            <v-col>
-              <skill-list title="Assigned to person" :available-skills="personSkills">
-                <template v-slot:actions="{ id }">
-                  <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
-                </template>
-              </skill-list>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-card-text>
-  </v-card>
+          <!-- mobile vuew -->
+          <!-- Tabs for Skills -->
+          <template v-if="$vuetify.display.smAndDown">
+            <v-tabs v-model="skillsTab" class="elevation-1">
+              <v-tab>Available</v-tab>
+              <v-tab>Selected</v-tab>
+            </v-tabs>
+            <v-divider></v-divider>
+            <v-tabs-window v-model="skillsTab" class="border">
+              <v-tabs-window-item value="available" key="available" class="pa-0">
+                <skill-list title="" :available-skills="availableSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToPerson(id)"> </v-btn>
+                  </template>
+                </skill-list>
+              </v-tabs-window-item>
+              <v-tabs-window-item value="selected" key="selected" class="pa-0">
+                <skill-list title="" :available-skills="personSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                  </template>
+                </skill-list>
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </template>
+          <!-- desktop -->
+          <template v-else>
+            <v-row>
+              <v-col cols="12" md="6">
+                <skill-list title="Available" :available-skills="availableSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToPerson(id)"> </v-btn>
+                  </template>
+                </skill-list>
+              </v-col>
+              <v-col cols="12" md="6">
+                <skill-list title="Selected" :available-skills="personSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                  </template>
+                </skill-list>
+              </v-col>
+            </v-row>
+          </template> </v-tabs-window-item
+      ></v-tabs-window>
+    </template>
+  </skill-page-layout>
 
   <!-- confirmation to delete person -->
   <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
@@ -87,6 +110,7 @@ import { useAuthStore } from "@/store/authStore";
 import SkillFilter from "@/components/SkillFilter.vue";
 import SkillList from "@/components/SkillList.vue";
 import personService from "@/services/personService";
+import SkillPageLayout from "@/layouts/SkillPageLayout.vue";
 
 export default {
   setup() {
@@ -99,6 +123,7 @@ export default {
   components: {
     SkillFilter,
     SkillList,
+    SkillPageLayout,
   },
   data() {
     return {
@@ -121,6 +146,8 @@ export default {
       confirmDeleteDialog: false,
       skillIdToDelete: null,
       currentPanel: "person",
+      currentTab: "skills",
+      skillsTab: "available",
     };
   },
   created() {

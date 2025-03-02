@@ -1,21 +1,15 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar>
-      <v-toolbar-title>
-        <v-row no-gutters>
-          <v-col cols="4">Project Skills</v-col>
-          <v-col cols="8">
-            {{ project.name }} <v-chip v-if="projectId" @click="changeProject" size="x-small">Change Project</v-chip>
-          </v-col>
-        </v-row>
-      </v-toolbar-title>
-    </v-toolbar>
-    <v-card-text>
-      <!-- Error message display -->
-      <v-alert v-if="error" type="error" dismissible>
-        {{ error }}
-      </v-alert>
+  <skill-page-layout :error="error">
+    <template v-slot:title>
+      Project: <strong>{{ project.name }}</strong>
+    </template>
 
+    <template v-slot:title-actions>
+      <v-btn v-if="projectId" @click="changeProject" size="small" variant="outlined" class="ml-2">Change Project</v-btn>
+    </template>
+
+    <template v-slot:main-top>
+      <!-- project selector -->
       <v-expansion-panels v-model="currentPanel">
         <v-expansion-panel value="project" v-if="projectId == null">
           <v-expansion-panel-title>
@@ -39,35 +33,62 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-
-      <v-tabs align-tabs="center" v-model="currentTab" bg-color="primary" color="success">
+    </template>
+    <template v-slot:main>
+      <v-tabs v-model="currentTab" class="position-sticky">
         <v-tab value="skills">Skills</v-tab>
         <v-tab value="chart">Chart</v-tab>
       </v-tabs>
+      <v-divider class="mb-2"></v-divider>
+      <v-tabs-window v-model="currentTab" class="border">
+        <v-tabs-window-item value="skills" key="skills" class="pa-0">
+          <skill-filter @change="handleFilterChange" class="border"></skill-filter>
+          <v-divider thickness="2" class="mt-4"></v-divider>
 
-      <v-tabs-window v-model="currentTab">
-        <v-tabs-window-item value="skills" key="skills">
-          <skill-filter @change="handleFilterChange"></skill-filter>
-          <v-card subtitle="Skills">
-            <v-card-text>
-              <v-row>
-                <v-col>
-                  <skill-list title="Available" :available-skills="availableSkills">
-                    <template v-slot:actions="{ id }">
-                      <v-btn icon="mdi-plus" color="white" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
-                    </template>
-                  </skill-list>
-                </v-col>
-                <v-col>
-                  <skill-list title="Used in Project" :available-skills="projectSkills">
-                    <template v-slot:actions="{ id }">
-                      <v-btn icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
-                    </template>
-                  </skill-list>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
+          <!-- mobile vuew -->
+          <!-- Tabs for Skills -->
+          <template v-if="$vuetify.display.smAndDown">
+            <v-tabs v-model="skillsTab" class="elevation-1">
+              <v-tab>Available</v-tab>
+              <v-tab>In Project</v-tab>
+            </v-tabs>
+            <v-divider></v-divider>
+            <v-tabs-window v-model="skillsTab" class="border">
+              <v-tabs-window-item value="available" key="available" class="pa-0">
+                <skill-list title="" :available-skills="availableSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
+                  </template>
+                </skill-list>
+              </v-tabs-window-item>
+              <v-tabs-window-item value="selected" key="selected" class="pa-0">
+                <skill-list title="" :available-skills="projectSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                  </template>
+                </skill-list>
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </template>
+
+          <template v-else>
+            <v-row>
+              <v-col cols="12" md="6">
+                <skill-list title="Available" :available-skills="availableSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
+                  </template>
+                </skill-list>
+              </v-col>
+              <v-col cols="12" md="6">
+                <skill-list title="Used in Project" :available-skills="projectSkills">
+                  <template v-slot:actions="{ id }">
+                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                  </template>
+                </skill-list>
+              </v-col>
+            </v-row>
+          </template>
         </v-tabs-window-item>
         <v-tabs-window-item value="chart" key="chart">
           <!-- <v-container> -->
@@ -76,8 +97,8 @@
           <!-- </v-container> -->
         </v-tabs-window-item>
       </v-tabs-window>
-    </v-card-text>
-  </v-card>
+    </template>
+  </skill-page-layout>
 
   <!-- configrmation to delete project -->
   <v-dialog v-model="confirmDeleteDialog" persistent max-width="500px">
@@ -100,16 +121,25 @@ import skillService from "@/services/skillService";
 import SkillFilter from "@/components/SkillFilter.vue";
 import SkillList from "@/components/SkillList.vue";
 import RadarChart from "@/charts/RadarChart.vue";
+import { useDisplay } from "vuetify";
+import SkillPageLayout from "@/layouts/SkillPageLayout.vue";
 
 export default {
   components: {
     SkillFilter,
     SkillList,
     RadarChart,
+    SkillPageLayout,
+  },
+  computed: {
+    isMobile() {
+      return useDisplay().smAndDown;
+    },
   },
   data() {
     return {
       currentTab: "skills",
+      skillsTab: "available",
       columnWidth: 2,
       projectSkills: [],
       availableProjects: [],
@@ -261,3 +291,5 @@ export default {
   },
 };
 </script>
+
+<style scoped></style>

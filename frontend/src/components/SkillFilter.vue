@@ -1,5 +1,6 @@
 <template>
-  <v-expansion-panels v-model="currentPanel">
+  <!-- </v-card> -->
+  <v-expansion-panels v-model="currentPanel" variant="accordion">
     <v-expansion-panel value="group">
       <v-expansion-panel-title>
         <v-row no-gutters>
@@ -30,13 +31,14 @@
           </v-col>
         </v-row>
       </v-expansion-panel-title>
-      <v-expansion-panel-text>
+      <v-expansion-panel-text class="pa-0 ma-0">
         <v-list
           selectable
           slim
           :items="availableCategories"
           item-value="id"
           item-title="name"
+          item-props="{class:'ma-0 mp-0'}"
           v-on:click:select="categorySelected"
         >
         </v-list>
@@ -52,6 +54,7 @@ import categoryService from "@/services/categoryService";
 export default {
   data() {
     return {
+      filterSheet: false,
       availableGroups: [],
       availableCategories: [],
       groupId: null,
@@ -59,6 +62,7 @@ export default {
       group: {},
       category: {},
       currentPanel: "",
+      selectedGroupId: null,
     };
   },
   created() {
@@ -89,7 +93,20 @@ export default {
       }
     },
     // ui element event handlers
+    groupSelectedId() {
+      this.group = this.availableGroups.find((item) => item.id == this.groupId);
+      this.currentPanel = "category";
+      this.categoryId = null;
+      this.loadCategories();
+      this.sendFilterChangeEvent();
+    },
+    categorySelectedId() {
+      this.category = this.availableCategories.find((item) => item.id == this.categoryId);
+      this.currentPanel = "";
+      this.sendFilterChangeEvent();
+    },
     groupSelected(event) {
+      console.debug("groupselected", event);
       this.groupId = event.id;
       this.group = this.availableGroups.find((item) => item.id == this.groupId);
       this.currentPanel = "category";

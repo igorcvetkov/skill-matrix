@@ -7,12 +7,7 @@
     <v-container>
       <!-- {{ hasSkills }} -->
       <v-list dense v-if="hasSkills">
-        <v-list-item
-          v-for="skillItem in availableSkills"
-          :key="skillItem.id"
-          density="default"
-          :class="{ 'pa-0': isMobile }"
-        >
+        <v-list-item v-for="skillItem in availableSkills" :key="skillItem.id" :class="{ 'pa-0': isMobile }">
           <v-row :class="{ 'no-gutters': isMobile }">
             <v-col>
               <v-list-item-title class="text-wrap">{{ skillItem.skill_name }}</v-list-item-title>
@@ -21,10 +16,9 @@
             <v-col cols="auto">
               <slot name="actions" v-bind="skillItem"></slot>
             </v-col>
-            <v-col cols="12">
-              <v-divider></v-divider>
-            </v-col>
+            <!-- <v-col cols="12"> </v-col> -->
           </v-row>
+          <v-divider class="ma-2"></v-divider>
         </v-list-item>
       </v-list>
       <v-empty-state v-else>No skills availabe. Try apply filters.</v-empty-state>

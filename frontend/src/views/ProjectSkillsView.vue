@@ -11,92 +11,73 @@
     <template v-slot:main-top>
       <!-- project selector -->
       <v-expansion-panels v-model="currentPanel">
-        <v-expansion-panel value="project" v-if="projectId == null">
-          <v-expansion-panel-title>
-            <v-row no-gutters>
-              <v-col cols="4"> Project:</v-col>
-              <v-col cols="8">
-                {{ project.name }}
-              </v-col>
-            </v-row>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list
-              selectable
-              slim
-              :items="availableProjects"
-              item-value="id"
-              item-title="name"
-              v-on:click:select="projectSelected"
-            >
-            </v-list>
-          </v-expansion-panel-text>
+        <v-expansion-panel value="project" v-if="projectId == null" title="Select Project">
+          <v-list
+            selectable
+            slim
+            :items="availableProjects"
+            item-value="id"
+            item-title="name"
+            v-on:click:select="projectSelected"
+          >
+          </v-list>
         </v-expansion-panel>
       </v-expansion-panels>
     </template>
-    <template v-slot:main>
-      <v-tabs v-model="currentTab" class="position-sticky">
-        <v-tab value="skills">Skills</v-tab>
-        <v-tab value="chart">Chart</v-tab>
-      </v-tabs>
-      <v-divider class="mb-2"></v-divider>
-      <v-tabs-window v-model="currentTab" class="border">
-        <v-tabs-window-item value="skills" key="skills" class="pa-0">
-          <skill-filter @change="handleFilterChange" class="border"></skill-filter>
-          <v-divider thickness="2" class="mt-4"></v-divider>
 
-          <!-- mobile vuew -->
-          <!-- Tabs for Skills -->
-          <template v-if="$vuetify.display.smAndDown">
-            <v-tabs v-model="skillsTab" class="elevation-1">
-              <v-tab>Available</v-tab>
-              <v-tab>In Project</v-tab>
-            </v-tabs>
-            <v-divider></v-divider>
-            <v-tabs-window v-model="skillsTab" class="border">
-              <v-tabs-window-item value="available" key="available" class="pa-0">
-                <skill-list title="" :available-skills="availableSkills">
-                  <template v-slot:actions="{ id }">
-                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
-                  </template>
-                </skill-list>
-              </v-tabs-window-item>
-              <v-tabs-window-item value="selected" key="selected" class="pa-0">
-                <skill-list title="" :available-skills="projectSkills">
-                  <template v-slot:actions="{ id }">
-                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
-                  </template>
-                </skill-list>
-              </v-tabs-window-item>
-            </v-tabs-window>
-          </template>
+    <template v-slot:tab-skills>
+      <skill-filter @change="handleFilterChange" class="border"></skill-filter>
+      <v-divider thickness="2" class="mt-4"></v-divider>
 
-          <template v-else>
-            <v-row>
-              <v-col cols="12" md="6">
-                <skill-list title="Available" :available-skills="availableSkills">
-                  <template v-slot:actions="{ id }">
-                    <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
-                  </template>
-                </skill-list>
-              </v-col>
-              <v-col cols="12" md="6">
-                <skill-list title="Used in Project" :available-skills="projectSkills">
-                  <template v-slot:actions="{ id }">
-                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
-                  </template>
-                </skill-list>
-              </v-col>
-            </v-row>
-          </template>
-        </v-tabs-window-item>
-        <v-tabs-window-item value="chart" key="chart">
-          <!-- <v-container> -->
-          <v-btn @click="handleGroupSummary">Update Chart</v-btn>
-          <radar-chart :chart-data-complete="chartData"></radar-chart>
-          <!-- </v-container> -->
-        </v-tabs-window-item>
-      </v-tabs-window>
+      <!-- Tabs for Skills -->
+      <!-- mobile vuew -->
+      <template v-if="$vuetify.display.smAndDown">
+        <v-tabs v-model="skillsTab" class="elevation-1">
+          <v-tab>Available</v-tab>
+          <v-tab>In Project</v-tab>
+        </v-tabs>
+        <v-divider></v-divider>
+        <v-tabs-window v-model="skillsTab" class="border">
+          <v-tabs-window-item value="available" key="available" class="pa-0">
+            <skill-list title="" :available-skills="availableSkills">
+              <template v-slot:actions="{ id }">
+                <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
+              </template>
+            </skill-list>
+          </v-tabs-window-item>
+          <v-tabs-window-item value="selected" key="selected" class="pa-0">
+            <skill-list title="" :available-skills="projectSkills">
+              <template v-slot:actions="{ id }">
+                <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+              </template>
+            </skill-list>
+          </v-tabs-window-item>
+        </v-tabs-window>
+      </template>
+      <!-- desktop -->
+      <template v-else>
+        <v-row>
+          <v-col cols="12" md="6">
+            <skill-list title="Available" :available-skills="availableSkills">
+              <template v-slot:actions="{ id }">
+                <v-btn icon="mdi-plus" color="green" size="small" @click.stop="addSkillToProject(id)"> </v-btn>
+              </template>
+            </skill-list>
+          </v-col>
+          <v-col cols="12" md="6">
+            <skill-list title="Used in Project" :available-skills="projectSkills">
+              <template v-slot:actions="{ id }">
+                <v-btn color="red" icon="mdi-delete" size="small" @click.stop="confirmDelete(id)"></v-btn>
+              </template>
+            </skill-list>
+          </v-col>
+        </v-row>
+      </template>
+    </template>
+
+    <template v-slot:tab-chart>
+      <v-btn @click="handleGroupSummary">Update Chart</v-btn>
+      <radar-chart :chart-data-complete="chartData"></radar-chart>
     </template>
   </skill-page-layout>
 

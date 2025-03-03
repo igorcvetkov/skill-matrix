@@ -3,10 +3,14 @@
   <v-container class="fill-height">
     <v-row justify="center">
       <v-col class="text-center">
-        <h1 class="display-1">404</h1>
-        <h2>Page Not Found</h2>
-        <p>Sorry, the page you are looking for does not exist.</p>
-        <v-btn color="primary" @click="$router.push('/')">Go back to Home</v-btn>
+        <v-empty-state
+          action-text="Go to home page"
+          icon="mdi-magnify"
+          headline="404"
+          title="Page not found."
+          color="primary"
+          @click:action="$router.push('/')"
+        ></v-empty-state>
       </v-col>
     </v-row>
   </v-container>

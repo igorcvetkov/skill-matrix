@@ -6,26 +6,16 @@
     </template>
     <template v-slot:main-top>
       <v-expansion-panels v-model="currentPanel">
-        <v-expansion-panel value="person" v-if="personId == null">
-          <v-expansion-panel-title>
-            <v-row no-gutters>
-              <v-col cols="4"> Person:</v-col>
-              <v-col cols="8">
-                {{ person.name }}
-              </v-col>
-            </v-row>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list
-              selectable
-              slim
-              :items="availablePersons"
-              item-value="person_id"
-              item-title="person_id"
-              v-on:click:select="personSelected"
-            >
-            </v-list>
-          </v-expansion-panel-text>
+        <v-expansion-panel value="person" v-if="personId == null" title="Select Person">
+          <v-list
+            selectable
+            slim
+            :items="availablePersons"
+            item-value="person_id"
+            item-title="person_id"
+            v-on:click:select="personSelected"
+          >
+          </v-list>
         </v-expansion-panel>
       </v-expansion-panels>
     </template>
@@ -60,7 +50,7 @@
               <v-tabs-window-item value="selected" key="selected" class="pa-0">
                 <skill-list title="" :available-skills="personSkills">
                   <template v-slot:actions="{ id }">
-                    <v-btn color="red" icon="mdi-delete" @click.stop="confirmDelete(id)"></v-btn>
+                    <v-btn color="red" icon="mdi-delete" size="small" @click.stop="confirmDelete(id)"></v-btn>
                   </template>
                 </skill-list>
               </v-tabs-window-item>

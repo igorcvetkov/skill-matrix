@@ -4,7 +4,7 @@ import { state } from "@/config/msalConfig";
 class ProjectService {
   async loadProjects() {
     try {
-      const response = await axios.get(`${backendUrl}/api/projects`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/projects`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -18,7 +18,7 @@ class ProjectService {
 
   async insert(project) {
     try {
-      const response = await axios.post(`${backendUrl}/api/projects`, project, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/projects`, project, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -32,7 +32,7 @@ class ProjectService {
 
   async delete(id) {
     try {
-      await axios.delete(`${backendUrl}/api/projects/${id}`, {
+      await axios.delete(`${window.env?.API_URL || backendUrl}/api/projects/${id}`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },

@@ -5,7 +5,7 @@ import { state } from "@/config/msalConfig";
 class ProjectSkillService {
   async loadProjectSkills(filter) {
     try {
-      const response = await axios.get(`${backendUrl}/api/project-skill/`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/project-skill/`, {
         params: filter,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
@@ -20,7 +20,7 @@ class ProjectSkillService {
 
   async add(skill) {
     try {
-      const response = await axios.post(`${backendUrl}/api/project-skill`, skill, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/project-skill`, skill, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -34,7 +34,7 @@ class ProjectSkillService {
 
   async delete(skillId) {
     try {
-      await axios.delete(`${backendUrl}/api/project-skill/` + skillId, {
+      await axios.delete(`${window.env?.API_URL || backendUrl}/api/project-skill/` + skillId, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -47,11 +47,14 @@ class ProjectSkillService {
 
   async groupSummary(projectId) {
     try {
-      const result = await axios.get(`${backendUrl}/api/project-skill/` + projectId + "/group-summary", {
-        headers: {
-          Authorization: "Bearer " + state.token.accessToken,
-        },
-      });
+      const result = await axios.get(
+        `${window.env?.API_URL || backendUrl}/api/project-skill/` + projectId + "/group-summary",
+        {
+          headers: {
+            Authorization: "Bearer " + state.token.accessToken,
+          },
+        }
+      );
 
       console.log(result);
       return result.data;

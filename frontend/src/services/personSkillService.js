@@ -6,7 +6,7 @@ class PersonSkillService {
   async load(filter) {
     console.log("personskill load", filter);
     try {
-      const response = await axios.get(`${backendUrl}/api/person-skill/`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/person-skill/`, {
         params: filter,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
@@ -21,7 +21,7 @@ class PersonSkillService {
 
   async add(skill) {
     try {
-      const response = await axios.post(`${backendUrl}/api/person-skill`, skill, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/person-skill`, skill, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -35,7 +35,7 @@ class PersonSkillService {
 
   async delete(skillId) {
     try {
-      await axios.delete(`${backendUrl}/api/person-skill/` + skillId, {
+      await axios.delete(`${window.env?.API_URL || backendUrl}/api/person-skill/` + skillId, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },

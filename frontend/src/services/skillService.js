@@ -6,7 +6,7 @@ class SkillService {
   async load(filter) {
     console.log("skillservice load", filter);
     try {
-      const response = await axios.get(`${backendUrl}/api/skills`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/skills`, {
         params: filter,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
@@ -21,7 +21,7 @@ class SkillService {
 
   async search(query) {
     try {
-      const response = await axios.get(`${backendUrl}/api/skills/search?query=${query}`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/skills/search?query=${query}`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -35,7 +35,7 @@ class SkillService {
 
   async bulkInsert(data) {
     try {
-      const response = await axios.post(`${backendUrl}/api/skills/bulk`, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/skills/bulk`, {
         skills: data,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,

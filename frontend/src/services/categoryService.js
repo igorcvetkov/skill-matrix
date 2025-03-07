@@ -5,7 +5,7 @@ import { state } from "@/config/msalConfig";
 class CategoryService {
   async load(filter) {
     try {
-      const response = await axios.get(`${backendUrl}/api/skill-categories`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/skill-categories`, {
         params: filter,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
@@ -20,7 +20,7 @@ class CategoryService {
 
   async insert(data) {
     try {
-      const response = await axios.post(`${backendUrl}/api/skill-categories`, data, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/skill-categories`, data, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -35,7 +35,7 @@ class CategoryService {
   async bulkInsert(data) {
     try {
       const response = await axios.post(
-        `${backendUrl}/api/skill-categories/bulk`,
+        `${window.env?.API_URL || backendUrl}/api/skill-categories/bulk`,
         { categories: data },
         {
           headers: {
@@ -52,7 +52,7 @@ class CategoryService {
 
   async delete(id) {
     try {
-      await axios.delete(`${backendUrl}/api/skill-categories/${id}`, {
+      await axios.delete(`${window.env?.API_URL || backendUrl}/api/skill-categories/${id}`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },

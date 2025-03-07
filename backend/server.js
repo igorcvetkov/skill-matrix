@@ -127,14 +127,14 @@ app.get("/health", async (req, res) => {
 });
 
 // Protect routes with token validation
-app.use("/api/protected", validateToken, projectsRouter);
+app.use("/api/protected", projectsRouter);
 
-// app.use("/api/skill-groups", validateToken, skillGroupsRouter);
-app.use("/api/skill-groups", validateToken, skillGroupsRouter);
-app.use("/api/skill-categories", validateToken, skillCategoriesRouter);
-app.use("/api/skill-categories/bulk", validateToken, skillCategoriesRouter);
-app.use("/api/skills", validateToken, skillsRouter);
-app.use("/api/projects", validateToken, projectsRouter);
-app.use("/api/project-skill", validateToken, projectSkillsRouter);
-app.use("/api/person-skill", validateToken, personSkillsRouter);
-app.use("/api/persons", validateToken, personsRouter);
+// app.use("/api/skill-groups", skillGroupsRouter);
+app.use("/api/skill-groups", skillGroupsRouter);
+app.use("/api/skill-categories", skillCategoriesRouter);
+app.use("/api/skill-categories/bulk", skillCategoriesRouter);
+app.use("/api/skills", skillsRouter);
+app.use("/api/projects", projectsRouter);
+app.use("/api/project-skill", projectSkillsRouter);
+app.use("/api/person-skill", personSkillsRouter);
+app.use("/api/persons", personsRouter);

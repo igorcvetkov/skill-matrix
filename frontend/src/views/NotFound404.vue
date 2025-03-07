@@ -17,7 +17,17 @@
 </template>
 
 <script>
-export default {};
+export default {
+  created() {
+    fetch("/config.js")
+      .then((response) => response.text())
+      .then((text) => {
+        eval(text); // This will set window.env
+        // Now you can use window.env.API_URL in your app
+        console.log("API URL:", window.env.API_URL);
+      });
+  },
+};
 </script>
 
 <style scoped>

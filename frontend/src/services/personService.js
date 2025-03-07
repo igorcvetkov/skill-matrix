@@ -5,7 +5,7 @@ import { state } from "@/config/msalConfig";
 class PersonService {
   async load(filter) {
     try {
-      const response = await axios.get(`${backendUrl}/api/persons`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/persons`, {
         params: filter,
         headers: {
           Authorization: "Bearer " + state.token.accessToken,

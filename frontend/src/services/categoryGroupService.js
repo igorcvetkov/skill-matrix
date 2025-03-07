@@ -5,7 +5,7 @@ import { state } from "@/config/msalConfig";
 class CategoryGroupService {
   async load() {
     try {
-      const response = await axios.get(`${backendUrl}/api/skill-groups`, {
+      const response = await axios.get(`${window.env?.API_URL || backendUrl}/api/skill-groups`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -19,7 +19,7 @@ class CategoryGroupService {
 
   async insert(group) {
     try {
-      const response = await axios.post(`${backendUrl}/api/skill-groups`, group, {
+      const response = await axios.post(`${window.env?.API_URL || backendUrl}/api/skill-groups`, group, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },
@@ -33,7 +33,7 @@ class CategoryGroupService {
 
   async delete(id) {
     try {
-      await axios.delete(`${backendUrl}/api/skill-groups/${id}`, {
+      await axios.delete(`${window.env?.API_URL || backendUrl}/api/skill-groups/${id}`, {
         headers: {
           Authorization: "Bearer " + state.token.accessToken,
         },

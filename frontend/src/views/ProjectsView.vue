@@ -1,17 +1,12 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar title="Projects">
-      <v-spacer></v-spacer>
+  <config-page-layout :error="error" title="Projects">
+    <template v-slot:title-actions>
       <v-btn variant="elevated" class="mr-5" size="small" @click="newProjectDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
-      >
-    </v-toolbar>
-    <v-card-text>
-      <!-- Error message display -->
-      <v-alert v-if="error" type="error" dismissible>
-        {{ error }}
-      </v-alert>
+      ></template
+    >
 
+    <template v-slot:main>
       <v-list class="align-start">
         <v-list-item v-for="project in projects" :key="project.id" @click="selectProject(project)" class="align-start">
           <v-list-item-title>{{ project.name }}</v-list-item-title>
@@ -28,8 +23,8 @@
           <v-divider></v-divider>
         </v-list-item>
       </v-list>
-    </v-card-text>
-  </v-card>
+    </template>
+  </config-page-layout>
 
   <!-- new project -->
   <v-dialog v-model="newProjectDialog" max-width="500px">
@@ -58,9 +53,13 @@
 </template>
 
 <script>
+import ConfigPageLayout from "@/layouts/ConfigPageLayout.vue";
 import projectService from "@/services/projectService";
 
 export default {
+  components: {
+    ConfigPageLayout,
+  },
   data() {
     return {
       projects: [], // Array to hold Project

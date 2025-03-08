@@ -1,59 +1,60 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar title="Skill Categories">
-      <v-spacer></v-spacer>
+  <config-page-layout title="Skill Categories" :error="error">
+    <template v-slot:title-actions>
       <v-btn variant="elevated" size="small" class="mr-1" @click="newDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
       >
       <v-btn variant="elevated" size="small" class="mr-5" @click="newBulkDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add bulk</v-btn
       >
-    </v-toolbar>
-    <v-card-text>
-      <!-- Error message display -->
-      <v-alert v-if="error" type="error" dismissible>
-        {{ error }}
-      </v-alert>
+    </template>
 
-      <v-row>
-        <v-col cols="4">
-          <v-card title="Group Filter">
-            <v-card-text>
-              <v-list
-                selectable
-                slim
-                v-model:selected="selectedGroupId"
-                :items="availableGroups"
-                item-value="id"
-                item-title="name"
-                v-on:click:select="groupSelected"
-              ></v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col
-          ><v-list class="align-start">
-            <v-list-item
-              v-for="category in categories"
-              :key="category.id"
-              @click="selectSkillcategory(category)"
-              class="align-start"
-            >
-              <v-list-item-title>{{ category.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ category.group_name }}</v-list-item-subtitle>
-              <template v-slot:append>
-                <v-list-item-action>
-                  <v-btn @click.stop="confirmDelete(category.id)" icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </template>
-            </v-list-item>
-          </v-list>
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+    <template v-slot:main>
+      <v-select
+        class="mt-2"
+        label="Filter by group"
+        :items="availableGroups"
+        item-title="name"
+        item-value="id"
+        clearable
+        v-model="selectedGroupId"
+        variant="solo-filled"
+        @update:model-value="groupSelected"
+        :menu-props="{ maxHeight: 'unset' }"
+      ></v-select>
+
+      <!-- category list -->
+      <template v-if="categories && categories.length > 0">
+        <v-list class="align-start">
+          <v-list-item
+            v-for="category in categories"
+            :key="category.id"
+            @click="selectSkillcategory(category)"
+            class="align-start"
+          >
+            <v-list-item-title>{{ category.name }}</v-list-item-title>
+            <v-list-item-subtitle>{{ category.group_name }}</v-list-item-subtitle>
+            <template v-slot:append>
+              <v-list-item-action>
+                <v-btn @click.stop="confirmDelete(category.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+        </v-list>
+      </template>
+      <template v-else>
+        <v-empty-state
+          title="No categories yet"
+          text="You can add categories one by one by clicking Add New button or in a bulk using Add Bulk button"
+        >
+        </v-empty-state>
+      </template>
+
+      <!--  -->
+    </template>
+  </config-page-layout>
 
   <!-- New Category -->
   <v-dialog v-model="newDialog" max-width="500px">
@@ -112,10 +113,14 @@
 </template>
 
 <script>
+import ConfigPageLayout from "@/layouts/ConfigPageLayout.vue";
 import categoryGroupService from "@/services/categoryGroupService";
 import categoryService from "@/services/categoryService";
 
 export default {
+  components: {
+    ConfigPageLayout,
+  },
   data() {
     return {
       categories: [], // Array to hold skill categories
@@ -134,14 +139,17 @@ export default {
     this.init();
   },
   methods: {
+    // lifecycle methods
     async init() {
       this.selectedGroupId = [Number(this.$route.params.groupId)];
       await this.loadData(); // Load skill categories when the component is created
       await this.loadGroups();
     },
+    // data methods
     async loadData() {
       try {
-        this.categories = await categoryService.load({ groupId: Number(this.selectedGroupId) });
+        const groupIdFilter = isNaN(Number(this.selectedGroupId)) ? undefined : Number(this.selectedGroupId);
+        this.categories = await categoryService.load({ groupId: groupIdFilter });
         this.error = null;
       } catch (error) {
         console.error("Error loading skill categories:", error);
@@ -157,8 +165,10 @@ export default {
         this.error = error.message;
       }
     },
+    // ui handlers
     groupSelected(event) {
-      this.selectedGroupId = Number(event.id);
+      const value = Number(event);
+      this.selectedGroupId = isNaN(value) || value === null || value === 0 ? undefined : value;
       this.$router.push({ name: "SkillCategories", params: { groupId: this.selectedGroupId } });
       this.loadData();
     },

@@ -1,32 +1,29 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar title=" Skills Groups">
-      <v-spacer></v-spacer>
+  <config-page-layout title="Skill Groups" :error="error">
+    <template v-slot:title-actions>
       <v-btn variant="elevated" size="small" class="mr-5" @click="newDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add new</v-btn
       >
-    </v-toolbar>
-    <!-- Error message display -->
-    <v-alert v-if="error" type="error" dismissible>
-      {{ error }}
-    </v-alert>
+    </template>
 
-    <v-list class="align-start">
-      <v-list-item v-for="group in skillGroups" :key="group.id" @click="selectSkillGroup(group)" class="align-start">
-        <v-list-item-title>{{ group.name }}</v-list-item-title>
-        <template v-slot:append>
-          <v-list-item-action>
-            <v-btn icon :to="{ name: 'SkillCategories', params: { groupId: group.id } }" router>
-              <v-icon>mdi-view-list</v-icon>
-            </v-btn>
-            <v-btn @click.stop="confirmDeleteSkillGroup(group.id)" icon>
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </template>
-      </v-list-item>
-    </v-list>
-  </v-card>
+    <template v-slot:main>
+      <v-list class="align-start">
+        <v-list-item v-for="group in skillGroups" :key="group.id" @click="selectSkillGroup(group)" class="align-start">
+          <v-list-item-title>{{ group.name }}</v-list-item-title>
+          <template v-slot:append>
+            <v-list-item-action>
+              <v-btn icon :to="{ name: 'SkillCategories', params: { groupId: group.id } }" router>
+                <v-icon>mdi-view-list</v-icon>
+              </v-btn>
+              <v-btn @click.stop="confirmDeleteSkillGroup(group.id)" icon>
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </template>
+        </v-list-item>
+      </v-list>
+    </template>
+  </config-page-layout>
 
   <!-- new skill group -->
   <v-dialog v-model="newDialog" max-width="500px">
@@ -55,10 +52,14 @@
 </template>
 
 <script>
+import ConfigPageLayout from "@/layouts/ConfigPageLayout.vue";
 import categoryGroupService from "@/services/categoryGroupService";
 
 export default {
   name: "SkillGroups",
+  components: {
+    ConfigPageLayout,
+  },
   data() {
     return {
       skillGroups: [], // Array to hold skill groups

@@ -1,7 +1,6 @@
 <template>
-  <v-card class="align-start">
-    <v-toolbar title="Skills">
-      <v-spacer></v-spacer>
+  <config-page-layout :error="error" title="Skills">
+    <template v-slot:title-actions>
       <v-btn variant="elevated" class="mr-1" size="small" @click="viewAll" title="btn"
         ><v-icon>mdi-plus</v-icon>view all</v-btn
       >
@@ -11,51 +10,47 @@
       <v-btn variant="elevated" class="mr-5" size="small" @click="newBulkDialog = true" title="btn"
         ><v-icon>mdi-plus</v-icon>add bulk</v-btn
       >
-    </v-toolbar>
-    <v-card-text>
-      <!-- Error message display -->
-      <v-alert v-if="error" type="error" dismissible>
-        {{ error }}
-      </v-alert>
+    </template>
 
-      <v-tabs align-tabs="center" v-model="currentTab">
+    <template v-slot:main-top
+      ><v-tabs align-tabs="center" v-model="currentTab" class="elevation-0">
         <v-tab value="filter">Filters</v-tab>
         <v-tab value="search">search</v-tab>
         <v-tab value="tree">tree</v-tab>
       </v-tabs>
-
+    </template>
+    <template v-slot:main>
+      <!-- <v-container class="elevation-1" fluid> -->
+      <v-divider></v-divider>
       <v-tabs-window v-model="currentTab">
-        <v-tabs-window-item value="filter" key="filter"
-          ><v-row>
-            <v-col cols="4">
-              <v-card title="Group Filter">
-                <v-card-text>
-                  <v-list
-                    selectable
-                    slim
-                    :items="availableGroups"
-                    item-value="id"
-                    item-title="name"
-                    v-on:click:select="groupSelected"
-                  ></v-list>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col cols="4">
-              <v-card title="Category Filter">
-                <v-card-text>
-                  <v-list
-                    selectable
-                    slim
-                    :items="availableCategories"
-                    item-value="id"
-                    item-title="name"
-                    v-on:click:select="categorySelected"
-                  ></v-list>
-                </v-card-text>
-              </v-card>
-            </v-col> </v-row
-        ></v-tabs-window-item>
+        <v-tabs-window-item value="filter" key="filter" class="elevation-4">
+          <!-- select groupd -->
+          <v-select
+            class="mt-2"
+            label="Filter by group"
+            :items="availableGroups"
+            item-title="name"
+            item-value="id"
+            clearable
+            v-model="selectedGroupId"
+            variant="solo-filled"
+            @update:model-value="groupSelected"
+            :menu-props="{ maxHeight: 'unset' }"
+          ></v-select>
+          <!-- select categories -->
+          <v-select
+            class="mt-2"
+            label="Filter by category"
+            :items="availableCategories"
+            item-title="name"
+            item-value="id"
+            clearable
+            v-model="selectedCategoryId"
+            variant="solo-filled"
+            @update:model-value="categorySelected"
+            :menu-props="{ maxHeight: 'unset' }"
+          ></v-select>
+        </v-tabs-window-item>
         <v-tabs-window-item value="search"
           ><!-- Search Input -->
           <v-text-field
@@ -80,7 +75,8 @@
         <!-- </v-list-item-group> -->
       </v-list>
 
-      <v-card>
+      <!-- <v-card> -->
+      <template v-if="skills && skills.length > 0">
         <v-list class="align-start" v-if="currentTab != 'tree'">
           <v-list-item v-for="skill in skills" :key="skill.id" @click="selectSkill(skill)" class="align-start">
             <v-list-item-title>{{ skill.skill_name }}</v-list-item-title>
@@ -93,9 +89,18 @@
             </template>
           </v-list-item>
         </v-list>
-      </v-card>
-    </v-card-text>
-  </v-card>
+      </template>
+      <template v-else>
+        <v-empty-state
+          title="No skills yet"
+          text="You can add skills one by one by clicking Add New button or in a bulk using Add Bulk button"
+        >
+        </v-empty-state>
+      </template>
+      <!-- </v-card> -->
+      <!-- </v-container> -->
+    </template>
+  </config-page-layout>
 
   <v-dialog v-model="newDialog" max-width="500px">
     <v-card title="New Skill">
@@ -157,10 +162,12 @@ import skillService from "@/services/skillService";
 import axios from "axios";
 import { backendUrl } from "@/config/appConfig";
 import SkillTree from "@/components/SkillTree.vue";
+import ConfigPageLayout from "@/layouts/ConfigPageLayout.vue";
 
 export default {
   components: {
     SkillTree,
+    ConfigPageLayout,
   },
   data() {
     return {
@@ -216,24 +223,26 @@ export default {
       }
     },
     // UI Events handlers like button clicks, list item selections
-    async groupSelected(value) {
+    async groupSelected(event) {
       // clean categories and skills
       this.selectedCategoryId = null;
       this.availableCategories = [];
       this.skills = [];
 
       // set new value
-      this.selectedGroupId = value?.id;
+      const value = Number(event);
+      this.selectedGroupId = isNaN(value) || value === null || value === 0 ? undefined : value;
       if (this.selectedGroupId) {
         await this.loadCategories();
         let group = this.availableGroups.find((item) => item.id == this.selectedGroupId);
         group.categories = this.availableCategories;
       }
     },
-    async categorySelected(value) {
-      this.skills = [];
-      this.selectedCategoryId = value.id;
+    async categorySelected(event) {
+      const value = Number(event);
+      this.selectedCategoryId = isNaN(value) || value === null || value === 0 ? undefined : value;
       if (this.selectedCategoryId) {
+        this.skills = [];
         await this.loadSkill();
         let category = this.availableCategories.find((item) => item.id == this.selectedCategoryId);
         category.skills = this.skills;

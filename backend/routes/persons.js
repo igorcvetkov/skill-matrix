@@ -7,11 +7,10 @@ router.get("/", (req, res) => {
   let query = "SELECT DISTINCT person_id FROM person_skill where 1=1 ";
   const params = [];
 
-  console.log("personid", req.user);
-  if (!req.user.roles.includes("admin")) {
-    query += " AND person_id = ?";
-    params.push(req.user.unique_name);
-  }
+  // if (!req.user.roles.includes("admin")) {
+  // query += " AND person_id = ?";
+  // params.push(req.user);
+  // }
 
   db.query(query, params, (err, results) => {
     if (err) {

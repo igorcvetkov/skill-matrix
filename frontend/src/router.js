@@ -6,7 +6,7 @@ import SkillCategories from "./views/SkillCategoriesView.vue";
 import ProjectsView from "./views/ProjectsView.vue";
 import ProjectSkillsView from "./views/ProjectSkillsView.vue";
 import NotFound404 from "./views/NotFound404.vue";
-import MainLayout from "./components/MainLayout.vue";
+import MainLayout from "./layouts/MainLayout.vue";
 import { useAuthStore } from "./store/authStore";
 import LoginView from "./views/LoginView.vue";
 import PersonSkillsView from "./views/PersonSkillsView.vue";

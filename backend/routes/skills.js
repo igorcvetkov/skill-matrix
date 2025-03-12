@@ -5,7 +5,6 @@ const db = require("../config/database");
 // Skills endpoints
 router.get("/", (req, res) => {
   const { categoryId, groupId, excludeProjectId, excludePersonId } = req.query;
-  console.log("get skills filter", { categoryId, groupId, excludeProjectId, excludePersonId });
   let query = `
       SELECT s.*
       FROM skill_details s 
@@ -38,9 +37,6 @@ router.get("/", (req, res) => {
       console.error(err);
       return res.status(500).json({ error: "Failed to fetch skills" });
     }
-
-    console.log("get skills by filter", query, params);
-    console.log("get skills results", results);
     res.json(results);
   });
 });

@@ -3,19 +3,18 @@ const router = express.Router();
 const db = require("../config/database");
 
 router.get("/", (req, res) => {
-  console.log("request", req);
+  console.log("request", req.query);
   const { personId, groupId, categoryId } = req.query;
   let query = "select * from person_skill_details where 1=1";
   const params = [];
   if (personId) {
-    console.log("personid", req.user);
-    if (req.user.roles.includes("admin")) {
-      query += " AND person_id = ?";
-      params.push(personId);
-    } else {
-      query += " AND person_id = ?";
-      params.push(req.user.unique_name);
-    }
+    // if (req.user.roles.includes("admin")) {
+    //   query += " AND person_id = ?";
+    //   params.push(personId);
+    // } else {
+    query += " AND person_id = ?";
+    params.push(personId);
+    // }
   }
   if (groupId) {
     query += " AND group_id = ?";

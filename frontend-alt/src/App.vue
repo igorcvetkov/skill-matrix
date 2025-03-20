@@ -1,61 +1,11 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>Skill Matrix</v-app-bar-title>
-      
-      <v-tabs v-model="activeTab" grow align-tabs="center" color="white">
-        <v-tab value="self-assessment" to="/">
-          <v-icon start>mdi-account-check</v-icon>
-          My Assessment
-        </v-tab>
-        
-        <v-tab v-if="isProjectManager" value="project-assessment" to="/project-assessment">
-          <v-icon start>mdi-clipboard-check</v-icon>
-          Project Assessment
-        </v-tab>
-        
-        <v-tab v-if="canManageOtherUsers" value="user-assessment" to="/user-assessment">
-          <v-icon start>mdi-account-multiple-check</v-icon>
-          Team Assessment
-        </v-tab>
-      </v-tabs>
-      
-      <v-spacer></v-spacer>
-      
-      <div v-if="currentUser" class="d-flex align-center">
-        <v-menu open-on-hover>
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props">
-              <v-avatar size="36" color="primary-lighten-1">
-                <v-icon>mdi-account-circle</v-icon>
-              </v-avatar>
-            </v-btn>
-          </template>
-          <v-card min-width="200">
-            <v-list>
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-avatar color="primary">
-                    <v-icon>mdi-account-circle</v-icon>
-                  </v-avatar>
-                </template>
-                <v-list-item-title>{{ currentUser.name }}</v-list-item-title>
-                <v-list-item-subtitle v-if="userRoles.length">
-                  {{ userRoles.join(', ') }}
-                </v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-            <v-divider></v-divider>
-            <v-list>
-              <v-list-item v-if="!isMockUser" @click="logout" prepend-icon="mdi-logout" title="Logout"></v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
-      </div>
     </v-app-bar>
 
     <v-navigation-drawer
-      v-if="activeTab === 'user-assessment' && canManageOtherUsers"
       v-model="drawer"
       location="left"
       :rail="railMode"
@@ -66,27 +16,76 @@
     >
       <v-list>
         <v-list-item
-          prepend-avatar="https://ui-avatars.com/api/?name=Team+Management&background=random"
-          title="Team Management"
-          subtitle="Select team member to assess"
+          v-if="currentUser"
+          :prepend-avatar="userAvatar"
+          :title="currentUser.name"
+          :subtitle="userRoles.length ? userRoles.join(', ') : ''"
+        ></v-list-item>
+        <v-list-item
+          v-else
+          prepend-avatar="https://ui-avatars.com/api/?name=Skill+Matrix&background=random"
+          title="Skill Matrix"
+          subtitle="Assessment & Management"
         ></v-list-item>
       </v-list>
 
       <v-divider></v-divider>
 
-      <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-account-group" title="All Team Members" to="/user-assessment"></v-list-item>
-        <v-list-item prepend-icon="mdi-account-star" title="Direct Reports" to="/user-assessment?filter=direct"></v-list-item>
-        <v-list-item prepend-icon="mdi-star" title="Favorites" to="/user-assessment?filter=favorites"></v-list-item>
+      <!-- Main Navigation -->
+      <v-list nav>
+        <v-list-item 
+          prepend-icon="mdi-account-check" 
+          title="My Assessment" 
+          to="/"
+          :active="activeTab === 'self-assessment'"
+          @click="activeTab = 'self-assessment'"
+        ></v-list-item>
+        
+        <v-list-item 
+          v-if="isProjectManager" 
+          prepend-icon="mdi-clipboard-check" 
+          title="Project Assessment" 
+          to="/project-assessment"
+          :active="activeTab === 'project-assessment'"
+          @click="activeTab = 'project-assessment'"
+        ></v-list-item>
+        
+        <v-list-item 
+          v-if="canManageOtherUsers" 
+          prepend-icon="mdi-account-multiple-check" 
+          title="Team Assessment" 
+          to="/user-assessment"
+          :active="activeTab === 'user-assessment'"
+          @click="activeTab = 'user-assessment'"
+        ></v-list-item>
       </v-list>
-      
-      <template v-slot:append>
-        <div class="pa-2">
-          <v-btn block @click="drawer = !drawer">
-            <v-icon start>mdi-chevron-left</v-icon>
-            {{ railMode ? "Expand" : "Collapse" }}
-          </v-btn>
+
+      <v-divider></v-divider>
+
+      <!-- Team Management Section - Show only when Team Assessment is active -->
+      <div v-if="activeTab === 'user-assessment' && canManageOtherUsers">
+        <v-list>
+          <v-list-subheader>Team Management</v-list-subheader>
+        </v-list>
+        
+        <!-- User selector -->
+        <div class="px-3 pb-2">
+          <user-selector @user-selected="selectTeamMember"></user-selector>
         </div>
+      </div>
+
+      <template v-slot:append>
+        <!-- User actions -->
+        <v-list v-if="currentUser">
+          <v-divider></v-divider>
+          <v-list-item 
+            v-if="!isMockUser" 
+            @click="logout" 
+            prepend-icon="mdi-logout" 
+            title="Logout"
+            color="error"
+          ></v-list-item>
+        </v-list>
       </template>
     </v-navigation-drawer>
 
@@ -104,14 +103,18 @@
 import { mapGetters, mapActions } from 'vuex'
 import { msalInstance } from './store'
 import { roles } from './router'
+import UserSelector from '@/components/UserSelector.vue'
 
 export default {
   name: 'App',
+  components: {
+    UserSelector
+  },
   data() {
     return {
       activeTab: 'self-assessment',
       drawer: true,
-      railMode: true
+      railMode: false
     }
   },
   computed: {
@@ -121,10 +124,24 @@ export default {
     },
     canManageOtherUsers() {
       return this.hasRole(roles.ADMIN) || this.hasRole(roles.PM)
+    },
+    userAvatar() {
+      // Generate avatar URL from user's name
+      return this.currentUser ? 
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(this.currentUser.name)}&background=random` : 
+        'https://ui-avatars.com/api/?name=User&background=random'
     }
   },
   methods: {
-    ...mapActions(['logout', 'handleRedirectCallback'])
+    ...mapActions(['logout', 'handleRedirectCallback']),
+    
+    selectTeamMember(userId) {
+      if (userId) {
+        this.$router.push({ path: '/user-assessment', query: { userId } })
+      } else {
+        this.$router.push({ path: '/user-assessment' })
+      }
+    }
   },
   async created() {
     // Register event handlers for MSAL
@@ -182,7 +199,12 @@ export default {
   padding: 0 16px !important;
 }
 
-.v-tab {
-  min-width: 150px;
+.v-navigation-drawer__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.v-navigation-drawer__append {
+  margin-top: auto;
 }
 </style> 

@@ -1,27 +1,24 @@
 <template>
   <div class="user-selector">
-    <v-card class="mb-4 pa-4">
-      <v-card-title class="px-0 pt-0">
-        User Selection
-      </v-card-title>
-      <v-card-subtitle class="px-0 pb-2">
-        Select a user to view or manage their skill assessment
-      </v-card-subtitle>
-      
+    <div class="selector-container">
       <v-combobox
         v-model="selectedUser"
         :loading="loading"
         :items="users"
         item-title="name"
         item-value="id"
-        label="Select User"
+        label="Select Team Member"
         clearable
         return-object
         :disabled="loading"
+        density="compact"
+        variant="outlined"
+        bg-color="surface"
+        hide-details
         @update:model-value="handleUserSelection"
       >
         <template v-slot:prepend-inner>
-          <v-icon color="primary">mdi-account-search</v-icon>
+          <v-icon size="small" color="primary">mdi-account-search</v-icon>
         </template>
         <template v-slot:no-data>
           <v-list-item>
@@ -31,28 +28,7 @@
           </v-list-item>
         </template>
       </v-combobox>
-      
-      <v-expand-transition>
-        <div v-if="selectedUser" class="mt-4">
-          <v-chip
-            color="primary"
-            size="large"
-            prepend-icon="mdi-account"
-          >
-            {{ selectedUser.name }}
-          </v-chip>
-          <v-btn
-            variant="text"
-            color="error"
-            size="small"
-            class="ml-2"
-            @click="clearSelection"
-          >
-            Clear
-          </v-btn>
-        </div>
-      </v-expand-transition>
-    </v-card>
+    </div>
   </div>
 </template>
 
@@ -120,6 +96,18 @@ export default {
 
 <style scoped>
 .user-selector {
-  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.selector-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-user-chip {
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style> 

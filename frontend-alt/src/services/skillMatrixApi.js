@@ -151,5 +151,50 @@ export default {
       .catch(error => {
         throw error
       })
+  },
+
+  /**
+   * Get all projects
+   * @returns {Promise} Promise with the response data
+   */
+  getAllProjects() {
+    return api.get('/projects')
+  },
+
+  /**
+   * Get project information by ID
+   * @param {string} projectId - The project ID
+   * @returns {Promise} Promise with the response data
+   */
+  getProjectInfo(projectId) {
+    return api.get(`/projects/${projectId}`)
+  },
+
+  /**
+   * Get skills for a specific project
+   * @param {string} projectId - The project ID
+   * @returns {Promise} Promise with the response data
+   */
+  getProjectSkills(projectId) {
+    return api.get(`/project-skill?projectId=${projectId}`)
+  },
+
+  /**
+   * Add a skill to a project
+   * @param {string} projectId - The project ID
+   * @param {number} skillId - The skill ID to add
+   * @returns {Promise} Promise with the response data
+   */
+  addProjectSkill(projectId, skillId) {
+    return api.post('/project-skill', { projectId, skillId })
+  },
+
+  /**
+   * Remove a skill from a project
+   * @param {number} projectSkillId - The project_skill ID to remove
+   * @returns {Promise} Promise with the response data
+   */
+  removeProjectSkill(projectSkillId) {
+    return api.delete(`/project-skill/${projectSkillId}`)
   }
 } 

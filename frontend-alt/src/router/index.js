@@ -45,7 +45,7 @@ const routes = [
     component: ProjectAssessmentView,
     meta: { 
       requiresAuth: true,
-      roles: [roles.PM]
+      roles: [roles.ADMIN, roles.PM]
     }
   }
 ]

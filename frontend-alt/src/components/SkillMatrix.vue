@@ -319,20 +319,42 @@ export default {
         // Create a map of user skills by skill_id
         this.userSkillsMap = {};
         this.userSkills = {};
+        this.skillResponses = {};
         
         userSkills.forEach(personSkill => {
           // The API returns person_skill records with a skill_id property
           const skillId = personSkill.skill_id;
+          const proficiency = personSkill.proficiency;
           
           this.userSkillsMap[skillId] = personSkill;
-          this.userSkills[skillId] = true;
           
-          // Initialize skill responses
-          this.skillResponses[skillId] = 'yes';
+          // Set response based on proficiency
+          if (proficiency === 1 || proficiency === true) {
+            this.skillResponses[skillId] = 'yes';
+            this.userSkills[skillId] = true;
+          } else if (proficiency === 0 || proficiency === false) {
+            this.skillResponses[skillId] = 'no';
+            this.userSkills[skillId] = false;
+          } else {
+            // Default to "yes" for any other value, for backward compatibility
+            this.skillResponses[skillId] = 'yes';
+            this.userSkills[skillId] = true;
+          }
+        });
+        
+        // Initialize all skills that don't have a response to null (not answered)
+        this.skillCategories.forEach(category => {
+          if (category.skills) {
+            category.skills.forEach(skill => {
+              if (this.skillResponses[skill.id] === undefined) {
+                this.skillResponses[skill.id] = null;
+              }
+            });
+          }
         });
         
         // Calculate answered skills count
-        this.answeredSkills = Object.values(this.userSkills).filter(Boolean).length;
+        this.answeredSkills = Object.values(this.skillResponses).filter(v => v !== null).length;
         
         this.loading = false;
       } catch (error) {
@@ -373,7 +395,7 @@ export default {
     
     updateSkillResponse(skillId, response) {
       // If this is the first response for this skill, increment the answered count
-      if (this.skillResponses[skillId] === undefined) {
+      if (this.skillResponses[skillId] === undefined || this.skillResponses[skillId] === null) {
         this.answeredSkills++
       }
       
@@ -404,17 +426,42 @@ export default {
       
       try {
         // Prepare data for saving
-        const skillsToAdd = []
+        const skillsToAddWithYes = []
+        const skillsToAddWithNo = []
+        const skillsToUpdate = []
         const skillsToRemove = []
         
-        // Identify skills to add (selected but not in userSkillsMap)
-        Object.entries(this.userSkills).forEach(([skillId, selected]) => {
+        // Process skills for saving
+        Object.entries(this.skillResponses).forEach(([skillId, response]) => {
           skillId = parseInt(skillId)
-          if (selected && !this.userSkillsMap[skillId]) {
-            skillsToAdd.push(skillId)
-          } else if (!selected && this.userSkillsMap[skillId]) {
-            // Identify skills to remove (not selected but in userSkillsMap)
-            skillsToRemove.push(this.userSkillsMap[skillId].id)
+          
+          // Skip skills that haven't been answered
+          if (response === null || response === undefined) return
+          
+          const hasRecord = !!this.userSkillsMap[skillId]
+          const proficiency = response === 'yes' ? 1 : 0
+          
+          if (hasRecord) {
+            const existingProficiency = this.userSkillsMap[skillId].proficiency
+            
+            // If proficiency changed, update the record
+            if (existingProficiency !== proficiency) {
+              // For simplicity, remove and re-add with new proficiency
+              skillsToRemove.push(this.userSkillsMap[skillId].id)
+              
+              if (proficiency === 1) {
+                skillsToAddWithYes.push(skillId)
+              } else {
+                skillsToAddWithNo.push(skillId)
+              }
+            }
+          } else {
+            // Add new record with appropriate proficiency
+            if (proficiency === 1) {
+              skillsToAddWithYes.push(skillId)
+            } else {
+              skillsToAddWithNo.push(skillId)
+            }
           }
         })
         
@@ -423,7 +470,9 @@ export default {
         
         // Save the assessment
         await skillMatrixApi.saveAssessment(targetId, {
-          skillsToAdd,
+          skillsToAddWithYes,
+          skillsToAddWithNo,
+          skillsToUpdate,
           skillsToRemove,
           notes: this.categoryNotes
         })

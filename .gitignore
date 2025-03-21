@@ -30,7 +30,8 @@ frontend-alt/pnpm-debug.log*
 backend/node_modules/
 backend/npm-debug.log*
 
-# Editor directories and files
+# Editor/OS directories and files
+*.DS_Store
 .idea
 .vscode
 *.suo

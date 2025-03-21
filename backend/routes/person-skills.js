@@ -36,15 +36,35 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { personId, skillId } = req.body;
+  const { personId, skillId, proficiency = 1 } = req.body;
 
-  db.query("INSERT INTO person_skill (skill_id, person_id) VALUES (?, ?)", [skillId, personId], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to add skill to person", exception: err });
+  db.query("INSERT INTO person_skill (skill_id, person_id, proficiency) VALUES (?, ?, ?)", 
+    [skillId, personId, proficiency], 
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to add skill to person", exception: err });
+      }
+      res.status(201).json({ id: result.insertId, proficiency });
     }
-    res.status(201).json({ id: result.insertId });
-  });
+  );
+});
+
+// Update an existing person-skill record
+router.put("/:id", (req, res) => {
+  const skillId = req.params.id;
+  const { proficiency } = req.body;
+
+  db.query("UPDATE person_skill SET proficiency = ? WHERE id = ?", 
+    [proficiency, skillId], 
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update person skill", exception: err });
+      }
+      res.status(200).json({ id: skillId, proficiency });
+    }
+  );
 });
 
 router.delete("/:id", (req, res) => {

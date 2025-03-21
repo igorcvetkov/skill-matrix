@@ -84,10 +84,21 @@ export default {
    * Add a skill to a user
    * @param {string} userId - The user ID or 'me' for current user
    * @param {number} skillId - The skill ID to add
+   * @param {number} proficiency - The proficiency level (1=yes, 0=no)
    * @returns {Promise} Promise with the response data
    */
-  addUserSkill(userId = 'me', skillId) {
-    return api.post('/person-skill', { personId: userId, skillId })
+  addUserSkill(userId = 'me', skillId, proficiency = 1) {
+    return api.post('/person-skill', { personId: userId, skillId, proficiency })
+  },
+
+  /**
+   * Update a user's skill proficiency
+   * @param {number} personSkillId - The person_skill ID to update
+   * @param {number} proficiency - The proficiency level (1=yes, 0=no)
+   * @returns {Promise} Promise with the response data
+   */
+  updateUserSkillProficiency(personSkillId, proficiency) {
+    return api.put(`/person-skill/${personSkillId}`, { proficiency })
   },
 
   /**
@@ -110,10 +121,22 @@ export default {
     // Process the assessment data to add/remove skills
     const promises = []
     
-    // Add skills that are selected
-    const skillsToAdd = assessment.skillsToAdd || []
-    skillsToAdd.forEach(skillId => {
-      promises.push(this.addUserSkill(userId, skillId))
+    // Add skills with yes proficiency
+    const skillsToAddWithYes = assessment.skillsToAddWithYes || []
+    skillsToAddWithYes.forEach(skillId => {
+      promises.push(this.addUserSkill(userId, skillId, 1))
+    })
+    
+    // Add skills with no proficiency
+    const skillsToAddWithNo = assessment.skillsToAddWithNo || []
+    skillsToAddWithNo.forEach(skillId => {
+      promises.push(this.addUserSkill(userId, skillId, 0))
+    })
+    
+    // Update skills proficiency
+    const skillsToUpdate = assessment.skillsToUpdate || []
+    skillsToUpdate.forEach(({ id, proficiency }) => {
+      promises.push(this.updateUserSkillProficiency(id, proficiency))
     })
     
     // Remove skills that are deselected

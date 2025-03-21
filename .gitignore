@@ -17,11 +17,21 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 frontend/pnpm-debug.log*
 
+# Vue.js (frontend-alt)
+frontend-alt/dist/
+frontend-alt/.DS_Store
+frontend-alt/node_modules/
+frontend-alt/npm-debug.log*
+frontend-alt/yarn-debug.log*
+frontend-alt/yarn-error.log*
+frontend-alt/pnpm-debug.log*
+
 # Backend
 backend/node_modules/
 backend/npm-debug.log*
 
-# Editor directories and files
+# Editor/OS directories and files
+*.DS_Store
 .idea
 .vscode
 *.suo

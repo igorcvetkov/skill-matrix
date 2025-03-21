@@ -42,7 +42,7 @@
         <!-- Skill Matrix Component for the selected user -->
         <v-row>
           <v-col cols="12">
-            <skill-matrix :target-user-id="selectedUserId"></skill-matrix>
+            <skill-matrix :target-user-id="selectedUserId" :key="key"></skill-matrix>
           </v-col>
         </v-row>
       </div>
@@ -66,7 +66,8 @@ export default {
       selectedUserId: null,
       selectedUserName: null,
       loading: false,
-      error: null
+      error: null,
+      key: Date.now()
     }
   },
   computed: {
@@ -112,6 +113,7 @@ export default {
         if (newUserId && newUserId !== this.selectedUserId) {
           this.selectedUserId = newUserId
           this.loadUserInfo()
+          this.key = Date.now()
         } else if (!newUserId) {
           this.selectedUserId = null
           this.selectedUserName = null

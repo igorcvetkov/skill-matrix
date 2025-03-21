@@ -42,7 +42,7 @@
         ></v-list-item>
         
         <v-list-item 
-          v-if="isProjectManager" 
+          v-if="canManageProjects" 
           prepend-icon="mdi-clipboard-check" 
           title="Project Assessment" 
           to="/project-assessment"
@@ -71,6 +71,18 @@
         <!-- User selector -->
         <div class="px-3 pb-2">
           <user-selector @user-selected="selectTeamMember"></user-selector>
+        </div>
+      </div>
+
+      <!-- Project Management Section - Show only when Project Assessment is active -->
+      <div v-if="activeTab === 'project-assessment' && canManageProjects">
+        <v-list>
+          <v-list-subheader>Project Management</v-list-subheader>
+        </v-list>
+        
+        <!-- Project selector -->
+        <div class="px-3 pb-2">
+          <project-selector @project-selected="selectProject"></project-selector>
         </div>
       </div>
 
@@ -104,11 +116,13 @@ import { mapGetters, mapActions } from 'vuex'
 import { msalInstance } from './store'
 import { roles } from './router'
 import UserSelector from '@/components/UserSelector.vue'
+import ProjectSelector from '@/components/ProjectSelector.vue'
 
 export default {
   name: 'App',
   components: {
-    UserSelector
+    UserSelector,
+    ProjectSelector
   },
   data() {
     return {
@@ -123,6 +137,9 @@ export default {
       return this.currentUser && this.currentUser.id === 'mock-user-id'
     },
     canManageOtherUsers() {
+      return this.hasRole(roles.ADMIN) || this.hasRole(roles.PM)
+    },
+    canManageProjects() {
       return this.hasRole(roles.ADMIN) || this.hasRole(roles.PM)
     },
     userAvatar() {
@@ -140,6 +157,14 @@ export default {
         this.$router.push({ path: '/user-assessment', query: { userId } })
       } else {
         this.$router.push({ path: '/user-assessment' })
+      }
+    },
+    
+    selectProject(projectId) {
+      if (projectId) {
+        this.$router.push({ path: '/project-assessment', query: { projectId } })
+      } else {
+        this.$router.push({ path: '/project-assessment' })
       }
     }
   },

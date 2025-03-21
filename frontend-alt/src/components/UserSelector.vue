@@ -44,7 +44,8 @@ export default {
       users: [],
       selectedUser: null,
       loading: false,
-      error: null
+      error: null,
+      initialUserId: null
     };
   },
   computed: {
@@ -57,6 +58,13 @@ export default {
     // Only load users if the current user has permission
     if (this.canSelectUsers) {
       this.loadUsers();
+      
+      // Check if a user ID is in the route
+      const userId = this.$route.query.userId;
+      if (userId) {
+        // Set as initial selection (will be updated when users are loaded)
+        this.initialUserId = userId;
+      }
     }
   },
   methods: {
@@ -70,6 +78,14 @@ export default {
           id: user.person_id,
           name: user.person_id // Using person_id as name if no name field exists
         }));
+        
+        // If there was an initial user ID from the route, select it
+        if (this.initialUserId && this.users.length > 0) {
+          const userToSelect = this.users.find(u => u.id == this.initialUserId);
+          if (userToSelect) {
+            this.selectedUser = userToSelect;
+          }
+        }
       } catch (error) {
         console.error('Error loading users:', error);
         this.error = 'Failed to load users';
@@ -89,6 +105,23 @@ export default {
     clearSelection() {
       this.selectedUser = null;
       this.$emit('user-selected', null);
+    }
+  },
+  watch: {
+    // Watch for route changes to update selection
+    '$route.query.userId': {
+      handler(newUserId) {
+        if (newUserId && this.users.length > 0) {
+          // Find and select the user
+          const userToSelect = this.users.find(u => u.id == newUserId);
+          if (userToSelect && (!this.selectedUser || this.selectedUser.id != newUserId)) {
+            this.selectedUser = userToSelect;
+          }
+        } else if (!newUserId && this.selectedUser) {
+          // Clear selection if the route doesn't have a user ID
+          this.selectedUser = null;
+        }
+      }
     }
   }
 };

@@ -53,6 +53,7 @@ CREATE TABLE `person_skill` (
   `id` int NOT NULL AUTO_INCREMENT,
   `person_id` varchar(145) NOT NULL,
   `skill_id` int NOT NULL,
+  `proficiency` tinyint DEFAULT 1;
   PRIMARY KEY (`id`),
   FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`),
   `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -138,6 +139,7 @@ VIEW `person_skill_details` AS
         `ps`.`id` AS `id`,
         `ps`.`person_id` AS `person_id`,
         `ps`.`skill_id` AS `skill_id`,
+        `ps`.`proficiency` AS `proficiency`,
         `ps`.`created_date` AS `created_date`,
         `s`.`name` AS `skill_name`,
         `sc`.`name` AS `category_name`,

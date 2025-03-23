@@ -47,6 +47,43 @@ const routes = [
       requiresAuth: true,
       roles: [roles.ADMIN, roles.PM]
     }
+  },
+  // Management Routes - Only for Admins
+  {
+    path: '/manage/skill-groups',
+    name: 'manageSkillGroups',
+    component: () => import('../views/management/SkillGroupsManagementView.vue'),
+    meta: { 
+      requiresAuth: true,
+      roles: [roles.ADMIN]
+    }
+  },
+  {
+    path: '/manage/skill-categories',
+    name: 'manageSkillCategories',
+    component: () => import('../views/management/SkillCategoriesManagementView.vue'),
+    meta: { 
+      requiresAuth: true,
+      roles: [roles.ADMIN]
+    }
+  },
+  {
+    path: '/manage/skills',
+    name: 'manageSkills',
+    component: () => import('../views/management/SkillsManagementView.vue'),
+    meta: { 
+      requiresAuth: true,
+      roles: [roles.ADMIN]
+    }
+  },
+  {
+    path: '/manage/projects',
+    name: 'manageProjects',
+    component: () => import('../views/management/ProjectsManagementView.vue'),
+    meta: { 
+      requiresAuth: true,
+      roles: [roles.ADMIN]
+    }
   }
 ]
 

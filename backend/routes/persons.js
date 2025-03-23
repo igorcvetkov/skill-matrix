@@ -4,46 +4,10 @@ const db = require("../config/database");
 
 // Get all persons
 router.get("/", (req, res) => {
-  // Get query parameters for filtering
-  const { name, email, role } = req.query;
+  // Query to get distinct person IDs only
+  const query = `SELECT DISTINCT person_id FROM person_skill`;
   
-  // Base query to get distinct person IDs with basic info
-  let query = `
-    SELECT DISTINCT ps.person_id, 
-           u.name,
-           u.email,
-           u.role
-    FROM person_skill ps 
-    LEFT JOIN users u ON ps.person_id = u.id
-    WHERE 1=1
-  `;
-  
-  const params = [];
-
-  // Add filters if provided
-  if (name) {
-    query += " AND u.name LIKE ?";
-    params.push(`%${name}%`);
-  }
-  
-  if (email) {
-    query += " AND u.email LIKE ?";
-    params.push(`%${email}%`);
-  }
-  
-  if (role) {
-    query += " AND u.role = ?";
-    params.push(role);
-  }
-
-  // Only allow admins and project managers to see all users
-  // For regular users, only return their own data
-  // if (!req.user.roles.includes("admin") && !req.user.roles.includes("project.manager")) {
-  //   query += " AND ps.person_id = ?";
-  //   params.push(req.user.id);
-  // }
-
-  db.query(query, params, (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
       console.error("Error fetching persons:", err);
       return res.status(500).json({ error: "Failed to fetch persons" });
@@ -77,7 +41,13 @@ router.get("/", (req, res) => {
       return res.json([]);
     }
     
-    res.json(results);
+    // Transform results to include name = person_id
+    const persons = results.map(result => ({
+      person_id: result.person_id,
+      name: result.person_id // Use person_id as name since that's what the frontend expects
+    }));
+    
+    res.json(persons);
   });
 });
 

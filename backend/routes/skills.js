@@ -105,4 +105,57 @@ router.delete("/:id", (req, res) => {
   });
 });
 
+// Update a skill by ID
+router.put("/:id", (req, res) => {
+  const skillId = req.params.id;
+  const { name, category_id, description } = req.body;
+  
+  const updateFields = [];
+  const params = [];
+  
+  if (name !== undefined) {
+    updateFields.push("name = ?");
+    params.push(name);
+  }
+  
+  if (category_id !== undefined) {
+    updateFields.push("category_id = ?");
+    params.push(category_id);
+  }
+  
+  if (description !== undefined) {
+    updateFields.push("description = ?");
+    params.push(description);
+  }
+  
+  if (updateFields.length === 0) {
+    return res.status(400).json({ error: "No fields to update" });
+  }
+  
+  params.push(skillId); // Add skillId as the last parameter
+  
+  const query = `UPDATE skill SET ${updateFields.join(", ")} WHERE id = ?`;
+  
+  db.query(query, params, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to update skill", exception: err });
+    }
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Skill not found" });
+    }
+    
+    // Get the updated skill to return
+    db.query("SELECT * FROM skill_details WHERE id = ?", [skillId], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to fetch updated skill" });
+      }
+      
+      res.json(results[0] || { id: skillId, name, category_id, description });
+    });
+  });
+});
+
 module.exports = router;

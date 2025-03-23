@@ -61,6 +61,42 @@ router.post("/bulk", async (req, res) => {
   }
 });
 
+router.put("/:id", (req, res) => {
+  const categoryId = req.params.id;
+  const { name, groupId } = req.body;
+
+  if (!name || !groupId) {
+    return res.status(400).json({ error: "Name and groupId are required" });
+  }
+
+  db.query(
+    "UPDATE skill_category SET name = ?, group_id = ? WHERE id = ?", 
+    [name, groupId, categoryId], 
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update category", exception: err });
+      }
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      
+      // Fetch the updated category with group name to return
+      db.query(
+        "SELECT * FROM skill_category_details WHERE id = ?",
+        [categoryId],
+        (err, results) => {
+          if (err || results.length === 0) {
+            return res.json({ id: parseInt(categoryId), name, group_id: groupId });
+          }
+          res.json(results[0]);
+        }
+      );
+    }
+  );
+});
+
 router.delete("/:id", (req, res) => {
   const categoryId = req.params.id;
 

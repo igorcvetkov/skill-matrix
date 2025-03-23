@@ -25,6 +25,28 @@ router.post("/", (req, res) => {
   });
 });
 
+router.put("/:id", (req, res) => {
+  const groupId = req.params.id;
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+
+  db.query("UPDATE skill_group SET name = ? WHERE id = ?", [name, groupId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to update group", exception: err });
+    }
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    res.json({ id: parseInt(groupId), name });
+  });
+});
+
 router.delete("/:id", (req, res) => {
   const groupId = req.params.id;
 

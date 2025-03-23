@@ -13,11 +13,40 @@ export default {
   },
 
   /**
-   * Get all skill categories
+   * Create a new skill group
+   * @param {Object} group - The group object with name property
    * @returns {Promise} Promise with the response data
    */
-  getSkillCategories() {
-    return api.get('/skill-categories')
+  createSkillGroup(group) {
+    return api.post('/skill-groups', group)
+  },
+
+  /**
+   * Delete a skill group
+   * @param {number} groupId - The group ID to delete
+   * @returns {Promise} Promise with the response data
+   */
+  deleteSkillGroup(groupId) {
+    return api.delete(`/skill-groups/${groupId}`)
+  },
+
+  /**
+   * Update a skill group
+   * @param {number} groupId - The group ID to update
+   * @param {Object} group - The updated group object with name property
+   * @returns {Promise} Promise with the response data
+   */
+  updateSkillGroup(groupId, group) {
+    return api.put(`/skill-groups/${groupId}`, group)
+  },
+
+  /**
+   * Get all skill categories
+   * @param {Object} params - Optional query parameters like groupId
+   * @returns {Promise} Promise with the response data
+   */
+  getSkillCategories(params = {}) {
+    return api.get('/skill-categories', { params })
   },
 
   /**
@@ -29,11 +58,49 @@ export default {
   },
 
   /**
-   * Get all skills
+   * Create a new skill category
+   * @param {Object} category - The category object with name and groupId properties
    * @returns {Promise} Promise with the response data
    */
-  getSkills() {
-    return api.get('/skills')
+  createSkillCategory(category) {
+    return api.post('/skill-categories', category)
+  },
+
+  /**
+   * Create multiple skill categories in bulk
+   * @param {Array} categories - Array of category objects with name and groupId properties
+   * @returns {Promise} Promise with the response data
+   */
+  bulkCreateSkillCategories(categories) {
+    return api.post('/skill-categories/bulk', { categories })
+  },
+
+  /**
+   * Delete a skill category
+   * @param {number} categoryId - The category ID to delete
+   * @returns {Promise} Promise with the response data
+   */
+  deleteSkillCategory(categoryId) {
+    return api.delete(`/skill-categories/${categoryId}`)
+  },
+
+  /**
+   * Update a skill category
+   * @param {number} categoryId - The category ID to update
+   * @param {Object} category - The updated category object with name and groupId properties
+   * @returns {Promise} Promise with the response data
+   */
+  updateSkillCategory(categoryId, category) {
+    return api.put(`/skill-categories/${categoryId}`, category)
+  },
+
+  /**
+   * Get all skills
+   * @param {Object} params - Optional query parameters like categoryId or groupId
+   * @returns {Promise} Promise with the response data
+   */
+  getSkills(params = {}) {
+    return api.get('/skills', { params })
   },
 
   /**
@@ -42,6 +109,52 @@ export default {
    */
   getSkillDetails() {
     return api.get('/skills')
+  },
+
+  /**
+   * Create a new skill
+   * @param {Object} skill - The skill object with name and category_id properties
+   * @returns {Promise} Promise with the response data
+   */
+  createSkill(skill) {
+    return api.post('/skills', skill)
+  },
+
+  /**
+   * Create multiple skills in bulk
+   * @param {Array} skills - Array of skill objects with name and categoryId properties
+   * @returns {Promise} Promise with the response data
+   */
+  bulkCreateSkills(skills) {
+    return api.post('/skills/bulk', { skills })
+  },
+
+  /**
+   * Delete a skill
+   * @param {number} skillId - The skill ID to delete
+   * @returns {Promise} Promise with the response data
+   */
+  deleteSkill(skillId) {
+    return api.delete(`/skills/${skillId}`)
+  },
+
+  /**
+   * Update a skill
+   * @param {number} skillId - The skill ID to update
+   * @param {Object} skill - The updated skill object with name, category_id, and optional description
+   * @returns {Promise} Promise with the response data
+   */
+  updateSkill(skillId, skill) {
+    return api.put(`/skills/${skillId}`, skill)
+  },
+
+  /**
+   * Search for skills by name, category, or group
+   * @param {string} query - The search query
+   * @returns {Promise} Promise with the response data
+   */
+  searchSkills(query) {
+    return api.get('/skills/search', { params: { query }})
   },
 
   /**
@@ -159,6 +272,34 @@ export default {
    */
   getAllProjects() {
     return api.get('/projects')
+  },
+
+  /**
+   * Create a new project
+   * @param {Object} project - The project object with name property
+   * @returns {Promise} Promise with the response data
+   */
+  createProject(project) {
+    return api.post('/projects', project)
+  },
+
+  /**
+   * Delete a project
+   * @param {number} projectId - The project ID to delete
+   * @returns {Promise} Promise with the response data
+   */
+  deleteProject(projectId) {
+    return api.delete(`/projects/${projectId}`)
+  },
+
+  /**
+   * Update a project
+   * @param {number} projectId - The project ID to update
+   * @param {Object} project - The updated project object with name and optional description
+   * @returns {Promise} Promise with the response data
+   */
+  updateProject(projectId, project) {
+    return api.put(`/projects/${projectId}`, project)
   },
 
   /**

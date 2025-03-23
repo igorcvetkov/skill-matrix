@@ -86,6 +86,46 @@
         </div>
       </div>
 
+      <!-- Admin Management Section - Only for Admin users -->
+      <div v-if="isAdmin">
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-subheader>Metadata Management</v-list-subheader>
+          
+          <v-list-item 
+            prepend-icon="mdi-view-list" 
+            title="Skill Groups" 
+            to="/manage/skill-groups"
+            :active="activeTab === 'manage-skill-groups'"
+            @click="activeTab = 'manage-skill-groups'"
+          ></v-list-item>
+          
+          <v-list-item 
+            prepend-icon="mdi-tag-multiple" 
+            title="Skill Categories" 
+            to="/manage/skill-categories"
+            :active="activeTab === 'manage-skill-categories'"
+            @click="activeTab = 'manage-skill-categories'"
+          ></v-list-item>
+          
+          <v-list-item 
+            prepend-icon="mdi-lightbulb" 
+            title="Skills" 
+            to="/manage/skills"
+            :active="activeTab === 'manage-skills'"
+            @click="activeTab = 'manage-skills'"
+          ></v-list-item>
+          
+          <v-list-item 
+            prepend-icon="mdi-clipboard-list" 
+            title="Projects" 
+            to="/manage/projects"
+            :active="activeTab === 'manage-projects'"
+            @click="activeTab = 'manage-projects'"
+          ></v-list-item>
+        </v-list>
+      </div>
+
       <template v-slot:append>
         <!-- User actions -->
         <v-list v-if="currentUser">
@@ -193,6 +233,14 @@ export default {
       this.activeTab = 'project-assessment'
     } else if (path === '/user-assessment') {
       this.activeTab = 'user-assessment'
+    } else if (path === '/manage/skill-groups') {
+      this.activeTab = 'manage-skill-groups'
+    } else if (path === '/manage/skill-categories') {
+      this.activeTab = 'manage-skill-categories'
+    } else if (path === '/manage/skills') {
+      this.activeTab = 'manage-skills'
+    } else if (path === '/manage/projects') {
+      this.activeTab = 'manage-projects'
     }
   },
   watch: {
@@ -205,6 +253,14 @@ export default {
         this.activeTab = 'project-assessment'
       } else if (path === '/user-assessment') {
         this.activeTab = 'user-assessment'
+      } else if (path === '/manage/skill-groups') {
+        this.activeTab = 'manage-skill-groups'
+      } else if (path === '/manage/skill-categories') {
+        this.activeTab = 'manage-skill-categories'
+      } else if (path === '/manage/skills') {
+        this.activeTab = 'manage-skills'
+      } else if (path === '/manage/projects') {
+        this.activeTab = 'manage-projects'
       }
     }
   }

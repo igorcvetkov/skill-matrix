@@ -74,9 +74,10 @@ export default {
       
       try {
         const response = await skillMatrixApi.getAllUsers();
+        // Map the response data to the format expected by the combobox
         this.users = response.data.map(user => ({
           id: user.person_id,
-          name: user.person_id // Using person_id as name if no name field exists
+          name: user.name || user.person_id // Use name if available, otherwise use person_id
         }));
         
         // If there was an initial user ID from the route, select it

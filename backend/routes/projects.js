@@ -87,6 +87,37 @@ router.post("/", (req, res) => {
   // });
 });
 
+router.put("/:id", (req, res) => {
+  const projectId = req.params.id;
+  const { name, description } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Project name is required" });
+  }
+
+  db.query(
+    "UPDATE project SET name = ?, description = ? WHERE id = ?", 
+    [name, description || null, projectId], 
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update project", exception: err });
+      }
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      // Return the updated project
+      res.json({ 
+        id: parseInt(projectId), 
+        name, 
+        description 
+      });
+    }
+  );
+});
+
 router.delete("/:id", (req, res) => {
   const categoryId = req.params.id;
 

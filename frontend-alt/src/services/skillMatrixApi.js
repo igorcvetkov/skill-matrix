@@ -191,6 +191,20 @@ export default {
    */
   getUserSkillDetails(userId = 'me') {
     return api.get(`/person-skill?personId=${userId}`)
+      .then(response => {
+        // Ensure we always return an array
+        if (!response.data) {
+          return { data: [] };
+        }
+        if (!Array.isArray(response.data)) {
+          return { data: [] };
+        }
+        return response;
+      })
+      .catch(error => {
+        console.error('Error fetching user skills:', error);
+        throw error;
+      });
   },
 
   /**

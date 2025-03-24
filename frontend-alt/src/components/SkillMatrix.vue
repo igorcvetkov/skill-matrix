@@ -371,33 +371,39 @@ export default {
         
         // Load user skills - adjust API call if needed to support other users
         const response = await skillMatrixApi.getUserSkillDetails(targetId);
-        const userSkills = response.data || [];
+        const userSkills = Array.isArray(response.data) ? response.data : [];
         
         // Create a map of user skills by skill_id
         this.userSkillsMap = {};
         this.userSkills = {};
         this.skillResponses = {};
         
-        userSkills.forEach(personSkill => {
-          // The API returns person_skill records with a skill_id property
-          const skillId = personSkill.skill_id;
-          const proficiency = personSkill.proficiency;
-          
-          this.userSkillsMap[skillId] = personSkill;
-          
-          // Set response based on proficiency
-          if (proficiency === 1 || proficiency === true) {
-            this.skillResponses[skillId] = 'yes';
-            this.userSkills[skillId] = true;
-          } else if (proficiency === 0 || proficiency === false) {
-            this.skillResponses[skillId] = 'no';
-            this.userSkills[skillId] = false;
-          } else {
-            // Default to "yes" for any other value, for backward compatibility
-            this.skillResponses[skillId] = 'yes';
-            this.userSkills[skillId] = true;
-          }
-        });
+        if (userSkills && userSkills.length > 0) {
+          userSkills.forEach(personSkill => {
+            if (personSkill && typeof personSkill === 'object') {
+              // The API returns person_skill records with a skill_id property
+              const skillId = personSkill.skill_id;
+              const proficiency = personSkill.proficiency;
+              
+              if (skillId) {
+                this.userSkillsMap[skillId] = personSkill;
+                
+                // Set response based on proficiency
+                if (proficiency === 1 || proficiency === true) {
+                  this.skillResponses[skillId] = 'yes';
+                  this.userSkills[skillId] = true;
+                } else if (proficiency === 0 || proficiency === false) {
+                  this.skillResponses[skillId] = 'no';
+                  this.userSkills[skillId] = false;
+                } else {
+                  // Default to "yes" for any other value, for backward compatibility
+                  this.skillResponses[skillId] = 'yes';
+                  this.userSkills[skillId] = true;
+                }
+              }
+            }
+          });
+        }
         
         // Initialize all skills that don't have a response to null (not answered)
         this.skillCategories.forEach(category => {
@@ -415,6 +421,7 @@ export default {
         
         this.loading = false;
       } catch (error) {
+        console.error('Error loading user skills:', error);
         this.error = 'Failed to load user skills: ' + (error.response?.data?.error || error.message);
         this.loading = false;
       }

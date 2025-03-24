@@ -11,6 +11,20 @@ import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 
+// Ensure window.env is available
+if (!window.env) {
+  console.warn('window.env is not defined, trying to load config.js')
+  try {
+    const configScript = document.createElement('script')
+    configScript.src = '/config.js'
+    configScript.async = false
+    document.head.appendChild(configScript)
+  } catch (e) {
+    console.error('Failed to load config.js:', e)
+    window.env = { API_URL: 'https://skill-matrix.ideaportriga.lv/api' }
+  }
+}
+
 const vuetify = createVuetify({
   components,
   directives,

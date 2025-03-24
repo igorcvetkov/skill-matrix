@@ -1,9 +1,7 @@
 import axios from 'axios'
 
-// Check if the backend host already includes /api
-const baseURL = process.env.VUE_APP_BACKEND_HOST.includes('/api') 
-  ? process.env.VUE_APP_BACKEND_HOST 
-  : `${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api`
+// Use the runtime config from window.env
+const baseURL = window.env?.API_URL || 'https://skill-matrix.ideaportriga.lv/api';
 
 const apiClient = axios.create({
   baseURL,

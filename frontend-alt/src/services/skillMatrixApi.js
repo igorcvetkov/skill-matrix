@@ -336,12 +336,23 @@ export default {
 
   /**
    * Add a skill to a project
-   * @param {string} projectId - The project ID
+   * @param {number} projectId - The project ID
    * @param {number} skillId - The skill ID to add
+   * @param {number} proficiency - The proficiency level (1=yes, 0=no)
    * @returns {Promise} Promise with the response data
    */
-  addProjectSkill(projectId, skillId) {
-    return api.post('/project-skill', { projectId, skillId })
+  addProjectSkill(projectId, skillId, proficiency = 1) {
+    return api.post('/project-skill', { projectId, skillId, proficiency })
+  },
+
+  /**
+   * Update a project's skill proficiency
+   * @param {number} projectSkillId - The project_skill ID to update
+   * @param {number} proficiency - The proficiency level (1=yes, 0=no)
+   * @returns {Promise} Promise with the response data
+   */
+  updateProjectSkillProficiency(projectSkillId, proficiency) {
+    return api.put(`/project-skill/${projectSkillId}`, { proficiency })
   },
 
   /**

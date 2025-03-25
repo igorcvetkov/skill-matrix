@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Use the runtime config from window.env
-const baseURL = window.env?.API_URL || 'https://skill-matrix.ideaportriga.lv/api';
+const baseURL = (window.env?.API_URL || 'https://skill-matrix.ideaportriga.lv') + '/api';
 
 const apiClient = axios.create({
   baseURL,

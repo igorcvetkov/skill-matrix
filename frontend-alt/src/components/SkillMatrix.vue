@@ -446,9 +446,9 @@ export default {
           
           this.userSkillsMap[skillId] = projectSkill;
           
-          // For projects, we just mark skills as included (true) or not
-          this.skillResponses[skillId] = 'yes';
-          this.userSkills[skillId] = true;
+          // For projects, we use the proficiency value (1=yes, 0=no)
+          this.skillResponses[skillId] = projectSkill.proficiency === 1 ? 'yes' : 'no';
+          this.userSkills[skillId] = projectSkill.proficiency === 1;
         });
         
         // Initialize all skills that don't have a response to null (not answered)
@@ -530,123 +530,97 @@ export default {
     },
     
     async saveAssessment() {
-      this.saving = true
-      this.error = null
+      this.saving = true;
+      this.error = null;
       
       try {
         // Check if we're handling project skills or user skills
         if (this.targetProjectId) {
           // Project skills handling
-          const skillsToAdd = []
-          const skillsToRemove = []
+          const skillsToAdd = [];
+          const skillsToRemove = [];
+          const skillsToUpdate = [];
           
           // Process skills for saving
           Object.entries(this.skillResponses).forEach(([skillId, response]) => {
-            skillId = parseInt(skillId)
+            skillId = parseInt(skillId);
             
             // Skip skills that haven't been answered
-            if (response === null || response === undefined) return
+            if (response === null || response === undefined) return;
             
-            const hasRecord = !!this.userSkillsMap[skillId]
-            const shouldInclude = response === 'yes'
+            const hasRecord = !!this.userSkillsMap[skillId];
+            const shouldInclude = response === 'yes';
+            const currentProficiency = this.userSkillsMap[skillId]?.proficiency;
+            const newProficiency = shouldInclude ? 1 : 0;
             
-            if (hasRecord && !shouldInclude) {
-              // Remove skill from project
-              skillsToRemove.push(this.userSkillsMap[skillId].id)
-            } else if (!hasRecord && shouldInclude) {
+            if (hasRecord) {
+              if (!shouldInclude) {
+                // Remove skill from project
+                skillsToRemove.push(this.userSkillsMap[skillId].id);
+              } else if (currentProficiency !== newProficiency) {
+                // Update proficiency
+                skillsToUpdate.push({
+                  id: this.userSkillsMap[skillId].id,
+                  proficiency: newProficiency
+                });
+              }
+            } else if (shouldInclude) {
               // Add skill to project
-              skillsToAdd.push(skillId)
+              skillsToAdd.push({
+                skillId,
+                proficiency: newProficiency
+              });
             }
-          })
+          });
           
           // Save changes to project skills
-          const promises = []
+          const promises = [];
           
           // Add new skills to project
-          skillsToAdd.forEach(skillId => {
-            promises.push(skillMatrixApi.addProjectSkill(this.targetProjectId, skillId))
-          })
+          skillsToAdd.forEach(({ skillId, proficiency }) => {
+            promises.push(skillMatrixApi.addProjectSkill(this.targetProjectId, skillId, proficiency));
+          });
+          
+          // Update existing skills
+          skillsToUpdate.forEach(({ id, proficiency }) => {
+            promises.push(skillMatrixApi.updateProjectSkillProficiency(id, proficiency));
+          });
           
           // Remove skills from project
           skillsToRemove.forEach(projectSkillId => {
-            promises.push(skillMatrixApi.removeProjectSkill(projectSkillId))
-          })
+            promises.push(skillMatrixApi.removeProjectSkill(projectSkillId));
+          });
           
-          await Promise.all(promises)
+          await Promise.all(promises);
           
           // Reload project skills to get updated data
-          await this.loadProjectSkills()
+          await this.loadProjectSkills();
         } else {
-          // User skills handling (existing code)
-          const skillsToAddWithYes = []
-          const skillsToAddWithNo = []
-          const skillsToUpdate = []
-          const skillsToRemove = []
+          // Handle user skills (existing code)
+          const assessment = {
+            skillsToAddWithYes: this.skillsToAdd,
+            skillsToRemove: this.skillsToRemove,
+            skillsToUpdate: this.skillsToUpdate
+          };
           
-          // Process skills for saving
-          Object.entries(this.skillResponses).forEach(([skillId, response]) => {
-            skillId = parseInt(skillId)
-            
-            // Skip skills that haven't been answered
-            if (response === null || response === undefined) return
-            
-            const hasRecord = !!this.userSkillsMap[skillId]
-            const proficiency = response === 'yes' ? 1 : 0
-            
-            if (hasRecord) {
-              const existingProficiency = this.userSkillsMap[skillId].proficiency
-              
-              // If proficiency changed, update the record
-              if (existingProficiency !== proficiency) {
-                // For simplicity, remove and re-add with new proficiency
-                skillsToRemove.push(this.userSkillsMap[skillId].id)
-                
-                if (proficiency === 1) {
-                  skillsToAddWithYes.push(skillId)
-                } else {
-                  skillsToAddWithNo.push(skillId)
-                }
-              }
-            } else {
-              // Add new record with appropriate proficiency
-              if (proficiency === 1) {
-                skillsToAddWithYes.push(skillId)
-              } else {
-                skillsToAddWithNo.push(skillId)
-              }
-            }
-          })
+          await skillMatrixApi.saveAssessment(this.targetUserId, assessment);
           
-          // Determine userId to save assessment for
-          const targetId = this.targetUserId || 'me';
-          
-          // Save the assessment
-          await skillMatrixApi.saveAssessment(targetId, {
-            skillsToAddWithYes,
-            skillsToAddWithNo,
-            skillsToUpdate,
-            skillsToRemove,
-            notes: this.categoryNotes
-          })
-          
-          // Reload user skills to get updated data
-          await this.loadUserSkills()
+          // Reload user skills
+          await this.loadUserSkills();
         }
         
-        // Show success message
-        this.error = null
+        // Reset tracking arrays
+        this.resetChanges();
         
-        // Scroll to summary
+        this.showSaveSuccess = true;
         setTimeout(() => {
-          const summaryElement = document.querySelector('.skill-summary')
-          if (summaryElement) {
-            summaryElement.scrollIntoView({ behavior: 'smooth' })
-          }
-        }, 100)
+          this.showSaveSuccess = false;
+        }, 3000);
       } catch (error) {
-        this.error = 'Failed to save assessment: ' + (error.response?.data?.error || error.message)
+        console.error('Error saving skills:', error);
+        this.error = 'Failed to save changes';
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
     

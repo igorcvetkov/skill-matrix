@@ -46,15 +46,36 @@ router.get("/:id/group-summary", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { projectId, skillId } = req.body;
+  const { projectId, skillId, proficiency } = req.body;
 
-  db.query("INSERT INTO project_skill (skill_id, project_id) VALUES (?, ?)", [skillId, projectId], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to add skill to project", exception: err });
+  db.query(
+    "INSERT INTO project_skill (skill_id, project_id, proficiency) VALUES (?, ?, ?)", 
+    [skillId, projectId, proficiency || 1], 
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to add skill to project", exception: err });
+      }
+      res.status(201).json({ id: result.insertId });
     }
-    res.status(201).json({ id: result.insertId });
-  });
+  );
+});
+
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { proficiency } = req.body;
+
+  db.query(
+    "UPDATE project_skill SET proficiency = ? WHERE id = ?",
+    [proficiency, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update project skill", exception: err });
+      }
+      res.status(200).json({ message: "Project skill updated successfully" });
+    }
+  );
 });
 
 router.delete("/:id", (req, res) => {

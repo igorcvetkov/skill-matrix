@@ -21,7 +21,7 @@ if (!window.env) {
     document.head.appendChild(configScript)
   } catch (e) {
     console.error('Failed to load config.js:', e)
-    window.env = { API_URL: 'https://skill-matrix.ideaportriga.lv/api' }
+    window.env = { API_URL: 'https://skill-matrix.ideaportriga.lv' }
   }
 }
 

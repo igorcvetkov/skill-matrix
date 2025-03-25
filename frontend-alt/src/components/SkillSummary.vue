@@ -216,8 +216,15 @@ export default {
       return this.selectedSkills.length
     },
     getOverallProficiencyPercentage() {
-      if (this.getTotalSkillsCount === 0) return 0
-      return (this.getSelectedSkillsCount / this.getTotalSkillsCount) * 100
+      if (this.getTotalSkillsCount === 0) return 0;
+      
+      // For projects, we only count skills with proficiency = 1
+      const selectedSkills = this.selectedSkills.filter(skill => {
+        const skillRecord = this.userSkillsMap[skill.id];
+        return skillRecord && skillRecord.proficiency === 1;
+      });
+      
+      return (selectedSkills.length / this.getTotalSkillsCount) * 100;
     },
     sortedCategories() {
       return [...this.categories].sort((a, b) => {
@@ -240,12 +247,22 @@ export default {
   },
   methods: {
     getCategorySelectedCount(category) {
-      if (!category || !category.skills) return 0
-      return category.skills.filter(skill => this.userSkills[skill.id]).length
+      // For projects, we only count skills with proficiency = 1
+      return category.skills.filter(skill => {
+        const skillRecord = this.userSkillsMap[skill.id];
+        return skillRecord && skillRecord.proficiency === 1;
+      }).length;
     },
     getCategoryPercentage(category) {
-      if (!category || !category.skills || category.skills.length === 0) return 0
-      return (this.getCategorySelectedCount(category) / category.skills.length) * 100
+      if (category.skills.length === 0) return 0;
+      
+      // For projects, we only count skills with proficiency = 1
+      const selectedSkills = category.skills.filter(skill => {
+        const skillRecord = this.userSkillsMap[skill.id];
+        return skillRecord && skillRecord.proficiency === 1;
+      });
+      
+      return (selectedSkills.length / category.skills.length) * 100;
     },
     getCategoryColor(category) {
       const percentage = this.getCategoryPercentage(category)
@@ -265,19 +282,25 @@ export default {
       return count
     },
     getGroupSelectedCount(group) {
-      if (!group) return 0
-      let count = 0
-      this.categories.forEach(category => {
-        if (category.group_id === group.id) {
-          count += this.getCategorySelectedCount(category)
-        }
-      })
-      return count
+      const groupSkills = this.allSkills.filter(skill => skill.group_id === group.id);
+      
+      // For projects, we only count skills with proficiency = 1
+      return groupSkills.filter(skill => {
+        const skillRecord = this.userSkillsMap[skill.id];
+        return skillRecord && skillRecord.proficiency === 1;
+      }).length;
     },
     getGroupPercentage(group) {
-      const totalCount = this.getGroupTotalCount(group)
-      if (totalCount === 0) return 0
-      return (this.getGroupSelectedCount(group) / totalCount) * 100
+      const groupSkills = this.allSkills.filter(skill => skill.group_id === group.id);
+      if (groupSkills.length === 0) return 0;
+      
+      // For projects, we only count skills with proficiency = 1
+      const selectedSkills = groupSkills.filter(skill => {
+        const skillRecord = this.userSkillsMap[skill.id];
+        return skillRecord && skillRecord.proficiency === 1;
+      });
+      
+      return (selectedSkills.length / groupSkills.length) * 100;
     },
     getGroupColor(group) {
       const percentage = this.getGroupPercentage(group)

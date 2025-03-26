@@ -297,6 +297,15 @@ export default {
   },
 
   /**
+   * Get project details by ID
+   * @param {number} projectId - The project ID
+   * @returns {Promise} Promise with the response data
+   */
+  getProject(projectId) {
+    return api.get(`/projects/${projectId}`)
+  },
+
+  /**
    * Create a new project
    * @param {Object} project - The project object with name property
    * @returns {Promise} Promise with the response data

@@ -50,7 +50,7 @@ router.post("/", (req, res) => {
 
   db.query(
     "INSERT INTO project_skill (skill_id, project_id, proficiency) VALUES (?, ?, ?)", 
-    [skillId, projectId, proficiency || 1], 
+    [skillId, projectId, proficiency], 
     (err, result) => {
       if (err) {
         console.error(err);

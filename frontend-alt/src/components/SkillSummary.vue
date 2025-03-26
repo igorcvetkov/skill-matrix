@@ -190,6 +190,10 @@ export default {
     selectedSkills: {
       type: Array,
       default: () => []
+    },
+    userSkillsMap: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
@@ -243,6 +247,19 @@ export default {
         const bPercentage = this.getGroupPercentage(b)
         return bPercentage - aPercentage
       })
+    },
+    allSkills() {
+      const skills = []
+      this.categories.forEach(category => {
+        category.skills.forEach(skill => {
+          skills.push({
+            ...skill,
+            category_name: category.name,
+            group_name: category.group_name
+          })
+        })
+      })
+      return skills
     }
   },
   methods: {

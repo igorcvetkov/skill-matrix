@@ -49,7 +49,12 @@ export default createStore({
   },
   mutations: {
     SET_USER(state, user) {
-      state.user = user
+      // Map MSAL user to our application's user format
+      state.user = user ? {
+        person_id: user.username,
+        name: user.name,
+        username: user.username
+      } : null
     },
     SET_ACCESS_TOKEN(state, token) {
       state.accessToken = token
@@ -94,18 +99,19 @@ export default createStore({
         if (response) {
           // User has been authenticated
           const user = response.account
-          commit('SET_USER', user)
-          commit('SET_ACCESS_TOKEN', response.accessToken)
+          // console.log('User:', user);
+          commit('SET_USER', user);
+          commit('SET_ACCESS_TOKEN', response.accessToken);
           
           // Extract roles from ID token claims
-          const idTokenClaims = user.idTokenClaims
-          const roles = idTokenClaims && idTokenClaims.roles ? idTokenClaims.roles : []
-          commit('SET_ROLES', roles)
+          const idTokenClaims = user.idTokenClaims;
+          const roles = idTokenClaims && idTokenClaims.roles ? idTokenClaims.roles : [];  
+          commit('SET_ROLES', roles);
           
           // Configure axios to use the token for all requests
-          axios.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`
+          axios.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
           
-          return true
+          return true;
         }
         
         // Check if user is already logged in
@@ -164,23 +170,6 @@ export default createStore({
     async checkAuth({ dispatch }) {
       // Use the handleRedirectCallback action to check authentication
       return dispatch('handleRedirectCallback')
-    },
-    
-    setMockUser({ commit }) {
-      console.log('Setting mock user for development')
-      const mockUser = {
-        id: 'mock-user-id',
-        name: 'Mock User',
-        email: 'mock.user@example.com'
-      }
-      // Set mock roles - you can adjust these as needed for testing
-      const mockRoles = ['user', 'admin']
-      
-      commit('SET_USER', mockUser)
-      commit('SET_ACCESS_TOKEN', 'mock-token')
-      commit('SET_ROLES', mockRoles)
-      
-      return Promise.resolve(mockUser)
     }
   }
 }) 

@@ -70,6 +70,7 @@
           :skill-groups="skillGroups"
           :user-skills="userSkills"
           :selected-skills="selectedSkills"
+          :user-skills-map="userSkillsMap"
         ></skill-summary>
         
         <div class="d-flex justify-center mt-6">
@@ -207,7 +208,7 @@ export default {
       if (this.targetUserId || this.targetProjectId) return false;
       
       // For backward compatibility, also check if target user ID matches current user ID
-      return !this.targetUserId || (this.currentUser && this.targetUserId === this.currentUser.id);
+      return !this.targetUserId || (this.currentUser && this.targetUserId === this.currentUser.person_id);
     }
   },
   watch: {
@@ -223,12 +224,8 @@ export default {
           this.loadUserSkills();
           
           // Auto-start assessment when viewing another user's assessment
-          if (!this.isOwnAssessment) {
-            this.$nextTick(() => {
-              if (!this.loading && !this.assessmentStarted) {
-                this.startAssessment();
-              }
-            });
+          if (!this.loading && !this.assessmentStarted) {
+            this.startAssessment();
           }
         }
       }
@@ -350,7 +347,7 @@ export default {
         // Use the current user from the Vuex store
         if (this.currentUser) {
           this.userName = this.currentUser.name || 'User';
-          this.userId = this.targetUserId || this.currentUser.id;
+          this.userId = this.targetUserId || this.currentUser.person_id;
         } else {
           this.userName = 'User';
           this.userId = null;
@@ -367,7 +364,7 @@ export default {
       
       try {
         // Determine whose skills to load
-        const targetId = this.targetUserId || (this.currentUser ? this.currentUser.id : null);
+        const targetId = this.targetUserId || (this.currentUser ? this.currentUser.person_id : null);
         
         // Load user skills - adjust API call if needed to support other users
         const response = await skillMatrixApi.getUserSkillDetails(targetId);
@@ -587,38 +584,72 @@ export default {
           });
           
           // Remove skills from project
-          skillsToRemove.forEach(projectSkillId => {
-            promises.push(skillMatrixApi.removeProjectSkill(projectSkillId));
+          skillsToRemove.forEach(personSkillId => {
+            promises.push(skillMatrixApi.removeProjectSkill(personSkillId));
           });
           
+          // Wait for all operations to complete
           await Promise.all(promises);
-          
-          // Reload project skills to get updated data
-          await this.loadProjectSkills();
         } else {
-          // Handle user skills (existing code)
+          // User skills handling
           const assessment = {
-            skillsToAddWithYes: this.skillsToAdd,
-            skillsToRemove: this.skillsToRemove,
-            skillsToUpdate: this.skillsToUpdate
+            skillsToAddWithYes: [],
+            skillsToAddWithNo: [],
+            skillsToUpdate: [],
+            skillsToRemove: []
           };
           
-          await skillMatrixApi.saveAssessment(this.targetUserId, assessment);
+          // Process skills for saving
+          Object.entries(this.skillResponses).forEach(([skillId, response]) => {
+            skillId = parseInt(skillId);
+            
+            // Skip skills that haven't been answered
+            if (response === null || response === undefined) return;
+            
+            const hasRecord = !!this.userSkillsMap[skillId];
+            const shouldInclude = response === 'yes';
+            const currentProficiency = this.userSkillsMap[skillId]?.proficiency;
+            const newProficiency = shouldInclude ? 1 : 0;
+            
+            if (hasRecord) {
+              if (!shouldInclude) {
+                // Remove skill
+                assessment.skillsToRemove.push(this.userSkillsMap[skillId].id);
+              } else if (currentProficiency !== newProficiency) {
+                // Update proficiency
+                assessment.skillsToUpdate.push({
+                  id: this.userSkillsMap[skillId].id,
+                  proficiency: newProficiency
+                });
+              }
+            } else {
+              // Add new skill with appropriate proficiency
+              if (shouldInclude) {
+                assessment.skillsToAddWithYes.push(skillId);
+              } else {
+                assessment.skillsToAddWithNo.push(skillId);
+              }
+            }
+          });
           
-          // Reload user skills
-          await this.loadUserSkills();
+          // Get the target user ID - use current user's ID for self-assessment
+          const targetUserId = this.targetUserId || this.currentUser.person_id;
+          
+          // Save the assessment
+          await skillMatrixApi.saveAssessment(targetUserId, assessment);
         }
         
-        // Reset tracking arrays
-        this.resetChanges();
+        // Reset the state after successful save
+        this.skillsToAdd = [];
+        this.skillsToRemove = [];
+        this.skillsToUpdate = [];
         
-        this.showSaveSuccess = true;
-        setTimeout(() => {
-          this.showSaveSuccess = false;
-        }, 3000);
+        // Show success message
+        this.$emit('save-success');
       } catch (error) {
-        console.error('Error saving skills:', error);
-        this.error = 'Failed to save changes';
+        console.error('Failed to save assessment:', error);
+        this.error = 'Failed to save assessment: ' + (error.response?.data?.error || error.message);
+        this.$emit('save-error', error);
       } finally {
         this.saving = false;
       }
@@ -728,9 +759,17 @@ export default {
             }
           }
         } else {
-          // New skill
-          if (response === 'yes' && !this.skillsToAdd.includes(skillId)) {
-            this.skillsToAdd.push(skillId);
+          // New skill - add to appropriate array based on response
+          if (response === 'yes') {
+            if (!this.skillsToAdd.includes(skillId)) {
+              this.skillsToAdd.push(skillId);
+            }
+          } else if (response === 'no') {
+            // For "no" responses, we don't need to add the skill at all
+            // The backend will handle this as a skill with proficiency 0
+            if (!this.skillsToAdd.includes(skillId)) {
+              this.skillsToAdd.push(skillId);
+            }
           }
         }
       }

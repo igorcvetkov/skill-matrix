@@ -131,7 +131,6 @@
         <v-list v-if="currentUser">
           <v-divider></v-divider>
           <v-list-item 
-            v-if="!isMockUser" 
             @click="logout" 
             prepend-icon="mdi-logout" 
             title="Logout"
@@ -173,9 +172,6 @@ export default {
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'currentUser', 'userRoles', 'hasRole', 'isAdmin', 'isProjectManager']),
-    isMockUser() {
-      return this.currentUser && this.currentUser.id === 'mock-user-id'
-    },
     canManageOtherUsers() {
       return this.hasRole(roles.ADMIN) || this.hasRole(roles.PM)
     },

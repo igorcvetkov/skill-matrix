@@ -440,12 +440,13 @@ export default {
         
         projectSkills.forEach(projectSkill => {
           const skillId = projectSkill.skill_id;
+          const proficiency = projectSkill.proficiency;
           
           this.userSkillsMap[skillId] = projectSkill;
           
           // For projects, we use the proficiency value (1=yes, 0=no)
-          this.skillResponses[skillId] = projectSkill.proficiency === 1 ? 'yes' : 'no';
-          this.userSkills[skillId] = projectSkill.proficiency === 1;
+          this.skillResponses[skillId] = proficiency === 1 ? 'yes' : 'no';
+          this.userSkills[skillId] = proficiency === 1;
         });
         
         // Initialize all skills that don't have a response to null (not answered)
@@ -535,37 +536,31 @@ export default {
         if (this.targetProjectId) {
           // Project skills handling
           const skillsToAdd = [];
-          const skillsToRemove = [];
           const skillsToUpdate = [];
           
           // Process skills for saving
           Object.entries(this.skillResponses).forEach(([skillId, response]) => {
             skillId = parseInt(skillId);
-            
             // Skip skills that haven't been answered
             if (response === null || response === undefined) return;
             
             const hasRecord = !!this.userSkillsMap[skillId];
-            const shouldInclude = response === 'yes';
-            const currentProficiency = this.userSkillsMap[skillId]?.proficiency;
-            const newProficiency = shouldInclude ? 1 : 0;
+            const proficiency = response === 'yes' ? 1 : 0;
             
             if (hasRecord) {
-              if (!shouldInclude) {
-                // Remove skill from project
-                skillsToRemove.push(this.userSkillsMap[skillId].id);
-              } else if (currentProficiency !== newProficiency) {
-                // Update proficiency
+              const currentProficiency = this.userSkillsMap[skillId].proficiency;
+              // Only update if proficiency changed
+              if (currentProficiency !== proficiency) {
                 skillsToUpdate.push({
                   id: this.userSkillsMap[skillId].id,
-                  proficiency: newProficiency
+                  proficiency
                 });
               }
-            } else if (shouldInclude) {
-              // Add skill to project
+            } else {
+              // Add new skill with appropriate proficiency
               skillsToAdd.push({
                 skillId,
-                proficiency: newProficiency
+                proficiency
               });
             }
           });
@@ -583,11 +578,6 @@ export default {
             promises.push(skillMatrixApi.updateProjectSkillProficiency(id, proficiency));
           });
           
-          // Remove skills from project
-          skillsToRemove.forEach(personSkillId => {
-            promises.push(skillMatrixApi.removeProjectSkill(personSkillId));
-          });
-          
           // Wait for all operations to complete
           await Promise.all(promises);
         } else {
@@ -595,8 +585,7 @@ export default {
           const assessment = {
             skillsToAddWithYes: [],
             skillsToAddWithNo: [],
-            skillsToUpdate: [],
-            skillsToRemove: []
+            skillsToUpdate: []
           };
           
           // Process skills for saving
@@ -607,24 +596,20 @@ export default {
             if (response === null || response === undefined) return;
             
             const hasRecord = !!this.userSkillsMap[skillId];
-            const shouldInclude = response === 'yes';
-            const currentProficiency = this.userSkillsMap[skillId]?.proficiency;
-            const newProficiency = shouldInclude ? 1 : 0;
+            const proficiency = response === 'yes' ? 1 : 0;
             
             if (hasRecord) {
-              if (!shouldInclude) {
-                // Remove skill
-                assessment.skillsToRemove.push(this.userSkillsMap[skillId].id);
-              } else if (currentProficiency !== newProficiency) {
-                // Update proficiency
+              const currentProficiency = this.userSkillsMap[skillId].proficiency;
+              // Only update if proficiency changed
+              if (currentProficiency !== proficiency) {
                 assessment.skillsToUpdate.push({
                   id: this.userSkillsMap[skillId].id,
-                  proficiency: newProficiency
+                  proficiency
                 });
               }
             } else {
               // Add new skill with appropriate proficiency
-              if (shouldInclude) {
+              if (response === 'yes') {
                 assessment.skillsToAddWithYes.push(skillId);
               } else {
                 assessment.skillsToAddWithNo.push(skillId);
@@ -641,7 +626,6 @@ export default {
         
         // Reset the state after successful save
         this.skillsToAdd = [];
-        this.skillsToRemove = [];
         this.skillsToUpdate = [];
         
         // Show success message
@@ -720,19 +704,33 @@ export default {
       
       if (this.targetProjectId) {
         // Project skill handling
-        const shouldInclude = response === 'yes';
+        const proficiency = response === 'yes' ? 1 : 0;
         
-        if (hasRecord && !shouldInclude) {
-          // Track skill to remove from project
-          if (!this.skillsToRemove.includes(this.userSkillsMap[skillId].id)) {
-            this.skillsToRemove.push(this.userSkillsMap[skillId].id);
+        if (hasRecord) {
+          const existingProficiency = this.userSkillsMap[skillId].proficiency;
+          // If proficiency changed
+          if (existingProficiency !== proficiency) {
+            // Track skill to update
+            const existingUpdateIndex = this.skillsToUpdate.findIndex(item => item.id === this.userSkillsMap[skillId].id);
+            
+            if (existingUpdateIndex >= 0) {
+              // Update existing entry
+              this.skillsToUpdate[existingUpdateIndex].proficiency = proficiency;
+            } else {
+              // Add new entry
+              this.skillsToUpdate.push({
+                id: this.userSkillsMap[skillId].id,
+                proficiency
+              });
+            }
           }
-          // Remove from skillsToAdd if it was added temporarily
-          this.skillsToAdd = this.skillsToAdd.filter(id => id !== skillId);
-        } else if (!hasRecord && shouldInclude) {
-          // Track skill to add to project
+        } else {
+          // New skill - add to appropriate array based on response
           if (!this.skillsToAdd.includes(skillId)) {
-            this.skillsToAdd.push(skillId);
+            this.skillsToAdd.push({
+              skillId,
+              proficiency
+            });
           }
         }
       } else {

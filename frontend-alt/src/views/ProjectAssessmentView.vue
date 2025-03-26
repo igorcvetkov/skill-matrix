@@ -99,7 +99,7 @@ export default {
       this.loading = true
       try {
         // Fetch the project's information
-        const response = await skillMatrixApi.getProjectInfo(this.selectedProjectId)
+        const response = await skillMatrixApi.getProject(this.selectedProjectId)
         if (response.data && response.data.name) {
           this.selectedProjectName = response.data.name
         } else {

@@ -6,7 +6,7 @@
         :loading="loading"
         :items="users"
         item-title="name"
-        item-value="id"
+        item-value="person_id"
         label="Select Team Member"
         clearable
         return-object
@@ -76,13 +76,13 @@ export default {
         const response = await skillMatrixApi.getAllUsers();
         // Map the response data to the format expected by the combobox
         this.users = response.data.map(user => ({
-          id: user.person_id,
+          person_id: user.person_id,
           name: user.name || user.person_id // Use name if available, otherwise use person_id
         }));
         
         // If there was an initial user ID from the route, select it
         if (this.initialUserId && this.users.length > 0) {
-          const userToSelect = this.users.find(u => u.id == this.initialUserId);
+          const userToSelect = this.users.find(u => u.person_id == this.initialUserId);
           if (userToSelect) {
             this.selectedUser = userToSelect;
           }
@@ -97,7 +97,7 @@ export default {
     
     handleUserSelection(user) {
       if (user) {
-        this.$emit('user-selected', user.id);
+        this.$emit('user-selected', user.person_id);
       } else {
         this.$emit('user-selected', null);
       }
@@ -114,8 +114,8 @@ export default {
       handler(newUserId) {
         if (newUserId && this.users.length > 0) {
           // Find and select the user
-          const userToSelect = this.users.find(u => u.id == newUserId);
-          if (userToSelect && (!this.selectedUser || this.selectedUser.id != newUserId)) {
+          const userToSelect = this.users.find(u => u.person_id == newUserId);
+          if (userToSelect && (!this.selectedUser || this.selectedUser.person_id != newUserId)) {
             this.selectedUser = userToSelect;
           }
         } else if (!newUserId && this.selectedUser) {

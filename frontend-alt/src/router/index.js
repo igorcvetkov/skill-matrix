@@ -93,18 +93,6 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  // For development, bypass authentication checks
-  const bypassAuth = process.env.NODE_ENV === 'development' && process.env.VUE_APP_BYPASS_AUTH === 'true';
-
-  if (bypassAuth) {
-    // Set a mock user in the store if not already set
-    if (!store.getters.currentUser) {
-      await store.dispatch('setMockUser');
-    }
-    next();
-    return;
-  }
-
   // Handle the redirect callback from Microsoft authentication
   if (to.path.includes('/login')) {
     try {

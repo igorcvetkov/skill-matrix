@@ -159,11 +159,19 @@ export default {
 
   /**
    * Get user information by ID
-   * @param {string} userId - The user ID or 'me' for current user
+   * @param {string} userId - The user ID
    * @returns {Promise} Promise with the response data
    */
-  getUserInfo(userId = 'me') {
-    return api.get(`/users/${userId}`)
+  getUserInfo(userId) {
+    return api.get('/persons')
+      .then(response => {
+        // Find the user in the response
+        const user = response.data.find(u => u.person_id === userId);
+        if (!user) {
+          throw new Error('User not found');
+        }
+        return { data: user };
+      });
   },
 
   /**
@@ -240,11 +248,11 @@ export default {
 
   /**
    * Save user skill assessment
-   * @param {string} userId - The user ID or 'me' for current user
+   * @param {string} userId - The user ID
    * @param {Object} assessment - The assessment data with skills and notes
    * @returns {Promise} Promise with the response data
    */
-  saveAssessment(userId = 'me', assessment) {
+  saveAssessment(userId, assessment) {
     // Process the assessment data to add/remove skills
     const promises = []
     

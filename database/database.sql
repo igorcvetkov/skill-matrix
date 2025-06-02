@@ -1,4 +1,4 @@
-use  `matrix`;
+use  `mydb`;
 
 DROP TABLE IF EXISTS `project_member`;
 DROP TABLE IF EXISTS `person_skill`;
@@ -53,7 +53,7 @@ CREATE TABLE `person_skill` (
   `id` int NOT NULL AUTO_INCREMENT,
   `person_id` varchar(145) NOT NULL,
   `skill_id` int NOT NULL,
-  `proficiency` tinyint DEFAULT 1;
+  `proficiency` tinyint DEFAULT 1,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`skill_id`) REFERENCES `skill`(`id`),
   `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP

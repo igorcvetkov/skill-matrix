@@ -151,3 +151,40 @@ VIEW `person_skill_details` AS
         LEFT JOIN `skill` `s` ON ((`s`.`id` = `ps`.`skill_id`)))
         LEFT JOIN `skill_category` `sc` ON ((`sc`.`id` = `s`.`category_id`)))
         LEFT JOIN `skill_group` `sg` ON ((`sg`.`id` = `sc`.`group_id`)));
+
+-- Create roles table
+CREATE TABLE `role` (
+                        `id` INT NOT NULL AUTO_INCREMENT,
+                        `name` VARCHAR(100) NOT NULL,
+                        `code` VARCHAR(50) NOT NULL,
+                        PRIMARY KEY (`id`),
+                        UNIQUE KEY `code_UNIQUE` (`code`)
+);
+
+-- Pre-populate roles
+INSERT INTO `role` (`name`, `code`) VALUES
+                                        ('Admin', 'ADMIN'),
+                                        ('Project Manager', 'PM'),
+                                        ('User', 'USER');
+
+-- Create person table
+CREATE TABLE `person` (
+                          `id` INT NOT NULL AUTO_INCREMENT,
+                          `oid` VARCHAR(255) NOT NULL UNIQUE,
+                          `name` VARCHAR(255),
+                          `username` VARCHAR(100),
+                          `role_id` INT NOT NULL,
+                          PRIMARY KEY (`id`),
+                          FOREIGN KEY (`role_id`) REFERENCES `role`(`id`),
+                          `created_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Update person_skill: add reference to person table
+ALTER TABLE `person_skill`
+    ADD COLUMN `person_ref_id` INT DEFAULT NULL,
+    ADD FOREIGN KEY (`person_ref_id`) REFERENCES `person`(`id`);
+
+-- Update project_member: add reference to person table
+ALTER TABLE `project_member`
+    ADD COLUMN `person_ref_id` INT DEFAULT NULL,
+    ADD FOREIGN KEY (`person_ref_id`) REFERENCES `person`(`id`);

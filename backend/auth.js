@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
+const {registerOrUpdatePersonFromToken} = require("./services/person-service");
 
 const msalConfig = {
   auth: {
@@ -35,7 +36,6 @@ const validateToken = (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    console.log("token", token);
 
     jwt.verify(
         token,
@@ -44,7 +44,7 @@ const validateToken = (req, res, next) => {
             issuer: `https://login.microsoftonline.com/${process.env.MS_ENTRA_TENANT_ID}/v2.0`,
             audience: msalConfig.auth.clientId,
         },
-        (err, decoded) => {
+        async (err, decoded) => {
             if (err) {
                 console.error("Token verification error:", err);
                 console.log("Token:", token);
@@ -52,11 +52,17 @@ const validateToken = (req, res, next) => {
             }
 
             req.user = decoded;
-            console.log("Token decoded:", decoded);
+
+            try {
+                await registerOrUpdatePersonFromToken(decoded);
+            } catch (err) {
+                console.error("Person setup error:", err);
+                return res.status(500).json({ error: "Internal error while preparing user" });
+            }
+
             next();
         }
     );
-
 };
 
 const authorizeRequest = (allowedRoles, requiredScope) => (req, res, next) => {

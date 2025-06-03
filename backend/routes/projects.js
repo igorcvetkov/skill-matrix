@@ -11,9 +11,8 @@ router.get("/", validateToken, async (req, res) => {
   }
 
   try {
-    // Find numeric person.id by oid
     const [[personRow]] = await db.promise().query(
-        "SELECT id FROM person WHERE oid = ? LIMIT 1",
+        "SELECT id, role_id FROM person WHERE oid = ? LIMIT 1",
         [userOid]
     );
 
@@ -22,8 +21,13 @@ router.get("/", validateToken, async (req, res) => {
     }
 
     const personId = personRow.id;
+    const roleId = personRow.role_id;
 
-    // Query projects where this person is a member
+    if (roleId === 1) {
+      const [allProjects] = await db.promise().query("SELECT * FROM project");
+      return res.json(allProjects);
+    }
+
     const [projects] = await db.promise().query(
         `
         SELECT DISTINCT p.*

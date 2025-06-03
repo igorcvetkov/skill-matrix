@@ -12,9 +12,9 @@ router.get("/", validateToken, async (req, res) => {
   }
 
   try {
-    // Get current user’s person ID
+    // Get current user’s person and role
     const [[personRow]] = await db.promise().query(
-        "SELECT id FROM person WHERE oid = ? LIMIT 1",
+        "SELECT id, role_id FROM person WHERE oid = ? LIMIT 1",
         [userOid]
     );
 
@@ -23,8 +23,17 @@ router.get("/", validateToken, async (req, res) => {
     }
 
     const personId = personRow.id;
+    const roleId = personRow.role_id;
 
-    // Use person_id instead of person_ref_id in project_member
+    // Admins see all persons
+    if (roleId === 1) {
+      const [allPersons] = await db.promise().query(
+          "SELECT id, oid, name, username, role_id FROM person"
+      );
+      return res.json(allPersons);
+    }
+
+    // Project Managers see persons in same projects
     const [relatedRows] = await db.promise().query(
         `
           SELECT DISTINCT pm2.person_id AS person_id
@@ -42,13 +51,13 @@ router.get("/", validateToken, async (req, res) => {
     }
 
     const [persons] = await db.promise().query(
-        `SELECT id, oid, name, username, role_id FROM person WHERE id IN (?)`,
+        "SELECT id, oid, name, username, role_id FROM person WHERE id IN (?)",
         [relatedPersonIds]
     );
 
     res.json(persons);
   } catch (err) {
-    console.error("Error fetching full person info:", err);
+    console.error("Error fetching persons:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

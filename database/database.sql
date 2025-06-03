@@ -188,3 +188,9 @@ ALTER TABLE `person_skill`
 ALTER TABLE `project_member`
     ADD COLUMN `person_ref_id` INT DEFAULT NULL,
     ADD FOREIGN KEY (`person_ref_id`) REFERENCES `person`(`id`);
+
+-- Update person_ref_id based on matching person.oid to project_member.person_id (assuming it's a string oid)
+UPDATE project_member pm
+    JOIN person p ON pm.person_id = p.oid
+SET pm.person_ref_id = p.id
+WHERE pm.person_ref_id IS NULL;

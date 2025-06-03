@@ -24,13 +24,13 @@ router.get("/", validateToken, async (req, res) => {
 
     const personId = personRow.id;
 
-    // Use person_ref_id instead of old person_id
+    // Use person_id instead of person_ref_id in project_member
     const [relatedRows] = await db.promise().query(
         `
-          SELECT DISTINCT pm2.person_ref_id AS person_id
+          SELECT DISTINCT pm2.person_id AS person_id
           FROM project_member pm1
                  JOIN project_member pm2 ON pm1.project_id = pm2.project_id
-          WHERE pm1.person_ref_id = ? AND pm2.person_ref_id IS NOT NULL
+          WHERE pm1.person_id = ? AND pm2.person_id IS NOT NULL
         `,
         [personId]
     );

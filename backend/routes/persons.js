@@ -4,45 +4,53 @@ const db = require("../config/database");
 const {validateToken} = require("../auth");
 
 // Get all persons that are in the same project(s) as the current user
-router.get("/", validateToken, (req, res) => {
-  const personId = req.user?.oid || req.user?.sub;
+router.get("/", validateToken, async (req, res) => {
+  const userOid = req.user?.oid;
 
-  if (!personId) {
-    return res.status(400).json({ error: "User ID not found in token" });
+  if (!userOid) {
+    return res.status(400).json({ error: "User OID not found in token" });
   }
 
-  const query = `
-    SELECT DISTINCT pm2.person_id
-    FROM project_member pm1
-    JOIN project_member pm2 ON pm1.project_id = pm2.project_id
-    WHERE pm1.person_id = ?
-  `;
+  try {
+    // Get current user’s person ID
+    const [[personRow]] = await db.promise().query(
+        "SELECT id FROM person WHERE oid = ? LIMIT 1",
+        [userOid]
+    );
 
-  db.query(query, [personId], (err, results) => {
-    if (err) {
-      console.error("Error fetching related persons:", err);
-      return res.status(500).json({ error: "Failed to fetch persons" });
+    if (!personRow) {
+      return res.status(404).json({ error: "Person not found for current user" });
     }
 
-    if (results.length === 0) {
-      // Return mock data only in development
-      if (process.env.NODE_ENV === 'development') {
-        return res.json([
-          { person_id: "mock-user-1", name: "John Doe" },
-          { person_id: "mock-user-2", name: "Jane Smith" },
-          { person_id: "mock-admin-1", name: "Admin User" }
-        ]);
-      }
+    const personId = personRow.id;
+
+    // Use person_ref_id instead of old person_id
+    const [relatedRows] = await db.promise().query(
+        `
+          SELECT DISTINCT pm2.person_ref_id AS person_id
+          FROM project_member pm1
+                 JOIN project_member pm2 ON pm1.project_id = pm2.project_id
+          WHERE pm1.person_ref_id = ? AND pm2.person_ref_id IS NOT NULL
+        `,
+        [personId]
+    );
+
+    const relatedPersonIds = relatedRows.map(row => row.person_id);
+
+    if (relatedPersonIds.length === 0) {
       return res.json([]);
     }
 
-    const persons = results.map(result => ({
-      person_id: result.person_id,
-      name: result.person_id // Frontend expects name = person_id
-    }));
+    const [persons] = await db.promise().query(
+        `SELECT id, oid, name, username, role_id FROM person WHERE id IN (?)`,
+        [relatedPersonIds]
+    );
 
     res.json(persons);
-  });
+  } catch (err) {
+    console.error("Error fetching full person info:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Add a skill to a person

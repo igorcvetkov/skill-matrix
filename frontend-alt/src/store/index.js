@@ -135,7 +135,10 @@ export default createStore({
             const idTokenClaims = account.idTokenClaims
             const roles = idTokenClaims && idTokenClaims.roles ? idTokenClaims.roles : []
             commit('SET_ROLES', roles)
-            
+
+            // commit('SET_ROLES', roles + "admin")
+            // only for dev purposes, frontend role
+
             // Configure axios to use the token for all requests
             axios.defaults.headers.common['Authorization'] = `Bearer ${tokenResponse.accessToken}`
             

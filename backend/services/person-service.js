@@ -32,6 +32,12 @@ class PersonService {
                 console.log(`[Auth] Person exists and up-to-date: ${preferred_username}`);
             }
         }
+        //for now will leave it here (work around for admin access :D)
+        // await db.promise().query(
+        //     "UPDATE person SET role_id = 1 WHERE id = ?",
+        //     [personRow?.id]
+        // );
+
     }
 }
 

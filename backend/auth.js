@@ -85,6 +85,7 @@ const authorizeRequest = (allowedRoles, requiredScope) => (req, res, next) => {
       }
 
       const userRoles = decoded.roles || []; // Extract roles from token
+      // const userRoles = "ADMIN" // Extract roles from token
       const userScopes = decoded.scp?.split(" ") || []; // Extract scopes from token
 
       // Check if user has a valid role

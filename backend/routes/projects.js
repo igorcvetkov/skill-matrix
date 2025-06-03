@@ -3,29 +3,42 @@ const router = express.Router();
 const db = require("../config/database");
 const {validateToken} = require("../auth");
 
-router.get("/", validateToken, (req, res) => {
-  // Microsoft Entra ID puts the user’s immutable object-ID in `oid`
-  // (fallback to `sub` in case you’re using a B2C token).
-  const personId = req.user?.oid || req.user?.sub;
+router.get("/", validateToken, async (req, res) => {
+  const userOid = req.user?.oid;
 
-  if (!personId) {
-    return res.status(400).json({ error: "User ID not found in token" });
+  if (!userOid) {
+    return res.status(400).json({ error: "User OID not found in token" });
   }
 
-  const query = `
-      SELECT DISTINCT p.*
-      FROM project           AS p
-      JOIN project_member    AS pm ON pm.project_id = p.id
-      WHERE pm.person_id = ?;
-  `;
+  try {
+    // Find numeric person.id by oid
+    const [[personRow]] = await db.promise().query(
+        "SELECT id FROM person WHERE oid = ? LIMIT 1",
+        [userOid]
+    );
 
-  db.query(query, [personId], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to fetch projects" });
+    if (!personRow) {
+      return res.status(404).json({ error: "Person not found" });
     }
-    res.json(results);
-  });
+
+    const personId = personRow.id;
+
+    // Query projects where this person is a member
+    const [projects] = await db.promise().query(
+        `
+        SELECT DISTINCT p.*
+        FROM project p
+        JOIN project_member pm ON pm.project_id = p.id
+        WHERE pm.person_id = ?
+      `,
+        [personId]
+    );
+
+    res.json(projects);
+  } catch (err) {
+    console.error("Failed to fetch projects:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.get("/:id", (req, res) => {

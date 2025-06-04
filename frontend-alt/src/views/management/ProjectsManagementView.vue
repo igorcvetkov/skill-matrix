@@ -100,6 +100,19 @@
               rows="3"
               auto-grow
             ></v-textarea>
+            <v-select
+                v-if="editMode"
+                v-model="selectedUserId"
+                :items="availableUsers"
+                item-value="id"
+                item-title="name"
+                label="Assign Project Member"
+                return-object
+                class="mb-4"
+                hint="Select a user to assign as a member"
+                persistent-hint
+            >
+            </v-select>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -159,6 +172,8 @@ export default {
       newProjectName: '',
       newProjectDescription: '',
       projectToDelete: null,
+      selectedUserId: null,
+      availableUsers: [],
       headers: [
         { title: 'ID', key: 'id', sortable: true, width: '80px' },
         { title: 'Name', key: 'name', sortable: true, align: 'start' },
@@ -211,13 +226,22 @@ export default {
       }, 100)
     },
     
-    openEditDialog(item) {
+    async openEditDialog(item) {
       this.projectToDelete = item
       this.newProjectName = item.name
       this.newProjectDescription = item.description || ''
       this.editMode = true
       this.newDialog = true
-      
+      this.selectedUserId = null;
+
+      try {
+        const response = await skillMatrixApi.getAllUsers();
+        this.availableUsers = response.data || [];
+      } catch (err) {
+        this.availableUsers = [];
+        console.error('Failed to load users:', err);
+      }
+
       // Focus the input field after dialog opens
       setTimeout(() => {
         if (this.$refs.form) {
@@ -261,7 +285,21 @@ export default {
             description: this.newProjectDescription.trim() || null
           }
         }
-        
+
+        if (this.selectedUserId) {
+          try {
+            await skillMatrixApi.assignProjectMember({
+              personId: this.selectedUserId.id,
+              projectId: this.projectToDelete.id,
+              startDate: new Date().toISOString().slice(0, 19).replace('T', ' '), // MySQL format
+              endDate: null
+            });
+          } catch (memberErr) {
+            console.error('Failed to assign member:', memberErr);
+            this.error = 'Project updated, but assigning member failed: ' + (memberErr.response?.data?.error || memberErr.message);
+          }
+        }
+
         this.successMessage = 'Project updated successfully'
         this.newDialog = false
         this.newProjectName = ''

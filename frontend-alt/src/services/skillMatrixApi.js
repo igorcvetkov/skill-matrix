@@ -379,5 +379,15 @@ export default {
    */
   removeProjectSkill(projectSkillId) {
     return api.delete(`/project-skill/${projectSkillId}`)
+  },
+
+  /**
+   * Assign a person to a project
+   * @param {data} data - the data to be sent as post request
+   * @returns {Promise} Promise with the response data
+   */
+  assignProjectMember(data) {
+    return api.post('/project-member', data);
   }
-} 
+
+}

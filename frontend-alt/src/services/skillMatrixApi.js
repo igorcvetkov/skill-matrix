@@ -397,6 +397,15 @@ export default {
    */
   getProjectMembers(projectId) {
     return api.get(`/persons/by-project/${projectId}`);
+  },
+
+  /**
+   * Get all users NOT assigned to a specific project
+   * @param {string} projectId
+   * @returns {Promise} Promise with the list of users not assigned to the project
+   */
+  getUsersNotInProject(projectId) {
+    return api.get(`/persons/not-in-project/${projectId}`);
   }
 
 }

@@ -164,10 +164,10 @@ export default {
     },
     async loadAllUsers() {
       try {
-        const res = await skillMatrixApi.getAllUsers()
-        this.allUsers = res.data || []
+        const res = await skillMatrixApi.getUsersNotInProject(this.selectedProjectId);
+        this.allUsers = res.data || [];
       } catch (err) {
-        console.error('Failed to load users', err)
+        console.error('Failed to load users not in project', err);
       }
     },
     async addUserToProject() {

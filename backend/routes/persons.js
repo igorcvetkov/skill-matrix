@@ -88,6 +88,35 @@ router.get("/by-project/:projectId", validateToken, async (req, res) => {
   }
 });
 
+// Get all persons NOT assigned to a specific project
+router.get("/not-in-project/:projectId", validateToken, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: "Project ID is required" });
+  }
+
+  try {
+    const [rows] = await db.promise().query(
+        `
+      SELECT p.id, p.name, p.username, p.oid, p.role_id
+      FROM person p
+      WHERE p.id NOT IN (
+        SELECT person_id
+        FROM project_member
+        WHERE project_id = ?
+      )
+      `,
+        [projectId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching users not in project:", err);
+    res.status(500).json({ error: "Failed to retrieve users" });
+  }
+});
+
 // Add a skill to a person
 router.post("/:id/skills", (req, res) => {
   const { skill_id, level } = req.body;

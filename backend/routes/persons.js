@@ -62,6 +62,32 @@ router.get("/", validateToken, async (req, res) => {
   }
 });
 
+// Get all persons assigned to a specific project
+router.get("/by-project/:projectId", validateToken, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: "Project ID is required" });
+  }
+
+  try {
+    const [rows] = await db.promise().query(
+        `
+      SELECT p.id, p.name, p.username, p.oid, p.role_id
+      FROM project_member pm
+      JOIN person p ON pm.person_id = p.id
+      WHERE pm.project_id = ?
+      `,
+        [projectId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching project members:", err);
+    res.status(500).json({ error: "Failed to retrieve project members" });
+  }
+});
+
 // Add a skill to a person
 router.post("/:id/skills", (req, res) => {
   const { skill_id, level } = req.body;

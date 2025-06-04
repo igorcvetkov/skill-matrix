@@ -1,4 +1,5 @@
 import axios from 'axios'
+import store from "@/store";
 
 // Use the runtime config from window.env
 const baseURL = (window.env?.API_URL || 'https://skill-matrix.ideaportriga.lv') + '/api';
@@ -36,6 +37,22 @@ apiClient.interceptors.request.use(
       return config;
     },
     error => Promise.reject(error)
+)
+
+apiClient.interceptors.response.use(
+    response => response,
+    async error => {
+      if (error.response && error.response.status === 401) {
+        console.warn('401 Unauthorized - auto logging out')
+        try {
+          await store.dispatch('logout')
+        } catch (logoutErr) {
+          console.error('Logout dispatch failed:', logoutErr)
+        }
+      }
+
+      return Promise.reject(error)
+    }
 );
 
 export default {

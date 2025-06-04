@@ -388,6 +388,15 @@ export default {
    */
   assignProjectMember(data) {
     return api.post('/project-member', data);
+  },
+
+  /**
+   * Get all users assigned to a specific project
+   * @param {string} projectId
+   * @returns {Promise} Promise with the list of users assigned to the project
+   */
+  getProjectMembers(projectId) {
+    return api.get(`/persons/by-project/${projectId}`);
   }
 
 }

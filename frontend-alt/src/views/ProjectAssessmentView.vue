@@ -48,22 +48,23 @@
     <!-- Member Management Dialog -->
     <v-dialog v-model="memberDialog" max-width="700">
       <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
+        <!-- Tighter Title Section -->
+        <v-card-title class="py-2 px-4 d-flex justify-space-between align-center">
           <span class="text-h6">Project Members</span>
           <v-btn icon @click="memberDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
 
-
-        <v-card-text>
+        <!-- Reduce padding & give height to data section -->
+        <v-card-text class="pt-0 px-4 pb-4">
           <v-data-table
               :headers="memberHeaders"
               :items="projectMembers"
               :loading="membersLoading"
               class="mb-4"
               dense
-              height="200"
+              height="300"
               fixed-header
           ></v-data-table>
 
@@ -79,7 +80,8 @@
           ></v-select>
         </v-card-text>
 
-        <v-card-actions>
+        <!-- Tighter Actions -->
+        <v-card-actions class="px-4 pb-4">
           <v-spacer></v-spacer>
           <v-btn color="primary" :disabled="!selectedUserToAdd" @click="addUserToProject">
             Add User
@@ -87,6 +89,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 

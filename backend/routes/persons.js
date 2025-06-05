@@ -62,6 +62,20 @@ router.get("/", validateToken, async (req, res) => {
   }
 });
 
+router.get("/:id", validateToken, async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const [[user]] = await db.promise().query("SELECT * FROM person WHERE id = ?", [userId]);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error("Failed to fetch user:", err);
+    res.status(500).json({ error: "Failed to fetch user info" });
+  }
+});
+
 // Get all persons assigned to a specific project
 router.get("/by-project/:projectId", validateToken, async (req, res) => {
   const { projectId } = req.params;

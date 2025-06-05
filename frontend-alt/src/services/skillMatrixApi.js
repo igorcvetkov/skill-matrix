@@ -166,12 +166,16 @@ export default {
     return api.get('/persons')
       .then(response => {
         // Find the user in the response
-        const user = response.data.find(u => u.person_id === userId);
+        const user = response.data.find(u => u.id === userId);
         if (!user) {
           throw new Error('User not found');
         }
         return { data: user };
       });
+  },
+
+  getSpecificUserInfo(userId) {
+    return api.get(`/persons/${userId}`);
   },
 
   /**

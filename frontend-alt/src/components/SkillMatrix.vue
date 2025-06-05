@@ -347,7 +347,7 @@ export default {
         // Use the current user from the Vuex store
         if (this.currentUser) {
           this.userName = this.currentUser.name || 'User';
-          this.userId = this.targetUserId || this.currentUser.person_id;
+          this.userId = this.targetUserId || this.currentUser.id;
         } else {
           this.userName = 'User';
           this.userId = null;
@@ -364,7 +364,7 @@ export default {
       
       try {
         // Determine whose skills to load
-        const targetId = this.targetUserId || (this.currentUser ? this.currentUser.person_id : null);
+        const targetId = this.targetUserId || (this.currentUser ? this.currentUser.id : null);
         
         // Load user skills - adjust API call if needed to support other users
         const response = await skillMatrixApi.getUserSkillDetails(targetId);
@@ -618,7 +618,7 @@ export default {
           });
           
           // Get the target user ID - use current user's ID for self-assessment
-          const targetUserId = this.targetUserId || this.currentUser.person_id;
+          const targetUserId = this.targetUserId || this.currentUser.id;
           
           // Save the assessment
           await skillMatrixApi.saveAssessment(targetUserId, assessment);

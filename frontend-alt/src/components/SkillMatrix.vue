@@ -417,6 +417,11 @@ export default {
         this.answeredSkills = Object.values(this.skillResponses).filter(v => v !== null).length;
         
         this.loading = false;
+        // Determine whether to start the assessment automatically
+        if (this.isOwnAssessment && Object.keys(this.userSkills).length > 0) {
+          this.assessmentStarted = true;
+        }
+
       } catch (error) {
         console.error('Error loading user skills:', error);
         this.error = 'Failed to load user skills: ' + (error.response?.data?.error || error.message);

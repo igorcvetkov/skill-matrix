@@ -51,6 +51,13 @@ const validateToken = (req, res, next) => {
                 return res.status(401).json({ error: "Invalid token", detail: err.message });
             }
 
+            // Add this logging block to inspect token lifetime
+            const rawDecoded = jwt.decode(token);
+            if (rawDecoded?.exp && rawDecoded?.iat) {
+                const duration = (rawDecoded.exp - rawDecoded.iat) / 60;
+                console.log(`Token expires in approximately ${duration.toFixed(2)} minutes`);
+            }
+
             req.user = decoded;
 
             try {

@@ -78,12 +78,24 @@
               dense
               outlined
           ></v-select>
+
+          <v-text-field
+              v-model="newUserEmail"
+              label="Or Assign by Email"
+              hint="Enter an email if user is not yet registered"
+              persistent-hint
+              type="email"
+              class="mb-4"
+              :error="emailError"
+              :error-messages="emailErrorMessages"
+          />
+
         </v-card-text>
 
         <!-- Tighter Actions -->
         <v-card-actions class="px-4 pb-4">
           <v-spacer></v-spacer>
-          <v-btn color="primary" :disabled="!selectedUserToAdd" @click="addUserToProject">
+          <v-btn color="primary" :disabled="!selectedUserToAdd && !isValidEmail" @click="addUserToProject">
             Add User
           </v-btn>
         </v-card-actions>
@@ -111,7 +123,7 @@ export default {
       loading: false,
       error: null,
       key: Date.now(),
-
+      newUserEmail: '',
       memberDialog: false,
       projectMembers: [],
       allUsers: [],
@@ -133,6 +145,15 @@ export default {
     },
     canManageProjects() {
       return this.hasRole(roles.ADMIN) || this.hasRole(roles.PM)
+    },
+    isValidEmail() {
+      return this.newUserEmail === '' || this.validateEmail(this.newUserEmail)
+    },
+    emailError() {
+      return this.newUserEmail !== '' && !this.validateEmail(this.newUserEmail)
+    },
+    emailErrorMessages() {
+      return this.emailError ? ['Invalid email format'] : []
     }
   },
   methods: {
@@ -173,14 +194,33 @@ export default {
         console.error('Failed to load users not in project', err);
       }
     },
+    validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return re.test(email)
+    },
     async addUserToProject() {
-      if (!this.selectedUserToAdd) return
       try {
-        await skillMatrixApi.assignProjectMember({
-          personId: this.selectedUserToAdd.id,
-          projectId: this.selectedProjectId
-        })
+        if (this.selectedUserToAdd) {
+          await skillMatrixApi.assignProjectMember({
+            personId: this.selectedUserToAdd.id,
+            projectId: this.selectedProjectId,
+            startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            endDate: null
+          })
+        } else if (this.newUserEmail && this.validateEmail(this.newUserEmail)) {
+          const response = await skillMatrixApi.createOrGetPersonByEmail({ email: this.newUserEmail })
+          const newPerson = response.data
+
+          await skillMatrixApi.assignProjectMember({
+            personId: newPerson.id,
+            projectId: this.selectedProjectId,
+            startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            endDate: null
+          })
+        }
+
         this.selectedUserToAdd = null
+        this.newUserEmail = ''
         await this.loadProjectMembers()
       } catch (err) {
         console.error('Failed to assign user to project:', err)

@@ -121,6 +121,8 @@
                 persistent-hint
                 type="email"
                 class="mb-4"
+                :error="emailError"
+                :error-messages="emailErrorMessages"
             />
           </v-form>
         </v-card-text>
@@ -193,7 +195,16 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isAdmin'])
+    ...mapGetters(['isAdmin']),
+    isValidEmail() {
+      return this.newUserEmail === '' || this.validateEmail(this.newUserEmail);
+    },
+    emailError() {
+      return this.newUserEmail !== '' && !this.validateEmail(this.newUserEmail);
+    },
+    emailErrorMessages() {
+      return this.emailError ? ['Invalid email format'] : [];
+    }
   },
   mounted() {
     this.loadProjects()

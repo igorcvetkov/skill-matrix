@@ -33,13 +33,13 @@ router.get("/", validateToken, async (req, res) => {
       return res.json(allPersons);
     }
 
-    // Project Managers see persons in same projects
+    // Project Managers see persons in same projects where they are also PM
     const [relatedRows] = await db.promise().query(
         `
           SELECT DISTINCT pm2.person_id AS person_id
           FROM project_member pm1
                  JOIN project_member pm2 ON pm1.project_id = pm2.project_id
-          WHERE pm1.person_id = ? AND pm2.person_id IS NOT NULL
+          WHERE pm1.person_id = ? AND pm1.is_pm = true AND pm2.person_id IS NOT NULL
         `,
         [personId]
     );

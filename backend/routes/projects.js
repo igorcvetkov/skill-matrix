@@ -33,7 +33,7 @@ router.get("/", validateToken, async (req, res) => {
         SELECT DISTINCT p.*
         FROM project p
         JOIN project_member pm ON pm.project_id = p.id
-        WHERE pm.person_id = ?
+        WHERE pm.person_id = ? AND pm.is_pm = true
       `,
         [personId]
     );

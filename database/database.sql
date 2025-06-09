@@ -175,3 +175,5 @@ FROM person_skill ps
          LEFT JOIN skill s ON s.id = ps.skill_id
          LEFT JOIN skill_category sc ON sc.id = s.category_id
          LEFT JOIN skill_group sg ON sg.id = sc.group_id;
+
+ALTER TABLE project_member ADD COLUMN is_pm BOOLEAN DEFAULT FALSE;

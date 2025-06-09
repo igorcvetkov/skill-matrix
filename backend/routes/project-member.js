@@ -14,7 +14,7 @@ async function getUserRoleByOid(oid) {
 }
 
 router.post("/", validateToken, async (req, res) => {
-    const { personId, projectId, startDate, endDate } = req.body;
+    const { personId, projectId, startDate, endDate, is_pm: isPm } = req.body;
     const userOid = req.user?.oid;
 
     if (!userOid) {
@@ -38,7 +38,14 @@ router.post("/", validateToken, async (req, res) => {
             return res.status(403).json({ error: "Forbidden: Insufficient permissions" });
         }
 
-        const result = await ProjectMemberService.addMember({ personId, projectId, startDate, endDate });
+        const result = await ProjectMemberService.addMember({
+            personId,
+            projectId,
+            startDate,
+            endDate,
+            isPm: !!isPm,
+        });
+
         return res.status(201).json({ message: "Project member added", ...result });
 
     } catch (err) {

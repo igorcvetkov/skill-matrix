@@ -1,8 +1,12 @@
 const db = require("../config/database");
 
 class ProjectMemberService {
-    static async addMember({ personId, projectId, startDate = null, endDate = null }) {
-        // Check if the member already exists
+    static async addMember({ personId, projectId, startDate = null, endDate = null, isPm = false }) {
+        // Force isPm to 1 or 0 explicitly:
+        const isPmValue = isPm ? 1 : 0;
+
+        console.log('Inserting project_member with isPm:', isPm, '=>', isPmValue);
+
         const [existing] = await db.promise().query(
             `SELECT id FROM project_member WHERE person_id = ? AND project_id = ? LIMIT 1`,
             [personId, projectId]
@@ -15,13 +19,15 @@ class ProjectMemberService {
         }
 
         const query = `
-            INSERT INTO project_member (person_id, project_id, start_date, end_date)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO project_member (person_id, project_id, start_date, end_date, is_pm)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
-        const [result] = await db.promise().query(query, [personId, projectId, startDate, endDate]);
+        const [result] = await db.promise().query(query, [personId, projectId, startDate, endDate, isPmValue]);
+
         return { id: result.insertId };
     }
+
 }
 
 module.exports = ProjectMemberService;

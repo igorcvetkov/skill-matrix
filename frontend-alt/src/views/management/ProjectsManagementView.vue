@@ -124,6 +124,13 @@
                 :error="emailError"
                 :error-messages="emailErrorMessages"
             />
+            <v-switch
+                v-if="editMode"
+                v-model="assignAsPm"
+                label="Assign as Project Manager"
+                class="mb-4"
+                color="primary"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -191,7 +198,8 @@ export default {
         { title: 'Name', key: 'name', sortable: true, align: 'start' },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end', width: '150px' }
       ],
-      editMode: false
+      editMode: false,
+      assignAsPm: false
     }
   },
   computed: {
@@ -279,57 +287,60 @@ export default {
         this.addProject()
       }
     },
-    
+
     async updateProject() {
       if (!this.newProjectName.trim()) {
-        this.error = 'Project name is required'
-        return
+        this.error = 'Project name is required';
+        return;
       }
-      
-      this.saving = true
-      this.error = null
-      
+
+      this.saving = true;
+      this.error = null;
+
       try {
         const projectData = {
           name: this.newProjectName.trim(),
           description: this.newProjectDescription.trim() || null
-        }
-        
-        await skillMatrixApi.updateProject(this.projectToDelete.id, projectData)
-        
+        };
+
+        await skillMatrixApi.updateProject(this.projectToDelete.id, projectData);
+
         // Update the project in the list
-        const index = this.projects.findIndex(project => project.id === this.projectToDelete.id)
+        const index = this.projects.findIndex(project => project.id === this.projectToDelete.id);
         if (index !== -1) {
           this.projects[index] = {
             ...this.projects[index],
             name: this.newProjectName.trim(),
             description: this.newProjectDescription.trim() || null
-          }
+          };
         }
 
+        const assignmentPayload = {
+          projectId: this.projectToDelete.id,
+          startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          endDate: null,
+          is_pm: true // Assigning as project manager
+        };
+
         if (this.selectedUserId) {
-          // Assign selected existing user
+          // Assign selected existing user as PM
           try {
             await skillMatrixApi.assignProjectMember({
-              personId: this.selectedUserId.id,
-              projectId: this.projectToDelete.id,
-              startDate: new Date().toISOString().slice(0, 19).replace('T', ' '), // MySQL format
-              endDate: null
+              ...assignmentPayload,
+              personId: this.selectedUserId.id
             });
           } catch (memberErr) {
             console.error('Failed to assign member:', memberErr);
             this.error = 'Project updated, but assigning member failed: ' + (memberErr.response?.data?.error || memberErr.message);
           }
         } else if (this.newUserEmail && this.validateEmail(this.newUserEmail)) {
-          // Assign new email-based user
+          // Assign new email-based user as PM
           try {
             const response = await skillMatrixApi.createOrGetPersonByEmail({ email: this.newUserEmail });
             const newPerson = response.data;
             await skillMatrixApi.assignProjectMember({
-              personId: newPerson.id,
-              projectId: this.projectToDelete.id,
-              startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
-              endDate: null
+              ...assignmentPayload,
+              personId: newPerson.id
             });
           } catch (emailAssignErr) {
             console.error('Failed to assign email-based member:', emailAssignErr);
@@ -337,15 +348,15 @@ export default {
           }
         }
 
-        this.successMessage = 'Project updated successfully'
-        this.newDialog = false
-        this.newProjectName = ''
-        this.newProjectDescription = ''
-        this.editMode = false
+        this.successMessage = 'Project updated successfully';
+        this.newDialog = false;
+        this.newProjectName = '';
+        this.newProjectDescription = '';
+        this.editMode = false;
       } catch (error) {
-        this.error = 'Failed to update project: ' + (error.response?.data?.error || error.message)
+        this.error = 'Failed to update project: ' + (error.response?.data?.error || error.message);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
 

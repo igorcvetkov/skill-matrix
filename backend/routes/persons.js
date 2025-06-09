@@ -149,4 +149,49 @@ router.post("/:id/skills", (req, res) => {
   );
 });
 
+// Create or get a person by email
+router.post("/by-email", validateToken, async (req, res) => {
+  const { email } = req.body;
+
+  if (!email || !email.trim()) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const trimmedEmail = email.trim();
+
+    const [existingRows] = await db.promise().query(
+        "SELECT id, name, username, oid, role_id FROM person WHERE username = ? LIMIT 1",
+        [trimmedEmail]
+    );
+
+    if (existingRows.length > 0) {
+      return res.json(existingRows[0]);
+    }
+
+    // Extract name from email
+    const emailNamePart = trimmedEmail.split("@")[0];
+    const name = emailNamePart
+        .split(".")
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+
+    // Insert new person with email and generated name
+    const [insertResult] = await db.promise().query(
+        "INSERT INTO person (name, username, oid, role_id) VALUES (?, ?, ?, ?)",
+        [name, trimmedEmail, `pending-${Date.now()}`, 3]
+    );
+
+    const [newPersonRows] = await db.promise().query(
+        "SELECT id, name, username, oid, role_id FROM person WHERE id = ?",
+        [insertResult.insertId]
+    );
+
+    res.status(201).json(newPersonRows[0]);
+  } catch (err) {
+    console.error("Error in createOrGetPersonByEmail:", err);
+    res.status(500).json({ error: "Failed to create or fetch person by email" });
+  }
+});
+
 module.exports = router;

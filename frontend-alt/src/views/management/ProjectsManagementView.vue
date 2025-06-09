@@ -113,6 +113,15 @@
                 persistent-hint
             >
             </v-select>
+            <v-text-field
+                v-if="editMode"
+                v-model="newUserEmail"
+                label="Or Assign by Email"
+                hint="Enter an email if user is not yet registered"
+                persistent-hint
+                type="email"
+                class="mb-4"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -173,6 +182,7 @@ export default {
       newProjectDescription: '',
       projectToDelete: null,
       selectedUserId: null,
+      newUserEmail: '',
       availableUsers: [],
       headers: [
         { title: 'ID', key: 'id', sortable: true, width: '80px' },
@@ -287,6 +297,7 @@ export default {
         }
 
         if (this.selectedUserId) {
+          // Assign selected existing user
           try {
             await skillMatrixApi.assignProjectMember({
               personId: this.selectedUserId.id,
@@ -297,6 +308,21 @@ export default {
           } catch (memberErr) {
             console.error('Failed to assign member:', memberErr);
             this.error = 'Project updated, but assigning member failed: ' + (memberErr.response?.data?.error || memberErr.message);
+          }
+        } else if (this.newUserEmail && this.validateEmail(this.newUserEmail)) {
+          // Assign new email-based user
+          try {
+            const response = await skillMatrixApi.createOrGetPersonByEmail({ email: this.newUserEmail });
+            const newPerson = response.data;
+            await skillMatrixApi.assignProjectMember({
+              personId: newPerson.id,
+              projectId: this.projectToDelete.id,
+              startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+              endDate: null
+            });
+          } catch (emailAssignErr) {
+            console.error('Failed to assign email-based member:', emailAssignErr);
+            this.error = 'Project updated, but assigning email-based member failed: ' + (emailAssignErr.response?.data?.error || emailAssignErr.message);
           }
         }
 
@@ -311,7 +337,12 @@ export default {
         this.saving = false
       }
     },
-    
+
+    validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    },
+
     async addProject() {
       if (!this.newProjectName.trim()) {
         this.error = 'Project name is required'

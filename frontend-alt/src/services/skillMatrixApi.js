@@ -410,6 +410,16 @@ export default {
    */
   getUsersNotInProject(projectId) {
     return api.get(`/persons/not-in-project/${projectId}`);
-  }
+  },
+
+  /**
+   * Create or retrieve a person by email
+   * If person does not exist, a new person will be created with just the email
+   * @param {Object} data - { email: string }
+   * @returns {Promise} Promise with the person object
+   */
+  createOrGetPersonByEmail(data) {
+    return api.post('/persons/by-email', data);
+  },
 
 }

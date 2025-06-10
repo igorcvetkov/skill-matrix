@@ -1,4 +1,5 @@
 import axios from 'axios'
+import store from "@/store";
 
 // Use the runtime config from window.env
 const baseURL = (window.env?.API_URL || 'https://skill-matrix.ideaportriga.lv') + '/api';
@@ -15,17 +16,44 @@ const apiClient = axios.create({
 
 // Add a request interceptor to add the auth token
 apiClient.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('msal.idtoken')
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
-    }
-    return config
-  },
-  error => {
-    return Promise.reject(error)
-  }
+    config => {
+      // Find the key that contains 'login.windows.net-idtoken'
+      const idTokenKey = Object.keys(localStorage).find(
+          key => key.includes('login.windows.net-idtoken')
+      );
+
+      if (idTokenKey) {
+        try {
+          const tokenObj = JSON.parse(localStorage.getItem(idTokenKey));
+          const token = tokenObj?.secret;
+          if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+          }
+        } catch (err) {
+          console.error('Failed to parse ID token from localStorage:', err);
+        }
+      }
+
+      return config;
+    },
+    error => Promise.reject(error)
 )
+
+apiClient.interceptors.response.use(
+    response => response,
+    async error => {
+      if (error.response && error.response.status === 401) {
+        console.warn('401 Unauthorized - auto logging out')
+        try {
+          await store.dispatch('logout')
+        } catch (logoutErr) {
+          console.error('Logout dispatch failed:', logoutErr)
+        }
+      }
+
+      return Promise.reject(error)
+    }
+);
 
 export default {
   // Generic GET request

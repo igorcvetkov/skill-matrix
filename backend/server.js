@@ -1,4 +1,4 @@
-require("dotenv").config({ path: `.env.${process.env.NODE_ENV || "development"}` });
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV || "local"}` });
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -13,6 +13,7 @@ const projectsRouter = require("./routes/projects");
 const projectSkillsRouter = require("./routes/project-skills");
 const personSkillsRouter = require("./routes/person-skills");
 const personsRouter = require("./routes/persons");
+const projectMemberRouter = require("./routes/project-member")
 
 const app = express();
 app.use(cors());
@@ -138,3 +139,4 @@ app.use("/api/projects", projectsRouter);
 app.use("/api/project-skill", projectSkillsRouter);
 app.use("/api/person-skill", personSkillsRouter);
 app.use("/api/persons", personsRouter);
+app.use("/api/project-member", projectMemberRouter);

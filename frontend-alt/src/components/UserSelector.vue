@@ -76,13 +76,13 @@ export default {
         const response = await skillMatrixApi.getAllUsers();
         // Map the response data to the format expected by the combobox
         this.users = response.data.map(user => ({
-          person_id: user.person_id,
+          id: user.id,
           name: user.name || user.person_id // Use name if available, otherwise use person_id
         }));
         
         // If there was an initial user ID from the route, select it
         if (this.initialUserId && this.users.length > 0) {
-          const userToSelect = this.users.find(u => u.person_id == this.initialUserId);
+          const userToSelect = this.users.find(u => u.id == this.initialUserId);
           if (userToSelect) {
             this.selectedUser = userToSelect;
           }
@@ -97,8 +97,9 @@ export default {
     
     handleUserSelection(user) {
       if (user) {
-        this.$emit('user-selected', user.person_id);
+        this.$emit('user-selected', user.id);
       } else {
+        console.log("ELSE user-selected null")
         this.$emit('user-selected', null);
       }
     },
@@ -114,12 +115,13 @@ export default {
       handler(newUserId) {
         if (newUserId && this.users.length > 0) {
           // Find and select the user
-          const userToSelect = this.users.find(u => u.person_id == newUserId);
-          if (userToSelect && (!this.selectedUser || this.selectedUser.person_id != newUserId)) {
+          const userToSelect = this.users.find(u => u.id == newUserId);
+          if (userToSelect && (!this.selectedUser || this.selectedUser.id != newUserId)) {
             this.selectedUser = userToSelect;
           }
         } else if (!newUserId && this.selectedUser) {
           // Clear selection if the route doesn't have a user ID
+          console.log("ELIF ROUTE DOES NOT HAVE A USER ID")
           this.selectedUser = null;
         }
       }

@@ -166,12 +166,16 @@ export default {
     return api.get('/persons')
       .then(response => {
         // Find the user in the response
-        const user = response.data.find(u => u.person_id === userId);
+        const user = response.data.find(u => u.id === userId);
         if (!user) {
           throw new Error('User not found');
         }
         return { data: user };
       });
+  },
+
+  getSpecificUserInfo(userId) {
+    return api.get(`/persons/${userId}`);
   },
 
   /**
@@ -379,5 +383,43 @@ export default {
    */
   removeProjectSkill(projectSkillId) {
     return api.delete(`/project-skill/${projectSkillId}`)
-  }
-} 
+  },
+
+  /**
+   * Assign a person to a project
+   * @param {data} data - the data to be sent as post request
+   * @returns {Promise} Promise with the response data
+   */
+  assignProjectMember(data) {
+    return api.post('/project-member', data);
+  },
+
+  /**
+   * Get all users assigned to a specific project
+   * @param {string} projectId
+   * @returns {Promise} Promise with the list of users assigned to the project
+   */
+  getProjectMembers(projectId) {
+    return api.get(`/persons/by-project/${projectId}`);
+  },
+
+  /**
+   * Get all users NOT assigned to a specific project
+   * @param {string} projectId
+   * @returns {Promise} Promise with the list of users not assigned to the project
+   */
+  getUsersNotInProject(projectId) {
+    return api.get(`/persons/not-in-project/${projectId}`);
+  },
+
+  /**
+   * Create or retrieve a person by email
+   * If person does not exist, a new person will be created with just the email
+   * @param {Object} data - { email: string }
+   * @returns {Promise} Promise with the person object
+   */
+  createOrGetPersonByEmail(data) {
+    return api.post('/persons/by-email', data);
+  },
+
+}

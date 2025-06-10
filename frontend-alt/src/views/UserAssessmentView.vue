@@ -93,9 +93,9 @@ export default {
       this.loading = true
       try {
         // Fetch the user's information
-        const response = await skillMatrixApi.getUserInfo(this.selectedUserId)
+        const response = await skillMatrixApi.getSpecificUserInfo(this.selectedUserId)
         if (response.data && response.data.name) {
-          this.selectedUserName = response.data.name
+          this.selectedUserName = response.data.name //this does not happen
         } else {
           this.selectedUserName = 'User #' + this.selectedUserId
         }

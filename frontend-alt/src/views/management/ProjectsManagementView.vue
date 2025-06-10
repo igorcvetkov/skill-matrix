@@ -100,6 +100,37 @@
               rows="3"
               auto-grow
             ></v-textarea>
+            <v-select
+                v-if="editMode"
+                v-model="selectedUserId"
+                :items="availableUsers"
+                item-value="id"
+                item-title="name"
+                label="Assign Project Member"
+                return-object
+                class="mb-4"
+                hint="Select a user to assign as a member"
+                persistent-hint
+            >
+            </v-select>
+            <v-text-field
+                v-if="editMode"
+                v-model="newUserEmail"
+                label="Or Assign by Email"
+                hint="Enter an email if user is not yet registered"
+                persistent-hint
+                type="email"
+                class="mb-4"
+                :error="emailError"
+                :error-messages="emailErrorMessages"
+            />
+            <v-switch
+                v-if="editMode"
+                v-model="assignAsPm"
+                label="Assign as Project Manager"
+                class="mb-4"
+                color="primary"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -159,16 +190,29 @@ export default {
       newProjectName: '',
       newProjectDescription: '',
       projectToDelete: null,
+      selectedUserId: null,
+      newUserEmail: '',
+      availableUsers: [],
       headers: [
         { title: 'ID', key: 'id', sortable: true, width: '80px' },
         { title: 'Name', key: 'name', sortable: true, align: 'start' },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end', width: '150px' }
       ],
-      editMode: false
+      editMode: false,
+      assignAsPm: false
     }
   },
   computed: {
-    ...mapGetters(['isAdmin'])
+    ...mapGetters(['isAdmin']),
+    isValidEmail() {
+      return this.newUserEmail === '' || this.validateEmail(this.newUserEmail);
+    },
+    emailError() {
+      return this.newUserEmail !== '' && !this.validateEmail(this.newUserEmail);
+    },
+    emailErrorMessages() {
+      return this.emailError ? ['Invalid email format'] : [];
+    }
   },
   mounted() {
     this.loadProjects()
@@ -211,13 +255,22 @@ export default {
       }, 100)
     },
     
-    openEditDialog(item) {
+    async openEditDialog(item) {
       this.projectToDelete = item
       this.newProjectName = item.name
       this.newProjectDescription = item.description || ''
       this.editMode = true
       this.newDialog = true
-      
+      this.selectedUserId = null;
+
+      try {
+        const response = await skillMatrixApi.getAllUsers();
+        this.availableUsers = response.data || [];
+      } catch (err) {
+        this.availableUsers = [];
+        console.error('Failed to load users:', err);
+      }
+
       // Focus the input field after dialog opens
       setTimeout(() => {
         if (this.$refs.form) {
@@ -234,46 +287,84 @@ export default {
         this.addProject()
       }
     },
-    
+
     async updateProject() {
       if (!this.newProjectName.trim()) {
-        this.error = 'Project name is required'
-        return
+        this.error = 'Project name is required';
+        return;
       }
-      
-      this.saving = true
-      this.error = null
-      
+
+      this.saving = true;
+      this.error = null;
+
       try {
         const projectData = {
           name: this.newProjectName.trim(),
           description: this.newProjectDescription.trim() || null
-        }
-        
-        await skillMatrixApi.updateProject(this.projectToDelete.id, projectData)
-        
+        };
+
+        await skillMatrixApi.updateProject(this.projectToDelete.id, projectData);
+
         // Update the project in the list
-        const index = this.projects.findIndex(project => project.id === this.projectToDelete.id)
+        const index = this.projects.findIndex(project => project.id === this.projectToDelete.id);
         if (index !== -1) {
           this.projects[index] = {
             ...this.projects[index],
             name: this.newProjectName.trim(),
             description: this.newProjectDescription.trim() || null
+          };
+        }
+
+        const assignmentPayload = {
+          projectId: this.projectToDelete.id,
+          startDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          endDate: null,
+          is_pm: true // Assigning as project manager
+        };
+
+        if (this.selectedUserId) {
+          // Assign selected existing user as PM
+          try {
+            await skillMatrixApi.assignProjectMember({
+              ...assignmentPayload,
+              personId: this.selectedUserId.id
+            });
+          } catch (memberErr) {
+            console.error('Failed to assign member:', memberErr);
+            this.error = 'Project updated, but assigning member failed: ' + (memberErr.response?.data?.error || memberErr.message);
+          }
+        } else if (this.newUserEmail && this.validateEmail(this.newUserEmail)) {
+          // Assign new email-based user as PM
+          try {
+            const response = await skillMatrixApi.createOrGetPersonByEmail({ email: this.newUserEmail });
+            const newPerson = response.data;
+            await skillMatrixApi.assignProjectMember({
+              ...assignmentPayload,
+              personId: newPerson.id
+            });
+          } catch (emailAssignErr) {
+            console.error('Failed to assign email-based member:', emailAssignErr);
+            this.error = 'Project updated, but assigning email-based member failed: ' + (emailAssignErr.response?.data?.error || emailAssignErr.message);
           }
         }
-        
-        this.successMessage = 'Project updated successfully'
-        this.newDialog = false
-        this.newProjectName = ''
-        this.newProjectDescription = ''
-        this.editMode = false
+
+        this.successMessage = 'Project updated successfully';
+        this.newDialog = false;
+        this.newProjectName = '';
+        this.newProjectDescription = '';
+        this.editMode = false;
       } catch (error) {
-        this.error = 'Failed to update project: ' + (error.response?.data?.error || error.message)
+        this.error = 'Failed to update project: ' + (error.response?.data?.error || error.message);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
-    
+
+    validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    },
+
     async addProject() {
       if (!this.newProjectName.trim()) {
         this.error = 'Project name is required'

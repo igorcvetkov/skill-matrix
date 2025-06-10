@@ -1,26 +1,56 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
+const {validateToken} = require("../auth");
 
-// Projects endpoints
-router.get("/", (req, res) => {
-  const query = "SELECT * FROM project";
+router.get("/", validateToken, async (req, res) => {
+  const userOid = req.user?.oid;
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to fetch projects" });
+  if (!userOid) {
+    return res.status(400).json({ error: "User OID not found in token" });
+  }
+
+  try {
+    const [[personRow]] = await db.promise().query(
+        "SELECT id, role_id FROM person WHERE oid = ? LIMIT 1",
+        [userOid]
+    );
+
+    if (!personRow) {
+      return res.status(404).json({ error: "Person not found" });
     }
-    res.json(results);
-  });
+
+    const personId = personRow.id;
+    const roleId = personRow.role_id;
+
+    if (roleId === 1) {
+      const [allProjects] = await db.promise().query("SELECT * FROM project");
+      return res.json(allProjects);
+    }
+
+    const [projects] = await db.promise().query(
+        `
+        SELECT DISTINCT p.*
+        FROM project p
+        JOIN project_member pm ON pm.project_id = p.id
+        WHERE pm.person_id = ? AND pm.is_pm = true
+      `,
+        [personId]
+    );
+
+    res.json(projects);
+  } catch (err) {
+    console.error("Failed to fetch projects:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.get("/:id", (req, res) => {
   const projectId = req.params.id;
   const query = `
       SELECT p.*, 
-             ps.skill_id,
-             s.skill_name as skill_name,
+             ps.skill_id, 
+             s.name as skill_name,
              pm.person_id
       FROM project p
       LEFT JOIN project_skill ps ON p.id = ps.project_id
@@ -56,36 +86,25 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const { name, description, skills, members } = req.body;
 
-  // db.beginTransaction(async (err) => {
-  //   if (err) throw err;
+  if (!name) {
+    return res.status(400).json({ error: "Project name is required" });
+  }
 
-  // try {
-  // Insert project
-  const insertQuery = "INSERT INTO project (name) VALUES (?)"; // Use $1 for PostgreSQL
+  const insertQuery = "INSERT INTO project (name) VALUES (?)";
+
   db.query(insertQuery, [name], (error, result) => {
     if (error) {
       console.error(error);
-      return res.status(500).json({ error: "Failed to add skill to person", exception: error });
+      return res.status(500).json({ error: "Failed to create project", exception: error });
     }
-    res.status(201).json({ id: result.insertId });
-  });
-  // const projectId = projectResult.insertId || projectResult[0].id; // Handle both MySQL and PostgreSQL
 
-  // await db.promise().commit();
-  // res.status(201).json({
-  //   id: projectId,
-  //   name,
-  //   description,
-  //   skills,
-  //   members,
-  // });
-  // } catch (error) {
-  //   await db.promise().rollback();
-  //   console.error(error);
-  //   res.status(500).json({ error: "Failed to create project" });
-  // }
-  // });
+    res.status(201).json({
+      id: result.insertId,
+      name: name,
+    });
+  });
 });
+
 
 router.put("/:id", (req, res) => {
   const projectId = req.params.id;
@@ -96,8 +115,8 @@ router.put("/:id", (req, res) => {
   }
 
   db.query(
-    "UPDATE project SET name = ?, description = ? WHERE id = ?", 
-    [name, description || null, projectId], 
+    "UPDATE project SET name = ? WHERE id = ?",
+    [name, projectId],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -109,10 +128,9 @@ router.put("/:id", (req, res) => {
       }
       
       // Return the updated project
-      res.json({ 
-        id: parseInt(projectId), 
-        name, 
-        description 
+      res.json({
+        id: parseInt(projectId),
+        name
       });
     }
   );
